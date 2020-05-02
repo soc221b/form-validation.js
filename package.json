@@ -5,5 +5,25 @@
   "main": "index.js",
   "repository": "git@github.com:iendeavor/form-validation.js.git",
   "author": "Ernest <iattempt.net@gmail.com>",
-  "license": "MIT"
+  "license": "MIT",
+  "scripts": {
+    "test": "jest"
+  },
+  "dependencies": {
+    "@vue/reactivity": "^3.0.0-beta.6"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.9.6",
+    "@babel/preset-env": "^7.9.6",
+    "@babel/preset-typescript": "^7.9.0",
+    "@types/jest": "^25.2.1",
+    "@typescript-eslint/parser": "^2.30.0",
+    "babel-jest": "^25.5.1",
+    "eslint": "^6.8.0",
+    "eslint-config-airbnb-base": "^14.1.0",
+    "eslint-plugin-jest": "^23.8.2",
+    "jest": "^25.5.4",
+    "rollup": "^2.7.6",
+    "typescript": "^3.8.3"
+  }
 }
