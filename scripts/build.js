@@ -1,6 +1,6 @@
-const rollup = require('rollup');
-const { resolve } = require('path');
-const { terser } = require('rollup-plugin-terser');
+const rollup = require('rollup')
+const { resolve } = require('path')
+const { terser } = require('rollup-plugin-terser')
 
 const builds = {
   'esm-min': {
@@ -42,50 +42,50 @@ const builds = {
     format: 'umd',
     env: 'production',
   },
-};
+}
 
 function generateInputOptions(buildName) {
-  const build = builds[buildName];
+  const build = builds[buildName]
   const options = {
     input: build.src,
     onwarn: (msg, warn) => {
-      warn(msg);
+      warn(msg)
     },
-  };
-  return options;
+  }
+  return options
 }
 
 function generateOuputOptions(buildName) {
-  const build = builds[buildName];
+  const build = builds[buildName]
   const options = {
     file: build.dest,
     format: build.format,
     name: 'VueChronos',
     plugins: /\.min\.js$/.test(build.dest) ? [terser()] : [],
-  };
-  return options;
+  }
+  return options
 }
 
 async function exec() {
   await Promise.all(
-    Object.keys(builds).map(async (buildName) => {
-      const inputOptions = generateInputOptions(buildName);
-      const outputOptions = generateOuputOptions(buildName);
-      const bundle = await rollup.rollup(inputOptions);
-      await bundle.write(outputOptions);
+    Object.keys(builds).map(async buildName => {
+      const inputOptions = generateInputOptions(buildName)
+      const outputOptions = generateOuputOptions(buildName)
+      const bundle = await rollup.rollup(inputOptions)
+      await bundle.write(outputOptions)
     }),
-  );
-  finished = true;
+  )
+  finished = true
 }
 
-let finished = false;
+let finished = false
 async function wait() {
-  if (finished) return;
-  await new Promise(setTimeout);
-  await wait();
+  if (finished) return
+  await new Promise(setTimeout)
+  await wait()
 }
 
 if (require.main === module) {
-  exec();
-  wait();
+  exec()
+  wait()
 }

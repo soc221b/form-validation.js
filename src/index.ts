@@ -1,7 +1,2 @@
-export {
-  getByPath,
-} from './util';
-
-export {
-  default as createSchema,
-} from './createSchema';
+export { getByPath } from './util'
+export { default as createSchema } from './createSchema'

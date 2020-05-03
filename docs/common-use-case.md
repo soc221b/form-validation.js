@@ -11,22 +11,19 @@ const minlength = length => ({ value }) => {
   }
 }
 const tooWeak = ({ value }) => {
-  if (value.length < 20){
+  if (value.length < 20) {
     return [`warning`, `Should use more characters.`]
   }
 }
 
 const form = {
-  password: '123'
+  password: '123',
 }
 
 const instance = FormValidation.createInstance({
   password: {
-    $rule: [
-      minLength(6),
-      tooWeak
-    ]
-  }
+    $rule: [minLength(6), tooWeak],
+  },
 })
 
 instance.$validate(form, () => {
@@ -48,15 +45,15 @@ const sameAs = anotherPath => ({ value, target, params }) => {
 
 const form = {
   password: '123',
-  confirmPassword: '456'
+  confirmPassword: '456',
 }
 
 const instance = FormValidation.createInstance({
   confirmPassword: {
     $params: {
-      sameAsField: 'Password'
+      sameAsField: 'Password',
     },
-    $rule: sameAs(['password'])
-  }
+    $rule: sameAs(['password']),
+  },
 })
 ```

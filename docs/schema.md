@@ -4,18 +4,18 @@
 
 `FormValidation.createInstance(schema: Schema): Instance`
 
-Everything is pretty intuitive and reasonable, validation schema is as same as the structure of data which you validate for.
+Everything is pretty intuitive and reasonable, validation schema is as same as the structure of data which you validate
+for.
 
 ## Example
 
 ```javascript
 const password = '123'
 
-const instance = FormValidation.createInstance(
-  { // for password
-    $rule: () => {},
-  }
-)
+const instance = FormValidation.createInstance({
+  // for password
+  $rule: () => {},
+})
 ```
 
 ```javascript
@@ -39,20 +39,21 @@ const instance = FormValidation.createInstance(
 
 ```javascript
 const form = {
-  password: '123'
+  password: '123',
 }
 
-const instance = FormValidation.createInstance(
-  { // for form
+const instance = FormValidation.createInstance({
+  // for form
+  $rule: () => {},
+  $iter: {
+    // for form.?
     $rule: () => {},
-    $iter: { // for form.?
-      $rule: () => {},
-    },
-    password: { // for form.password
-      $rule: () => {},
-    }
-  }
-)
+  },
+  password: {
+    // for form.password
+    $rule: () => {},
+  },
+})
 ```
 
 # Rule
@@ -61,7 +62,8 @@ const instance = FormValidation.createInstance(
 
 `$rule: Rule`
 
-Except for the `undefined`, Anything is returned from rule methods that will be passed to the [`$messages`](/iendeavor/form-validation/wiki/instance#getters) getter.
+Except for the `undefined`, Anything is returned from rule methods that will be passed to the
+[`$messages`](/iendeavor/form-validation/wiki/instance#getters) getter.
 
 ## Example
 
@@ -73,15 +75,13 @@ const minlength = length => ({ value }) => {
 }
 
 const form = {
-  password: '123'
+  password: '123',
 }
 
 const instance = FormValidation.createInstance({
   password: {
-    $rule: [
-      minLength(6)
-    ]
-  }
+    $rule: [minLength(6)],
+  },
 })
 ```
 
@@ -103,14 +103,14 @@ const minlength = length => ({ value }) => {
 }
 
 const form = {
-  password: '123   '
+  password: '123   ',
 }
 
 const instance = FormValidation.createInstance({
   password: {
     $rule: minLength(6), // without normalizer, the `$messages` getter returns []
-    $normalizer: ({ value }) => value.trim() // with normalizer, the `$messages` getter returns ['Must be at least 6 characters long.']
-  }
+    $normalizer: ({ value }) => value.trim(), // with normalizer, the `$messages` getter returns ['Must be at least 6 characters long.']
+  },
 })
 ```
 
@@ -140,9 +140,9 @@ const form = {
 const instance = FormValidation.createInstance({
   password: {
     $params: {
-      language: 'en-US'
+      language: 'en-US',
     },
-    $rule: minLength(6)
-  }
+    $rule: minLength(6),
+  },
 })
 ```

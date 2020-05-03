@@ -26,14 +26,14 @@ const minlength = length => ({ value }) => {
 
 // to be validated for
 const form = {
-  password: '123'
+  password: '123',
 }
 
 // create form validation instance
 const instance = FormValidation.createInstance({
   password: {
-    $rule: minlength(6)
-  }
+    $rule: minlength(6),
+  },
 })
 
 // validate the form
@@ -70,9 +70,9 @@ const form = {
 const instance = FormValidation.createInstance({
   password: {
     $params: {
-      language: 'en-US'
+      language: 'en-US',
     },
-    $rule: required
-  }
+    $rule: required,
+  },
 })
 ```

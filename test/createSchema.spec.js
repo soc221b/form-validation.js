@@ -1,4 +1,4 @@
-import createSchema from '../src/createSchema';
+import createSchema from '../src/createSchema'
 
 test('it should create instance', () => {
   const instance = createSchema({
@@ -7,13 +7,13 @@ test('it should create instance', () => {
         nesting: {},
       },
     },
-  });
+  })
 
-  expect(typeof instance.$validate).toStrictEqual('function');
-  expect(typeof instance.path.$validate).toStrictEqual('function');
-  expect(typeof instance.path.to.$validate).toStrictEqual('function');
-  expect(typeof instance.path.to.nesting.$validate).toStrictEqual('function');
-});
+  expect(typeof instance.$validate).toStrictEqual('function')
+  expect(typeof instance.path.$validate).toStrictEqual('function')
+  expect(typeof instance.path.to.$validate).toStrictEqual('function')
+  expect(typeof instance.path.to.nesting.$validate).toStrictEqual('function')
+})
 
 test('the built-in functions/props should not be enumerated', () => {
   const instance = createSchema({
@@ -22,9 +22,9 @@ test('the built-in functions/props should not be enumerated', () => {
         nesting: {},
       },
     },
-  });
+  })
 
-  expect(Object.keys(instance)).toStrictEqual(['path']);
-  expect(Object.keys(instance.path)).toStrictEqual(['to']);
-  expect(Object.keys(instance.path.to)).toStrictEqual(['nesting']);
-});
+  expect(Object.keys(instance)).toStrictEqual(['path'])
+  expect(Object.keys(instance.path)).toStrictEqual(['to'])
+  expect(Object.keys(instance.path.to)).toStrictEqual(['nesting'])
+})

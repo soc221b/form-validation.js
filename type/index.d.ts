@@ -1,9 +1,9 @@
 // common
 export type Param = {
-  value?: any,
-  key?: string,
-  path?: string[],
-  target?: any,
+  value?: any
+  key?: string
+  path?: string[]
+  target?: any
   params?: Object
 }
 
@@ -16,24 +16,12 @@ export interface Schema {
 }
 
 // rule
-type FunctionRule = ({
-  value,
-  key,
-  path,
-  target,
-  params,
-}: Param) => any
+type FunctionRule = ({ value, key, path, target, params }: Param) => any
 type ArrayRule = FunctionRule[]
 export type Rule = FunctionRule | ArrayRule
 
 // normlizer
-export type Normalizer = ({
-  value,
-  key,
-  path,
-  target,
-  params,
-}: Param) => any
+export type Normalizer = ({ value, key, path, target, params }: Param) => any
 
 // params
 export type Params = object
