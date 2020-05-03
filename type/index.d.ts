@@ -35,8 +35,5 @@ export interface FormValidationInstance {
   $isPending: boolean
   $params: object
   $iter: any[] | object
-
-  _rule: Rule
-  _normalizer: Normalizer
-  _params: object
+  [key: string]: any
 }
