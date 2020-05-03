@@ -3,14 +3,15 @@ import { isArray, isPlainObject, isFunction, deepCopy, noop, identity } from './
 
 function generateDefaultFormValidationInstance(): FormValidationInstance {
   return {
+    $validateSync: noop,
     $validate: noop,
     $reset: noop,
-    $hasMessage: null,
-    $isPending: null,
+    $hasMessage: false,
+    $isPending: false,
     $iter: null,
-    $messages: null,
-    $params: null,
-    $hasValidated: null,
+    $messages: [],
+    $params: {},
+    $hasValidated: false,
 
     _rule: null,
     _params: null,

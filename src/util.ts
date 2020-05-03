@@ -14,7 +14,11 @@ export function isFunction(object: unknown): boolean {
   return typeof object === 'function'
 }
 
-export function deepCopy<T>(object: T, cache = []): T {
+interface Cache<T> {
+  object: T
+  copy: T
+}
+export function deepCopy<T>(object: T, cache: Cache<T>[] = []): T {
   if (object === null || (isArray(object) === false && isPlainObject(object) === false)) {
     return object
   }
@@ -24,14 +28,14 @@ export function deepCopy<T>(object: T, cache = []): T {
     return cache[cachedIndex].copy
   }
 
-  const copy = isPlainObject(object) ? {} : []
+  const copy: T = (isPlainObject(object) ? {} : []) as T
   cache.push({
     object,
     copy,
   })
 
   Object.keys(object).forEach(key => {
-    copy[key] = deepCopy(object[key], cache)
+    ;(copy as any)[key] = deepCopy((object as any)[key], cache)
   })
 
   return copy as T
@@ -53,23 +57,25 @@ export function getByPath(object: object | any[], path: string | string[]) {
 
   if (normalizedPath.length === 0) return object
 
-  let deepestParent: object = object
+  let deepestParent: any = object
   while (normalizedPath.length > 1) {
-    deepestParent = deepestParent[normalizedPath.shift()]
+    deepestParent = deepestParent[normalizedPath.shift() as string]
   }
 
-  return deepestParent[normalizedPath.shift()]
+  return deepestParent[normalizedPath.shift() as string]
 }
 
-export function setByPath(object: object | any[], path: string | string[], value: any) {
+export function setByPath(object: object | unknown[], path: string | string[], value: unknown) {
   const normalizedPath = normalizePath(path)
 
-  let deepestParent: object = object
+  if (normalizedPath.length === 0) return value
+
+  let deepestParent: any = object
   while (normalizedPath.length > 1) {
-    deepestParent = deepestParent[normalizedPath.shift()]
+    deepestParent = deepestParent[normalizedPath.shift() as string]
   }
 
-  deepestParent[normalizedPath.shift()] = value
+  deepestParent[normalizedPath.shift() as string] = value
   return value
 }
 

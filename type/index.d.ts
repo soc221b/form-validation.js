@@ -27,13 +27,14 @@ export type Normalizer = ({ value, key, path, target, params }: Param) => any
 export type Params = object
 
 export interface FormValidationInstance {
-  $validate: (param: Param, callback: (error: Error) => void) => void
+  $validateSync: (target: any) => void
+  $validate: ((target: any) => Promise<any>) | ((target: any) => void)
   $reset: () => void
   $messages: any[]
   $hasMessage: boolean
   $hasValidated: boolean
   $isPending: boolean
   $params: object
-  $iter: any[] | object
+  $iter: any[] | object | null
   [key: string]: any
 }
