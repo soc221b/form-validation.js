@@ -1,6 +1,7 @@
 # Methods
 
-- `$validate(target: any) => void | $validate((target: any, callback: () => void) => void)`
+- `$validate: ((target: any) => Promise<any>) | ((target: any) => void)`
+- `$validateSync(target: any) => void`
 - `$reset(): void`
 
 ```javascript
