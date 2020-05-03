@@ -7,7 +7,9 @@ import {
   normalizePath,
   getByPath,
   setByPath,
-} from '../src/util'
+  noop,
+  identity,
+} from '../../src/util'
 
 test('toString', () => {
   expect(toString('')).toStrictEqual('[object String]')
@@ -30,25 +32,31 @@ test('isFunction', () => {
 test('deepCopy', () => {
   const boolean = true
   const number = 42
-  const string = 'foo'
+  const string = 'str'
   const func = () => {}
-  const array = [boolean, number, string, func]
-  const object = {
+  const date = new Date()
+  const array: any = [boolean, number, string, func, date]
+  const object: any = {
     boolean,
     string,
     number,
     array,
     func,
+    date,
   }
+  // circular reference
   array.push(object)
   object.object = object
 
+  expect(deepCopy(null)).toStrictEqual(null)
   expect(deepCopy(boolean)).toStrictEqual(boolean)
   expect(deepCopy(number)).toStrictEqual(number)
   expect(deepCopy(string)).toStrictEqual(string)
-  expect(deepCopy(func)).toStrictEqual(func)
   expect(deepCopy(array)).toStrictEqual(array)
   expect(deepCopy(object)).toStrictEqual(object)
+
+  expect(deepCopy(func)).toStrictEqual(func)
+  expect(deepCopy(date)).toStrictEqual(date)
 })
 
 test('normalizePath', () => {
@@ -63,35 +71,36 @@ test('normalizePath', () => {
   expect(normalizePath(path3)).toStrictEqual([])
 })
 
-test('getByPath (object)', () => {
+test('getByPath', () => {
+  const value = {}
+
   const object = {
     path: {
       to: {
-        nesting: {},
+        nesting: value,
       },
     },
   }
 
-  expect(getByPath(object, ['path', 'to', 'nesting'])).toBe(object.path.to.nesting)
-  expect(getByPath(object, 'path.to.nesting')).toBe(object.path.to.nesting)
+  expect(getByPath(object, ['path', 'to', 'nesting'])).toBe(value)
+  expect(getByPath(object, 'path.to.nesting')).toBe(value)
 
   expect(getByPath(object, [])).toBe(object)
   expect(getByPath(object, '')).toBe(object)
-})
 
-test('getByPath (array)', () => {
-  const array = [[[{}]]]
+  const array = [[[value]]]
 
-  expect(getByPath(array, ['0', '0', '0'])).toBe(array[0][0][0])
-  expect(getByPath(array, '0.0.0')).toBe(array[0][0][0])
+  expect(getByPath(array, ['0', '0', '0'])).toBe(value)
+  expect(getByPath(array, '0.0.0')).toBe(value)
 
   expect(getByPath(array, [])).toBe(array)
   expect(getByPath(array, '')).toBe(array)
 })
 
-test('setByPath (object)', () => {
+test('setByPath', () => {
   const oldValue = {}
   const value = {}
+
   const object = {
     path: {
       to: {
@@ -106,11 +115,7 @@ test('setByPath (object)', () => {
 
   expect(setByPath(object, [], value)).toBe(value)
   expect(setByPath(object, '', value)).toBe(value)
-})
 
-test('setByPath (array)', () => {
-  const oldValue = {}
-  const value = {}
   const array = [[[oldValue]]]
 
   expect(setByPath(array, ['0', '0', '0'], value)).toBe(value)
@@ -119,4 +124,15 @@ test('setByPath (array)', () => {
 
   expect(setByPath(array, [], value)).toBe(value)
   expect(setByPath(array, '', value)).toBe(value)
+})
+
+test('noop', () => {
+  expect(typeof noop).toStrictEqual('function')
+  expect(noop()).toStrictEqual(undefined)
+})
+
+test('identity', () => {
+  const object = {}
+  expect(typeof identity).toStrictEqual('function')
+  expect(identity(object)).toBe(object)
 })

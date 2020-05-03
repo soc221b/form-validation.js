@@ -1,4 +1,4 @@
-import createSchema from '../src/createSchema'
+import createSchema from '../../src/createSchema'
 
 test('it should create instance', () => {
   const instance = createSchema({
