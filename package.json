@@ -28,7 +28,7 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "git diff --exit-code && yarn prettify"
+      "pre-push": "git diff --exit-code && git diff --staged --exit-code && yarn prettify"
     }
   }
 }
