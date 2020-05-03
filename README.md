@@ -2,7 +2,7 @@
 
 ## Docs
 
-- [Getting Started](/blob/master/index.md)
-- [Schema](/blob/master/schema.md)
-- [Instance](/blob/master/instance.md)
-- [Common Use Case](/blob/master/common-use-case.md)
+- [Getting Started](/index.md)
+- [Schema](/schema.md)
+- [Instance](/instance.md)
+- [Common Use Case](/common-use-case.md)
