@@ -1,4 +1,4 @@
-import { Schema, FormValidationInstance, FunctionRule } from '../type'
+import { Schema, FormValidationInstance, FunctionRule } from '../type/index'
 import { isArray, isPlainObject, isFunction, deepCopy, noop, identity } from './util'
 
 function generateDefaultFormValidationInstance(): FormValidationInstance {
