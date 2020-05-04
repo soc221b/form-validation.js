@@ -55,6 +55,7 @@ function definePropertiesForInstance(instance: FormValidationInstance): void {
     writable: true,
   }
 
+  Object.defineProperty(instance, '$validateSync', descriptor)
   Object.defineProperty(instance, '$validate', descriptor)
   Object.defineProperty(instance, '$reset', descriptor)
 
