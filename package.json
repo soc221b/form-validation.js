@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "description": "The most customizable validation framework for JavaScript.",
   "main": "index.js",
+  "types": "dist/index.d.ts",
   "repository": "git@github.com:iendeavor/form-validation.js.git",
   "author": "Ernest <iattempt.net@gmail.com>",
   "license": "MIT",
