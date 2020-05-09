@@ -2,6 +2,7 @@ import rm from 'rimraf'
 import path from 'path'
 import ts from 'rollup-plugin-typescript2'
 import { terser } from 'rollup-plugin-terser'
+import replace from '@rollup/plugin-replace'
 
 rm.sync(path.resolve('dist/**/*'))
 
@@ -10,13 +11,11 @@ const pascalCasePackageName = 'Form-Validation'
 
 const input = 'src/index.ts'
 const formats = ['es', 'umd', 'amd', 'cjs', 'iife', 'system']
-const plugins = [ts()]
 
 const configs = []
 formats.forEach(format => {
   const config = {
     input,
-    plugins,
     output: {
       format,
       name: pascalCasePackageName,
@@ -26,6 +25,12 @@ formats.forEach(format => {
 
   configs.push({
     ...config,
+    plugins: [
+      ts(),
+      replace({
+        __DEV__: true,
+      })
+    ],
     output: {
       ...config.output,
       file: path.resolve(`dist/${packageName}.${format}.js`),
@@ -34,7 +39,13 @@ formats.forEach(format => {
 
   configs.push({
     ...config,
-    plugins: [...config.plugins, terser()],
+    plugins: [
+      ts(),
+      replace({
+        __DEV__: false,
+      }),
+      terser()
+    ],
     output: {
       ...config.output,
       file: path.resolve(`dist/${packageName}.${format}.prod.js`),
