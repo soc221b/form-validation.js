@@ -1,40 +1,45 @@
-// common
+// schema
+export type Schema = {
+  $params?: { [key: string]: any }
+  $normalizer?: Normalizer
+  $rules?: { [key: string]: Rule }
+  $errors?: { [key: string]: Error }
+
+  // todo: nested values should still validate $params and else
+  [key: string]: any
+}
+
 export type Param = {
   value?: any
   key?: string
-  path?: string[]
+  path?: Path
   target?: any
-  params?: Object
+  params?: { [key: string]: any }
 }
 
-// schema
-export interface Schema {
-  $rule?: Rule
-  $normalizer?: Normalizer
-  $params?: object
-  [key: string]: any
-}
-
-// rule
-type FunctionRule = ({ value, key, path, target, params }: Param) => any
-type ArrayRule = FunctionRule[]
-export type Rule = FunctionRule | ArrayRule
+// rules
+export type Rule = ({ value, key, path, target, params }: Required<Param>) => boolean | Promise<boolean>
 
 // normlizer
-export type Normalizer = ({ value, key, path, target, params }: Param) => any
+export type Normalizer = ({ value, key, path, target, params }: Required<Param>) => any
 
-// params
-export type Params = object
+// errors
+export type Error = ({ value, key, path, target, params }: Required<Param>) => any
 
-export interface FormValidationInstance {
-  $validateSync: (target: any) => void
-  $validate: ((target: any) => Promise<any>) | ((target: any) => void)
+export type Instance = {
+  $validate: (target: any) => Promise<any>
   $reset: () => void
-  $messages: any[]
-  $hasMessage: boolean
+
+  $errors: { [key: string]: any }
+  $hasError: boolean
   $hasValidated: boolean
   $isPending: boolean
-  $params: object
-  $iter: any[] | object | null
+  $params: { [key: string]: any }
+  $iter: { [key: string]: any }
+
+  _schema: Required<Schema>
+
   [key: string]: any
 }
+
+export type Path = string[]

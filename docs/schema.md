@@ -1,9 +1,5 @@
 # Structure
 
-## Definition
-
-`FormValidation.createInstance(schema: Schema): Instance`
-
 Everything is pretty intuitive and reasonable, validation schema is as same as the structure of data which you validate
 for.
 
@@ -13,8 +9,7 @@ for.
 const password = '123'
 
 const instance = FormValidation.createInstance({
-  // for password
-  $rule: () => {},
+  $rules: {}, // rules for the password
 })
 ```
 
@@ -25,14 +20,14 @@ const passwords = [
 ]
 
 const instance = FormValidation.createInstance(
-  { // for passwords
-    $rule: () => {},
-    $iter: { // for passwords[?]
-      $rule: () => {},
+  {
+    $rules: {}, // rules for the passwords
+    $iter: {
+      $rules: {}, // rules for the passwords[?] (i.e. the passwords[0] and passwords[1] in here)
     },
-    0: { // for passwords[0]
-      $rule: () => {},
-    }
+    0: {
+      $rules: {}, // rules for the passwords[0]
+    },
   }
 )
 ```
@@ -43,96 +38,102 @@ const form = {
 }
 
 const instance = FormValidation.createInstance({
-  // for form
-  $rule: () => {},
+  $rules: {}, // rules for the form
   $iter: {
-    // for form.?
-    $rule: () => {},
+    $rules: {}, // rules for the form.? (i.e. the form.password in here)
   },
   password: {
-    // for form.password
-    $rule: () => {},
+    $rules: {}, // rules for the form.password
   },
 })
 ```
 
-# Rule
+# Rules
 
-## Definition
-
-`$rule: Rule`
-
-Except for the `undefined`, Anything is returned from rule methods that will be passed to the
-[`$messages`](/iendeavor/form-validation/wiki/instance#getters) getter.
+Except for the `undefined`, Anything is returned from rule methods that will be treated as invalid, and return values
+will be passed to the [`$errors`](/iendeavor/form-validation/wiki/schema#errors).
 
 ## Example
 
 ```javascript
-const minlength = length => ({ value }) => {
-  if (value.length < length) {
-    return `Must be at least ${length} characters long.`
-  }
-}
-
 const form = {
-  password: '123',
+  password: '',
 }
 
 const instance = FormValidation.createInstance({
   password: {
-    $rule: [minLength(6)],
+    $rules: {
+      required({ value }) {
+        if (value.length === 0) {
+          return false
+        }
+      },
+    },
+  },
+})
+```
+
+# Errors
+
+```typescript
+type $errors = {
+  [key: string]: Error
+}
+```
+
+```javascript
+const form = {
+  password: '',
+}
+
+const instance = FormValidation.createInstance({
+  password: {
+    $rules: {
+      required({ value }) {
+        if (value.length === 0) {
+          return false
+        }
+      },
+    },
+    $errors: {
+      required({ value }) {
+        return `Must be filled.`
+      },
+    },
   },
 })
 ```
 
 # Normalizer
 
-## Definition
-
-`$normalizer: Normalizer`
-
-The value will be normalized before validate.
-
 ## Example
 
 ```javascript
-const minlength = length => ({ value }) => {
-  if (value.length < length) {
-    return `Must be at least ${length} characters long.`
-  }
-}
-
 const form = {
-  password: '123   ',
+  password: '   ',
 }
 
 const instance = FormValidation.createInstance({
   password: {
-    $rule: minLength(6), // without normalizer, the `$messages` getter returns []
-    $normalizer: ({ value }) => value.trim(), // with normalizer, the `$messages` getter returns ['Must be at least 6 characters long.']
+    $normalizer: ({ value }) => value.trim(),
+    $rules: {
+      required({ value }) {
+        if (value.length === 0) {
+          return false
+        }
+      },
+    },
   },
 })
 ```
 
 # Params
 
-## Definition
-
-`$params: object`
-
 ## Example
 
-You could pass something to the rule methods or others to override default behavior.
+To pass something to the rule methods or else to override default behavior.
 
 ```javascript
-const minlength = length => ({ value, params }) => {
-  const language = params.language || currentLanguage
-
-  if (value.length < length) {
-    return translate(`Must be at least {length} characters long.`, { length, language })
-  }
-}
-
 const form = {
   password: '123',
 }
@@ -140,9 +141,21 @@ const form = {
 const instance = FormValidation.createInstance({
   password: {
     $params: {
-      language: 'en-US',
+      languageCode: 'nl',
     },
-    $rule: minLength(6),
+    $rules: {
+      required({ value }) {
+        if (value === '') {
+          return false
+        }
+      },
+    },
+    $errros: {
+      required({ params }) {
+        const languageCode = params.languageCode || 'en-US'
+        return translate(`Must be filled.`, { languageCode })
+      },
+    },
   },
 })
 ```

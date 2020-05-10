@@ -1,17 +1,27 @@
-export function toString(object: unknown): string {
+import { Path } from '../type/index'
+
+export function toString(object: any): string {
   return Object.prototype.toString.call(object)
 }
 
-export function isPlainObject(object: unknown): boolean {
+export function isPlainObject(object: any): boolean {
   return toString(object) === '[object Object]'
 }
 
-export function isArray(object: unknown): boolean {
+export function isArray(object: any): boolean {
   return toString(object) === '[object Array]'
 }
 
-export function isFunction(object: unknown): boolean {
+export function isFunction(object: any): boolean {
   return typeof object === 'function'
+}
+
+export function isPromise(object: any): boolean {
+  return object !== null && typeof object === 'object' && isFunction(object.then)
+}
+
+export function hasKey(object: { [key: string]: any }, key: string): boolean {
+  return object.hasOwnProperty(key)
 }
 
 interface Cache<T> {
@@ -41,46 +51,33 @@ export function deepCopy<T>(object: T, cache: Cache<T>[] = []): T {
   return copy as T
 }
 
-export function normalizePath(path: string | string[]): string[] {
-  let normalizedPath: string[]
-  if (typeof path === 'string') {
-    if (path === '') normalizedPath = []
-    else normalizedPath = path.split('.')
-  } else {
-    normalizedPath = deepCopy(path)
-  }
-  return normalizedPath
-}
-
-export function getByPath(object: object | any[], path: string | string[]) {
-  const normalizedPath = normalizePath(path)
-
-  if (normalizedPath.length === 0) return object
+export function getByPath(object: object | any[], path: Path) {
+  if (path.length === 0) return object
 
   let deepestParent: any = object
-  while (normalizedPath.length > 1) {
-    deepestParent = deepestParent[normalizedPath.shift() as string]
-  }
+  path.slice(0, -1).forEach(p => {
+    deepestParent = deepestParent[p]
+  })
 
-  return deepestParent[normalizedPath.shift() as string]
+  return deepestParent[path[path.length - 1]]
 }
 
-export function setByPath(object: object | unknown[], path: string | string[], value: unknown) {
-  const normalizedPath = normalizePath(path)
+export function setByPath(object: object | unknown[], path: Path, value: unknown) {
+  if (path.length === 0) return value
 
-  if (normalizedPath.length === 0) return value
-
-  let deepestParent: any = object
-  while (normalizedPath.length > 1) {
-    deepestParent = deepestParent[normalizedPath.shift() as string]
-  }
-
-  deepestParent[normalizedPath.shift() as string] = value
+  const deepestParent = getByPath(object, path.slice(0, -1))
+  deepestParent[path[path.length - 1]] = value
   return value
 }
 
-export function noop() {}
+export function noop(): void {}
 
-export function identity<T>(object: T): T {
-  return object
+export function identity<T>(any: T): T {
+  return any
+}
+
+type Fn = (...args: Args) => any
+type Args = any[]
+export function curry(fn: Fn, ...args1: Args): any {
+  return fn.length === args1.length ? fn(...args1) : (...args2: Args) => curry(fn, ...args1, ...args2)
 }

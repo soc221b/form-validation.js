@@ -1,64 +1,67 @@
 # Methods
 
-- `$validate: ((target: any) => Promise<any>) | ((target: any) => void)`
-- `$validateSync(target: any) => void`
+- `$validate: ((target: any) => Promise<any>)`
 - `$reset(): void`
 
 ```javascript
-const minlength = length => ({ value }) => {
-  if (value.length < length) {
-    return `Must be at least ${length} characters long.`
-  }
-}
-
 const form = {
-  password: '123'
+  password: '',
 }
 
 const instance = FormValidation.createInstance({
   password: {
-    $rule: [
-      minLength(6)
-    ]
-  }
+    $rules: {
+      required({ value }) {
+        if (value.length === 0) {
+          return false
+        }
+      },
+    },
+  },
 })
 
-instance.$validate(form, () => {
-  instance.password.$reset() // reset the password
-) // validate entire form
+instance.$validate(form)
+// Now the instance.password has errors
+instance.$reset()
+// Now the instance.password has no errors
 ```
 
 # Getters
 
-- `$messages: any[]`
-- `$hasMessage: boolean`
+- `$errors: any[]`
+- `$hasError: boolean`
 - `$hasValidated: boolean`
 - `$isPending: boolean`
 - `$params: object`
 - `$iter: any[] | obejct`
 
 ```javascript
-const minlength = length => ({ value }) => {
-  if (value.length < length) {
-    return `Must be at least ${length} characters long.`
-  }
-}
-
 const form = {
-  password: '123',
+  password: '',
 }
 
 const instance = FormValidation.createInstance({
   password: {
-    $rule: [minLength(6)],
+    $rules: {
+      required({ value }) {
+        if (value.length === 0) {
+          return false
+        }
+      },
+    },
+    $errors: {
+      required() {
+        return 'Must be filled'
+      },
+    },
   },
 })
 
 instance.$validate(form, () => {
-  console.log(instance.password.$messages)
-  console.log(instance.password.$hasMessage)
+  console.log(instance.password.$hasError)
+  console.log(instance.password.$errors.required)
 })
 
-// > [`Must be at least 6 characters long.`]
 // > true
+// > `Must be filled`
 ```

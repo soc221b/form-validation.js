@@ -1,8 +1,5 @@
 {
-  "include": [
-    "type/**/*",
-    "src/**/*"
-  ],
+  "include": ["type/**/*", "src/**/*"],
   "compilerOptions": {
     /* Basic Options */
     // "incremental": true,                   /* Enable incremental compilation */

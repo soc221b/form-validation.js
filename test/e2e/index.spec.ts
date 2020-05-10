@@ -1,144 +1,180 @@
-import createSchema from '../../src/createSchema'
+import { Schema, Param } from '../../type/index'
+import createInstance from '../../src/createInstance'
 
-test('it should validate with sync rule', () => {
+test('it should validate with rules', async () => {
   const value = {}
-  const promise = Promise.resolve(value)
-  const schema = {
-    $rule: () => promise,
+  const form = undefined
+  const schema: Schema = {
+    $rules: {
+      rule() {
+        return false
+      },
+    },
+    $errors: {
+      rule() {
+        return value
+      },
+    },
   }
-  const instance = createSchema(schema)
-
-  instance.$validateSync(undefined)
-  expect(instance.$messages.length).toStrictEqual(1)
-  expect(instance.$messages[0]).toBe(promise)
+  const validator = createInstance(schema)
+  await validator.$validate(form)
+  expect(validator.$errors.rule).toBe(value)
 })
 
-test('it should validate with async rule', async () => {
+test('it should normalize value before validate it', async () => {
   const value = {}
-  const promise = Promise.resolve(value)
-  const schema = {
-    $rule: () => promise,
-  }
-  const instance = createSchema(schema)
-
-  await instance.$validate(undefined)
-  expect(instance.$messages.length).toStrictEqual(1)
-  expect(instance.$messages[0]).toBe(value)
-})
-
-test('it should validate with given rule', () => {
-  const value = {}
-  const schema = {
-    $rule: () => value,
-  }
-  const instance = createSchema(schema)
-
-  instance.$validateSync(undefined)
-  expect(instance.$messages.length).toStrictEqual(1)
-  expect(instance.$messages[0]).toBe(value)
-})
-
-test('it should normalize value before validate it', () => {
-  const value = {}
-  const schema = {
-    $rule: ({ value }) => value,
+  const form = undefined
+  const schema: Partial<Schema> = {
     $normalizer: () => value,
+    $rules: {
+      rule() {
+        return false
+      },
+    },
+    $errors: {
+      rule() {
+        return value
+      },
+    },
   }
-  const instance = createSchema(schema)
+  const validator = createInstance(schema)
 
-  instance.$validateSync(undefined)
-  expect(instance.$messages.length).toStrictEqual(1)
-  expect(instance.$messages[0]).toBe(value)
+  await validator.$validate(form)
+  expect(validator.$errors.rule).toBe(value)
 })
 
-test('it should pass params to $rule', () => {
+test('it should pass params to $rules', async () => {
   const value = {}
-  const schema = {
-    $rule: ({ params }) => params.value,
+  const form = undefined
+  const schema: Schema = {
     $params: {
       value,
     },
+    $rules: {
+      rule() {
+        return false
+      },
+    },
+    $errors: {
+      rule() {
+        return value
+      },
+    },
   }
-  const instance = createSchema(schema)
+  const validator = createInstance(schema)
 
-  instance.$validateSync(undefined)
-  expect(instance.$messages.length).toStrictEqual(1)
-  expect(instance.$messages[0]).toBe(value)
+  await validator.$validate(form)
+  expect(validator.$errors.rule).toBe(value)
 })
 
-test('it should pass params to $normalizer', () => {
+test('it should pass params to $normalizer', async () => {
   const value = {}
-  const schema = {
-    $rule: ({ value }) => value,
+  const form = undefined
+  const schema: Schema = {
+    $params: {
+      value,
+    },
     $normalizer: ({ params }) => params.value,
-    $params: {
-      value,
+    $rules: {
+      rule() {
+        return false
+      },
+    },
+    $errors: {
+      rule() {
+        return value
+      },
     },
   }
-  const instance = createSchema(schema)
+  const validator = createInstance(schema)
 
-  instance.$validateSync(undefined)
-  expect(instance.$messages.length).toStrictEqual(1)
-  expect(instance.$messages[0]).toBe(value)
+  await validator.$validate(form)
+  expect(validator.$errors.rule).toBe(value)
 })
 
-test('it should validate recursively (object)', () => {
+test('it should validate recursively (object)', async () => {
   const value = {}
   const form = {
     nesting: {
       value,
     },
   }
-  const schema = {
+  const schema: Schema = {
     nesting: {
       value: {
-        $rule: ({ value }) => value,
+        $rules: {
+          rule() {
+            return false
+          },
+        },
+        $errors: {
+          rule({ value }: Param) {
+            return value
+          },
+        },
       },
     },
   }
-  const instance = createSchema(schema)
+  const validator = createInstance(schema)
 
-  instance.$validateSync(form)
-  expect(instance.nesting.value.$messages.length).toStrictEqual(1)
-  expect(instance.nesting.value.$messages[0]).toBe(value)
+  await validator.$validate(form)
+  expect(validator.nesting.value.$errors.rule).toBe(value)
 })
 
-test('it should validate recursively (array)', () => {
+test('it should validate recursively (array)', async () => {
   const value = {}
-  const form = [[value]]
-  const schema = {
+  const form: any[][] = []
+  form.push([])
+  form[0].push(value)
+  const schema: Schema = {
     0: {
       0: {
-        $rule: ({ value }) => value,
+        $rules: {
+          rule() {
+            return false
+          },
+        },
+        $errors: {
+          rule({ value }: Param) {
+            return value
+          },
+        },
       },
     },
   }
-  const instance = createSchema(schema)
+  const validator = createInstance(schema)
 
-  instance.$validateSync(form)
-  expect(instance[0][0].$messages.length).toStrictEqual(1)
-  expect(instance[0][0].$messages[0]).toBe(value)
+  await validator.$validate(form)
+  expect(validator[0][0].$errors.rule).toBe(value)
 })
 
-test('it should reset recursively', () => {
+test('it should reset recursively', async () => {
   const value = {}
   const form = {
     nesting: {
       value,
     },
   }
-  const schema = {
+  const schema: Schema = {
     nesting: {
       value: {
-        $rule: ({ value }) => value,
+        $rules: {
+          rule() {
+            return false
+          },
+        },
+        $errors: {
+          rule({ value }: Param) {
+            return value
+          },
+        },
       },
     },
   }
-  const instance = createSchema(schema)
-  instance.$validateSync(form)
-  expect(instance.nesting.value.$messages.length).toStrictEqual(1)
-  expect(instance.nesting.value.$messages[0]).toBe(value)
+  const validator = createInstance(schema)
+  await validator.$validate(form)
+  expect(validator.nesting.value.$errors.rule).toBe(value)
 
-  instance.$reset()
-  expect(instance.nesting.value.$messages.length).toStrictEqual(0)
+  validator.nesting.value.$reset()
+  expect(validator.nesting.value.$errors.rule).toBe(undefined)
 })

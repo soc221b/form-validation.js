@@ -4,11 +4,13 @@ import {
   isArray,
   isFunction,
   deepCopy,
-  normalizePath,
   getByPath,
   setByPath,
   noop,
   identity,
+  isPromise,
+  curry,
+  hasKey,
 } from '../../src/util'
 
 test('toString', () => {
@@ -27,6 +29,16 @@ test('isArray', () => {
 
 test('isFunction', () => {
   expect(isFunction(() => {})).toStrictEqual(true)
+})
+
+test('isPromise', () => {
+  expect(isPromise(Promise.resolve())).toStrictEqual(true)
+  expect(isPromise({ then: () => {} })).toStrictEqual(true)
+  expect(isPromise({})).toStrictEqual(false)
+})
+
+test('hasKey', () => {
+  expect(hasKey({ k: '' }, 'k')).toStrictEqual(true)
 })
 
 test('deepCopy', () => {
@@ -59,21 +71,9 @@ test('deepCopy', () => {
   expect(deepCopy(date)).toStrictEqual(date)
 })
 
-test('normalizePath', () => {
-  const path1 = 'path.to.nesting'
-  expect(normalizePath(path1)).toStrictEqual(['path', 'to', 'nesting'])
-
-  const path2 = path1.split('.')
-  expect(normalizePath(path2)).toStrictEqual(['path', 'to', 'nesting'])
-  expect(normalizePath(path2)).not.toBe(path2)
-
-  const path3 = ''
-  expect(normalizePath(path3)).toStrictEqual([])
-})
-
 test('getByPath', () => {
   const value = {}
-
+  let path: string[]
   const object = {
     path: {
       to: {
@@ -81,20 +81,23 @@ test('getByPath', () => {
       },
     },
   }
-
-  expect(getByPath(object, ['path', 'to', 'nesting'])).toBe(value)
-  expect(getByPath(object, 'path.to.nesting')).toBe(value)
-
-  expect(getByPath(object, [])).toBe(object)
-  expect(getByPath(object, '')).toBe(object)
-
   const array = [[[value]]]
 
-  expect(getByPath(array, ['0', '0', '0'])).toBe(value)
-  expect(getByPath(array, '0.0.0')).toBe(value)
+  path = ['path', 'to', 'nesting']
+  expect(getByPath(object, path)).toBe(value)
+  expect(path.length).toBe(3)
 
-  expect(getByPath(array, [])).toBe(array)
-  expect(getByPath(array, '')).toBe(array)
+  path = []
+  expect(getByPath(object, [])).toBe(object)
+  expect(path.length).toBe(0)
+
+  path = ['0', '0', '0']
+  expect(getByPath(array, ['0', '0', '0'])).toBe(value)
+  expect(path.length).toBe(3)
+
+  path = []
+  expect(getByPath(array, path)).toBe(array)
+  expect(path.length).toBe(0)
 })
 
 test('setByPath', () => {
@@ -110,20 +113,16 @@ test('setByPath', () => {
   }
 
   expect(setByPath(object, ['path', 'to', 'nesting'], value)).toBe(value)
-  expect(setByPath(object, 'path.to.nesting', value)).toBe(value)
   expect(object.path.to.nesting).toBe(value)
 
   expect(setByPath(object, [], value)).toBe(value)
-  expect(setByPath(object, '', value)).toBe(value)
 
   const array = [[[oldValue]]]
 
   expect(setByPath(array, ['0', '0', '0'], value)).toBe(value)
-  expect(setByPath(array, '0.0.0', value)).toBe(value)
   expect(array[0][0][0]).toBe(value)
 
   expect(setByPath(array, [], value)).toBe(value)
-  expect(setByPath(array, '', value)).toBe(value)
 })
 
 test('noop', () => {
@@ -135,4 +134,20 @@ test('identity', () => {
   const object = {}
   expect(typeof identity).toStrictEqual('function')
   expect(identity(object)).toBe(object)
+})
+
+test('curry', () => {
+  function foo(a: number, b: number, c: number): number {
+    return a + b + c
+  }
+
+  expect(curry(foo, 1, 2, 3)).toStrictEqual(6)
+  expect(curry(foo, 1, 2)(3)).toStrictEqual(6)
+  expect(curry(foo, 1)(2)(3)).toStrictEqual(6)
+  expect(curry(foo)(1)(2)(3)).toStrictEqual(6)
+  expect(curry(foo, 1)(2, 3)).toStrictEqual(6)
+  expect(curry(foo)(1)(2, 3)).toStrictEqual(6)
+  expect(curry(foo)(1, 2, 3)).toStrictEqual(6)
+  expect(curry(foo)()(1, 2, 3)).toStrictEqual(6)
+  expect(curry(foo)()()(1, 2, 3)).toStrictEqual(6)
 })

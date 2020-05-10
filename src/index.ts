@@ -1,2 +1,2 @@
 export { getByPath } from './util'
-export { default as createSchema } from './createSchema'
+export { default as createInstance } from './createInstance'

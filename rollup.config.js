@@ -29,7 +29,7 @@ formats.forEach(format => {
       ts(),
       replace({
         __DEV__: true,
-      })
+      }),
     ],
     output: {
       ...config.output,
@@ -44,7 +44,7 @@ formats.forEach(format => {
       replace({
         __DEV__: false,
       }),
-      terser()
+      terser(),
     ],
     output: {
       ...config.output,
