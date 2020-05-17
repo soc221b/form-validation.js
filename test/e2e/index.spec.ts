@@ -32,7 +32,7 @@ test('it should normalize value before validate it', async () => {
       },
     },
     $errors: {
-      rule() {
+      rule({ value }: Param) {
         return value
       },
     },
@@ -48,11 +48,11 @@ test('it should pass params to $rules', async () => {
   const form = undefined
   const schema: Schema = {
     $params: {
-      value,
+      result: false,
     },
     $rules: {
-      rule() {
-        return false
+      rule({ params }: Required<Param>) {
+        return params.result
       },
     },
     $errors: {
@@ -81,7 +81,7 @@ test('it should pass params to $normalizer', async () => {
       },
     },
     $errors: {
-      rule() {
+      rule({ value }: Param) {
         return value
       },
     },
@@ -175,6 +175,6 @@ test('it should reset recursively', async () => {
   await validator.$validate(form)
   expect(validator.nesting.value.$errors.rule).toBe(value)
 
-  validator.nesting.value.$reset()
+  validator.$reset()
   expect(validator.nesting.value.$errors.rule).toBe(undefined)
 })
