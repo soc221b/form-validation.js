@@ -1,7 +1,7 @@
 import { Schema, Param } from '../../type/index'
 import createInstance from '../../src/createInstance'
 
-test('it should pass param to rules', async () => {
+test('it should pass param to reserved functions', async () => {
   const param = {}
   const nesting = {}
   const form = {
@@ -44,7 +44,7 @@ test('it should pass param to rules', async () => {
   await instance.$validate(form)
 })
 
-test('it should pass param to rules (nesting)', async () => {
+test('it should pass param to reserved functions (nesting)', async () => {
   const param = {}
   const nesting = {}
   const form = {
@@ -105,6 +105,7 @@ test('it should validate with rules', async () => {
     },
   }
   const validator = createInstance(schema)
+
   await validator.$validate(form)
   expect(validator.$errors.rule).toBe(value)
 })
