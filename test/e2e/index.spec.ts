@@ -1,6 +1,94 @@
 import { Schema, Param } from '../../type/index'
 import createInstance from '../../src/createInstance'
 
+test('it should pass param to rules', async () => {
+  const param = {}
+  const nesting = {}
+  const form = {
+    nesting,
+  }
+  const schema: Schema = {
+    $params: {
+      param,
+    },
+    $normalizer({ value, key, path, target, params }) {
+      expect(value).toBe(form)
+      expect(key).toBe(undefined)
+      expect(path).toStrictEqual([])
+      expect(target).toBe(form)
+      expect(params.param).toBe(param)
+      return value
+    },
+    $rules: {
+      rule({ value, key, path, target, params }) {
+        expect(value).toBe(form)
+        expect(key).toBe(undefined)
+        expect(path).toStrictEqual([])
+        expect(target).toBe(form)
+        expect(params.param).toBe(param)
+        return false
+      },
+    },
+    $errors: {
+      rule({ value, key, path, target, params }) {
+        expect(value).toBe(form)
+        expect(key).toBe(undefined)
+        expect(path).toStrictEqual([])
+        expect(target).toBe(form)
+        expect(params.param).toBe(param)
+      },
+    },
+  }
+
+  const instance = createInstance(schema)
+  await instance.$validate(form)
+})
+
+test('it should pass param to rules (nesting)', async () => {
+  const param = {}
+  const nesting = {}
+  const form = {
+    nesting,
+  }
+  const schema: Schema = {
+    nesting: {
+      $params: {
+        param,
+      },
+      $normalizer({ value, key, path, target, params }: Required<Param>) {
+        expect(value).toBe(nesting)
+        expect(key).toBe('nesting')
+        expect(path).toStrictEqual(['nesting'])
+        expect(target).toBe(form)
+        expect(params.param).toBe(param)
+        return value
+      },
+      $rules: {
+        rule({ value, key, path, target, params }: Required<Param>) {
+          expect(value).toBe(nesting)
+          expect(key).toBe('nesting')
+          expect(path).toStrictEqual(['nesting'])
+          expect(target).toBe(form)
+          expect(params.param).toBe(param)
+          return false
+        },
+      },
+      $errors: {
+        rule({ value, key, path, target, params }: Required<Param>) {
+          expect(value).toBe(nesting)
+          expect(key).toBe('nesting')
+          expect(path).toStrictEqual(['nesting'])
+          expect(target).toBe(form)
+          expect(params.param).toBe(param)
+        },
+      },
+    },
+  }
+
+  const instance = createInstance(schema)
+  await instance.$validate(form)
+})
+
 test('it should validate with rules', async () => {
   const value = {}
   const form = undefined
