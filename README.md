@@ -1,5 +1,7 @@
 # form-validation.js
 
+[![Coverage Status](https://coveralls.io/repos/github/iendeavor/form-validation.js/badge.svg?branch=develop)](https://coveralls.io/github/iendeavor/form-validation.js?branch=develop)
+
 ## Docs
 
 - [Getting Started](/docs/index.md)
