@@ -142,6 +142,6 @@ export function reset({ instance }: ResetParams) {
     if (hasKey(defaultInstance, key)) return
     if (isPlainObject(instance[key]) === false) return
 
-    reset(instance[key])
+    reset({ instance: instance[key] })
   })
 }
