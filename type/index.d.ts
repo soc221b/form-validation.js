@@ -27,7 +27,7 @@ export type Normalizer = ({ value, key, path, target, params }: Required<Param>)
 export type Error = ({ value, key, path, target, params }: Required<Param>) => any
 
 export type Instance = {
-  $validate: (target: any) => Promise<any>
+  $validate: (target: any) => Promise<void>
   $reset: () => void
 
   $errors: { [key: string]: any }
@@ -35,7 +35,7 @@ export type Instance = {
   $hasValidated: boolean
   $isPending: boolean
   $params: { [key: string]: any }
-  $iter: { [key: string]: any }
+  $iter: { [key: string]: Instance }
 
   _schema: Required<Schema>
 
