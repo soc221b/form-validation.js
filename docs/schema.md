@@ -1,7 +1,15 @@
+# ToC
+
+- [Structure](#structure)
+- [Rules](#rules)
+- [Errors](#errors)
+- [Normalizer](#normalizer)
+- [Params](#params)
+
 # Structure
 
-Everything is pretty intuitive and reasonable, validation schema is as same as the structure of data which you validate
-for.
+Everything is pretty intuitive and reasonable, validation schema is as same as the structure of data which you wanted to
+validate for.
 
 ## Example
 
@@ -50,8 +58,7 @@ const instance = FormValidation.createInstance({
 
 # Rules
 
-Except for the `undefined`, Anything is returned from rule methods that will be treated as invalid, and return values
-will be passed to the [`$errors`](/iendeavor/form-validation/wiki/schema#errors).
+Except for the `undefined`, Anything is returned from rule methods that will be treated as invalid.
 
 ## Example
 
@@ -65,12 +72,17 @@ const instance = FormValidation.createInstance({
     $rules: {
       required({ value }) {
         if (value.length === 0) {
-          return false
+          return 'Something went wrong'
         }
       },
     },
   },
 })
+
+await instance.$validate(form)
+
+console.log(instance.$hasError)
+// > true
 ```
 
 # Errors
@@ -91,7 +103,7 @@ const instance = FormValidation.createInstance({
     $rules: {
       required({ value }) {
         if (value.length === 0) {
-          return false
+          return 'Something went wrong'
         }
       },
     },
@@ -102,6 +114,11 @@ const instance = FormValidation.createInstance({
     },
   },
 })
+
+await instance.$validate(form)
+
+console.log(instance.$errors.required)
+// > Must be filled.
 ```
 
 # Normalizer
@@ -119,12 +136,22 @@ const instance = FormValidation.createInstance({
     $rules: {
       required({ value }) {
         if (value.length === 0) {
-          return false
+          return 'Something went wrong'
         }
+      },
+    },
+    $errors: {
+      required({ value }) {
+        return `Must be filled.`
       },
     },
   },
 })
+
+await instance.$validate(form)
+
+console.log(instance.$errors.required)
+// > Must be filled.
 ```
 
 # Params
@@ -135,18 +162,18 @@ To pass something to the rule methods or else to override default behavior.
 
 ```javascript
 const form = {
-  password: '123',
+  password: '',
 }
 
 const instance = FormValidation.createInstance({
   password: {
     $params: {
-      languageCode: 'nl',
+      languageCode: 'fr',
     },
     $rules: {
       required({ value }) {
         if (value === '') {
-          return false
+          return 'Something went wrong'
         }
       },
     },
@@ -158,4 +185,9 @@ const instance = FormValidation.createInstance({
     },
   },
 })
+
+await instance.$validate(form)
+
+console.log(instance.$errors.required)
+// > Doit être rempli.
 ```

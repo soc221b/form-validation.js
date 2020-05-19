@@ -1,7 +1,12 @@
+# ToC
+
+- [Methods](#methods)
+- [Getters](#getters)
+
 # Methods
 
-- `$validate: ((target: any) => Promise<any>)`
-- `$reset(): void`
+- `instance.$validate: (target: any) => Promise<void>`
+- `instance.$reset(): void`
 
 ```javascript
 const form = {
@@ -13,27 +18,30 @@ const instance = FormValidation.createInstance({
     $rules: {
       required({ value }) {
         if (value.length === 0) {
-          return false
+          return 'Something went wrong'
         }
       },
     },
   },
 })
 
-instance.$validate(form)
-// Now the instance.password has errors
+await instance.$validate(form)
+console.log(instance.password.$hasError)
+// > true
+
 instance.$reset()
-// Now the instance.password has no errors
+console.log(instance.password.$hasError)
+// > false
 ```
 
 # Getters
 
-- `$errors: any[]`
-- `$hasError: boolean`
-- `$hasValidated: boolean`
-- `$isPending: boolean`
-- `$params: object`
-- `$iter: any[] | obejct`
+- `instance.$errors: { [key: string]: any }`
+- `instance.$hasError: boolean`
+- `instance.$hasValidated: boolean`
+- `instance.$isPending: boolean`
+- `instance.$params: { [key: string]: any }`
+- `instance.$iter: { [key: string]: Instance }`
 
 ```javascript
 const form = {
@@ -45,7 +53,7 @@ const instance = FormValidation.createInstance({
     $rules: {
       required({ value }) {
         if (value.length === 0) {
-          return false
+          return 'Something went wrong'
         }
       },
     },
@@ -57,11 +65,10 @@ const instance = FormValidation.createInstance({
   },
 })
 
-instance.$validate(form, () => {
-  console.log(instance.password.$hasError)
-  console.log(instance.password.$errors.required)
-})
+await instance.$validate(form)
 
+console.log(instance.password.$hasError)
 // > true
+console.log(instance.password.$errors.required)
 // > `Must be filled`
 ```

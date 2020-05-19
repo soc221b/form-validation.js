@@ -26,7 +26,7 @@ const instance = FormValidation.createInstance({
     $rules: {
       required({ value }) {
         if (value.length === 0) {
-          return false
+          return 'Something went wrong'
         }
       },
     },
@@ -39,11 +39,10 @@ const instance = FormValidation.createInstance({
 })
 
 // validate the form
-instance.$validate(form, () => {
-  console.log(instance.$hasMessage)
-  console.log(instance.$messages.required)
-})
+await instance.$validate(form)
 
+console.log(instance.$hasError)
 // > true
+console.log(instance.$errors.required)
 // > 'Must be filled`
 ```

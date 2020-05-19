@@ -1,3 +1,9 @@
+# ToC
+
+- [Custom Message](#custom-message)
+- [Same As](#same-as)
+- [Unique](#unique)
+
 # Custom Message
 
 You can return anything from rule methods, which also means you have full control of the `$messages`.
@@ -14,7 +20,7 @@ const instance = FormValidation.createInstance({
     $rules: {
       minLength({ value }) {
         if (value.length <= 5) {
-          return false
+          return 'Something went wrong'
         }
       },
     },
@@ -50,13 +56,13 @@ const instance = FormValidation.createInstance({
       sameAs({ value, params, target }) {
         const anotherValue = params.sameAsField.reduce((anotherValue, key) => anotherValue[key], target)
         if (anotherValue !== value) {
-          return false
+          return 'Something went wrong'
         }
       },
     },
     $errors: {
       sameAs({ params }) {
-        return `This field should be the same as ${params.sameAsField.join('.')}.`
+        return `This field should be the same as '${params.sameAsField.join('.')}'.`
       },
     },
   },
@@ -70,7 +76,6 @@ const form = {
   ipWhiteList: ['8.8.8.8', '8.8.8.8'],
 }
 
-// O(n^2)
 const instance = FormValidation.createInstance({
   ipWhiteList: {
     $iter: {
@@ -79,28 +84,11 @@ const instance = FormValidation.createInstance({
           const selfIndex = path.pop()
           const parent = path.reduce((parent, key) => parent[key], target)
           for (const index in parent) {
-            if (parent[selfIndex] === parent[index] && index != selfIndex) {
-              return false
+            if (parent[selfIndex] === parent[index] && index !== selfIndex + '') {
+              return 'Something went wrong'
             }
           }
         },
-      },
-    },
-  },
-})
-
-// O(n)
-const instance = FormValidation.createInstance({
-  ipWhiteList: {
-    $rule: {
-      unique({ value: ips }) {
-        const values = new Set()
-        for (const ip of ips) {
-          if (values.has(ip)) {
-            return false
-          }
-          values.set(ip)
-        }
       },
     },
   },
