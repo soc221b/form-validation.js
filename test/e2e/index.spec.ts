@@ -198,7 +198,7 @@ test('it should validate recursively (array)', async () => {
   expect(validator[0][0].$errors.rule).toBe(value)
 })
 
-test('it should reset recursively', async () => {
+test('it should reset recursively (object)', async () => {
   const value = {}
   const form = {
     nesting: {
@@ -222,9 +222,40 @@ test('it should reset recursively', async () => {
     },
   }
   const validator = createInstance(schema)
+
   await validator.$validate(form)
   expect(validator.nesting.value.$errors.rule).toBe(value)
 
   validator.$reset()
   expect(validator.nesting.value.$errors.rule).toBe(undefined)
+})
+
+test('it should reset recursively (array)', async () => {
+  const value = {}
+  const form: any[][] = []
+  form.push([])
+  form[0].push(value)
+  const schema: Schema = {
+    0: {
+      0: {
+        $rules: {
+          rule() {
+            return false
+          },
+        },
+        $errors: {
+          rule({ value }: Param) {
+            return value
+          },
+        },
+      },
+    },
+  }
+  const validator = createInstance(schema)
+
+  await validator.$validate(form)
+  expect(validator[0][0].$errors.rule).toBe(value)
+
+  validator.$reset()
+  expect(validator[0][0].$errors.rule).toBe(undefined)
 })
