@@ -3,7 +3,6 @@ import {
   addSchemaProxy,
   disableEnumerabilityForInstanceReservedProperties,
 } from '../../src/instance'
-import { Instance, Schema } from '../../type'
 import { createDefaultSchema } from '../../src/schema'
 
 test('createDefaultInstance', () => {
@@ -24,7 +23,7 @@ test('createDefaultInstance', () => {
 })
 
 test('addSchemaProxy', () => {
-  const schema: Required<Schema> = {
+  const schema = {
     $params: {},
     $normalizer: () => {},
     $rules: {},
@@ -44,7 +43,7 @@ test('addSchemaProxy', () => {
       },
     },
   }
-  const instance: Instance = createDefaultInstance()
+  const instance = createDefaultInstance()
   instance.deep = createDefaultInstance()
 
   addSchemaProxy(instance, schema)
@@ -76,7 +75,7 @@ test('addSchemaProxy', () => {
 })
 
 test('disableEnumerabilityForInstanceReservedProperties', () => {
-  const instance: Instance = createDefaultInstance()
+  const instance = createDefaultInstance()
 
   expect(Object.keys(instance).length).toStrictEqual(9)
 

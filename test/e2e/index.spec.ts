@@ -1,4 +1,3 @@
-import { Schema, Param } from '../../type/index'
 import createInstance from '../../src/createInstance'
 
 test('it should pass param to reserved functions', async () => {
@@ -8,11 +7,11 @@ test('it should pass param to reserved functions', async () => {
     nesting,
   }
   let called = 0
-  const schema: Schema = {
+  const schema = {
     $params: {
       param,
     },
-    $normalizer({ value, key, path, target, params }) {
+    $normalizer({ value, key, path, target, params }: any) {
       called++
       expect(value).toBe(form)
       expect(key).toBe(undefined)
@@ -22,7 +21,7 @@ test('it should pass param to reserved functions', async () => {
       return value
     },
     $rules: {
-      rule({ value, key, path, target, params }) {
+      rule({ value, key, path, target, params }: any) {
         called++
         expect(value).toBe(form)
         expect(key).toBe(undefined)
@@ -33,7 +32,7 @@ test('it should pass param to reserved functions', async () => {
       },
     },
     $errors: {
-      rule({ value, key, path, target, params }) {
+      rule({ value, key, path, target, params }: any) {
         called++
         expect(value).toBe(form)
         expect(key).toBe(undefined)
@@ -56,12 +55,12 @@ test('it should pass param to reserved functions (nesting)', async () => {
     nesting,
   }
   let called = 0
-  const schema: Schema = {
+  const schema = {
     nesting: {
       $params: {
         param,
       },
-      $normalizer({ value, key, path, target, params }: Required<Param>) {
+      $normalizer({ value, key, path, target, params }: any) {
         called++
         expect(value).toBe(nesting)
         expect(key).toBe('nesting')
@@ -71,7 +70,7 @@ test('it should pass param to reserved functions (nesting)', async () => {
         return value
       },
       $rules: {
-        rule({ value, key, path, target, params }: Required<Param>) {
+        rule({ value, key, path, target, params }: any) {
           called++
           expect(value).toBe(nesting)
           expect(key).toBe('nesting')
@@ -82,7 +81,7 @@ test('it should pass param to reserved functions (nesting)', async () => {
         },
       },
       $errors: {
-        rule({ value, key, path, target, params }: Required<Param>) {
+        rule({ value, key, path, target, params }: any) {
           called++
           expect(value).toBe(nesting)
           expect(key).toBe('nesting')
@@ -102,7 +101,7 @@ test('it should pass param to reserved functions (nesting)', async () => {
 test('it should validate with rules', async () => {
   const value = {}
   const form = undefined
-  const schema: Schema = {
+  const schema = {
     $rules: {
       rule() {
         return false
@@ -123,7 +122,7 @@ test('it should validate with rules', async () => {
 test('it should normalize value before validate it', async () => {
   const value = {}
   const form = undefined
-  const schema: Partial<Schema> = {
+  const schema = {
     $normalizer: () => value,
     $rules: {
       rule() {
@@ -131,7 +130,7 @@ test('it should normalize value before validate it', async () => {
       },
     },
     $errors: {
-      rule({ value }: Param) {
+      rule({ value }: any) {
         return value
       },
     },
@@ -149,7 +148,7 @@ test('it should validate recursively (object)', async () => {
       value,
     },
   }
-  const schema: Schema = {
+  const schema = {
     nesting: {
       value: {
         $rules: {
@@ -158,7 +157,7 @@ test('it should validate recursively (object)', async () => {
           },
         },
         $errors: {
-          rule({ value }: Param) {
+          rule({ value }: any) {
             return value
           },
         },
@@ -176,7 +175,7 @@ test('it should validate recursively (array)', async () => {
   const form: any[][] = []
   form.push([])
   form[0].push(value)
-  const schema: Schema = {
+  const schema = {
     0: {
       0: {
         $rules: {
@@ -185,7 +184,7 @@ test('it should validate recursively (array)', async () => {
           },
         },
         $errors: {
-          rule({ value }: Param) {
+          rule({ value }: any) {
             return value
           },
         },
@@ -205,7 +204,7 @@ test('it should reset recursively (object)', async () => {
       value,
     },
   }
-  const schema: Schema = {
+  const schema = {
     nesting: {
       value: {
         $rules: {
@@ -214,7 +213,7 @@ test('it should reset recursively (object)', async () => {
           },
         },
         $errors: {
-          rule({ value }: Param) {
+          rule({ value }: any) {
             return value
           },
         },
@@ -235,7 +234,7 @@ test('it should reset recursively (array)', async () => {
   const form: any[][] = []
   form.push([])
   form[0].push(value)
-  const schema: Schema = {
+  const schema = {
     0: {
       0: {
         $rules: {
@@ -244,7 +243,7 @@ test('it should reset recursively (array)', async () => {
           },
         },
         $errors: {
-          rule({ value }: Param) {
+          rule({ value }: any) {
             return value
           },
         },
