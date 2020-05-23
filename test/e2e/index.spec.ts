@@ -7,11 +7,13 @@ test('it should pass param to reserved functions', async () => {
   const form = {
     nesting,
   }
+  let called = 0
   const schema: Schema = {
     $params: {
       param,
     },
     $normalizer({ value, key, path, target, params }) {
+      called++
       expect(value).toBe(form)
       expect(key).toBe(undefined)
       expect(path).toStrictEqual([])
@@ -21,6 +23,7 @@ test('it should pass param to reserved functions', async () => {
     },
     $rules: {
       rule({ value, key, path, target, params }) {
+        called++
         expect(value).toBe(form)
         expect(key).toBe(undefined)
         expect(path).toStrictEqual([])
@@ -31,6 +34,7 @@ test('it should pass param to reserved functions', async () => {
     },
     $errors: {
       rule({ value, key, path, target, params }) {
+        called++
         expect(value).toBe(form)
         expect(key).toBe(undefined)
         expect(path).toStrictEqual([])
@@ -42,6 +46,7 @@ test('it should pass param to reserved functions', async () => {
 
   const instance = createInstance(schema)
   await instance.$validate(form)
+  expect(called).toStrictEqual(3)
 })
 
 test('it should pass param to reserved functions (nesting)', async () => {
@@ -50,12 +55,14 @@ test('it should pass param to reserved functions (nesting)', async () => {
   const form = {
     nesting,
   }
+  let called = 0
   const schema: Schema = {
     nesting: {
       $params: {
         param,
       },
       $normalizer({ value, key, path, target, params }: Required<Param>) {
+        called++
         expect(value).toBe(nesting)
         expect(key).toBe('nesting')
         expect(path).toStrictEqual(['nesting'])
@@ -65,6 +72,7 @@ test('it should pass param to reserved functions (nesting)', async () => {
       },
       $rules: {
         rule({ value, key, path, target, params }: Required<Param>) {
+          called++
           expect(value).toBe(nesting)
           expect(key).toBe('nesting')
           expect(path).toStrictEqual(['nesting'])
@@ -75,6 +83,7 @@ test('it should pass param to reserved functions (nesting)', async () => {
       },
       $errors: {
         rule({ value, key, path, target, params }: Required<Param>) {
+          called++
           expect(value).toBe(nesting)
           expect(key).toBe('nesting')
           expect(path).toStrictEqual(['nesting'])
@@ -87,6 +96,7 @@ test('it should pass param to reserved functions (nesting)', async () => {
 
   const instance = createInstance(schema)
   await instance.$validate(form)
+  expect(called).toStrictEqual(3)
 })
 
 test('it should validate with rules', async () => {
