@@ -1,14 +1,12 @@
 # ToC
 
-- [Custom Message](#custom-message)
+- [Custom Error](#custom-error)
 - [Same As](#same-as)
 - [Unique](#unique)
 
-# Custom Message
+# Custom Error
 
-You can return anything from rule methods, which also means you have full control of the `$messages`.
-
-For example, you can return the following values to determine the `$messages` is error or not:
+You can return anything from rule methods, thus you can do anything to deal with:
 
 ```javascript
 const form = {
@@ -17,26 +15,30 @@ const form = {
 
 const instance = FormValidation.createInstance({
   password: {
+    $params: {
+      min: 5,
+    },
     $rules: {
-      minLength({ value }) {
-        if (value.length <= 5) {
+      minLength({ value, params }) {
+        if (value.length <= params.min) {
           return 'Something went wrong'
         }
       },
     },
-    $messages: {
-      minLength() {
-        return [`error`, `Must be at least 6 characters long.`]
+    $errors: {
+      minLength({ params }) {
+        return [`error`, `Must be at least ${params.min} characters long.`]
       },
     },
   },
 })
 
-instance.$validate(form, () => {
-  console.log(instance.password.$messages.minLength)
-})
-
-// > [`error`, `Must be at least 6 characters long.`]
+await instance.$validate(form)
+const [type, message] = instance.password.$errors.minLength
+if (type === 'error') {
+  console.log(message)
+  // > Must be at least 5 charcters
+}
 ```
 
 # Same As
@@ -51,6 +53,7 @@ const instance = FormValidation.createInstance({
   confirmPassword: {
     $params: {
       sameAsField: ['password'],
+      sameAsFieldName: 'Password',
     },
     $rules: {
       sameAs({ value, params, target }) {
@@ -62,11 +65,15 @@ const instance = FormValidation.createInstance({
     },
     $errors: {
       sameAs({ params }) {
-        return `This field should be the same as '${params.sameAsField.join('.')}'.`
+        return `This field should be the same as the ${params.sameAsFieldName}.`
       },
     },
   },
 })
+
+await instance.$validate(form)
+console.log(instance.confirmPassword.$errors.sameAs)
+// > This field should be the same as the Password.
 ```
 
 # Unique
@@ -79,18 +86,32 @@ const form = {
 const instance = FormValidation.createInstance({
   ipWhiteList: {
     $iter: {
+      $params: {
+        field: 'Ip',
+      },
       $rule: {
         unique({ path, target }) {
           const selfIndex = path.pop()
           const parent = path.reduce((parent, key) => parent[key], target)
           for (const index in parent) {
-            if (parent[selfIndex] === parent[index] && index !== selfIndex + '') {
+            if (parent[selfIndex] === parent[index] && parseInt(index, 10) > selfIndex) {
               return 'Something went wrong'
             }
           }
         },
       },
+      $errors: {
+        unique({ params }) {
+          return `This ${params.field} is duplicated`
+        },
+      },
     },
   },
 })
+
+await instance.$validate(form)
+console.log(instance.ipWhiteList[0].$errors.unique)
+// > undefined
+console.log(instance.ipWhiteList[1].$errors.unique)
+// > This Ip is duplicated
 ```
