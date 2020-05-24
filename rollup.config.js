@@ -7,7 +7,7 @@ import replace from '@rollup/plugin-replace'
 rm.sync(path.resolve('dist/**/*'))
 
 const packageName = 'form-validation'
-const pascalCasePackageName = 'Form-Validation'
+const pascalCasePackageName = 'FormValidation'
 
 const input = 'src/index.ts'
 const formats = ['es', 'umd', 'amd', 'cjs', 'iife', 'system']
