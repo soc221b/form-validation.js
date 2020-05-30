@@ -14,7 +14,7 @@
   "scripts": {
     "build": "rollup --config",
     "dev": "rollup --config --watch",
-    "test": "jest --testTimeout 30",
+    "test": "jest --clearCache && jest --testTimeout 30 --all",
     "prettify": "prettier --check **/*.js **/*.ts **/*.json **/*.md"
   },
   "dependencies": {
