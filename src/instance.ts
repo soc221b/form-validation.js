@@ -3,10 +3,18 @@ import { Instance, Schema, Rule, Path, Param } from '../type/index'
 import { isPlainObject, noop, hasKey, isArray, getByPath, isPromise, deepCopy, curry } from './util'
 import { createDefaultSchema } from './schema'
 
-const defaultInstance = createDefaultInstance()
+type ValidateParams = {
+  instance: Instance
+  path: Path
+}
 
-export function createDefaultInstance(schema: Required<Schema> = createDefaultSchema()): Instance {
-  const defaultSchema = createDefaultSchema()
+type ResetParams = {
+  instance: Instance
+}
+
+const defaultInstance = _createInstance()
+
+export function _createInstance(schema: Required<Schema> = createDefaultSchema()): Instance {
   const instance: Instance = {
     $validate: () => Promise.resolve(),
     $reset: noop,
@@ -14,45 +22,19 @@ export function createDefaultInstance(schema: Required<Schema> = createDefaultSc
     $isPending: false,
 
     $hasError: false,
-    $errors: {},
+    $errors: Object.keys(schema.$rules).reduce(($errors: { [key: string]: any }, key) => {
+      $errors[key] = undefined
+      return $errors
+    }, {}),
 
     $iter: {},
     $params: {},
 
-    _schema: createDefaultSchema(),
+    _schema: schema,
+    _target: undefined,
   }
-
-  Object.keys(schema).forEach(key => {
-    if (hasKey(defaultSchema, key)) return
-    if (isPlainObject(schema[key]) === false) return
-
-    instance[key] = createDefaultInstance(schema[key])
-  })
 
   return instance
-}
-
-export function addSchemaProxy(instance: Instance, normalizedSchema: Required<Schema>): void {
-  if (isPlainObject(instance) === false) return
-  if (isPlainObject(normalizedSchema) === false) return
-
-  const descriptor = {
-    get() {
-      return normalizedSchema
-    },
-    set() {
-      if (__DEV__) {
-        throw Error('Do not directly mutate schema from instance.')
-      }
-    },
-  }
-  Object.defineProperty(instance, '_schema', descriptor)
-
-  Object.keys(instance).forEach(key => {
-    if (hasKey(defaultInstance, key)) return
-
-    addSchemaProxy(instance[key], normalizedSchema[key])
-  })
 }
 
 export function disableEnumerabilityForInstanceReservedProperties(instance: Instance): void {
@@ -66,37 +48,46 @@ export function disableEnumerabilityForInstanceReservedProperties(instance: Inst
   Object.keys(defaultInstance).forEach(key => {
     Object.defineProperty(instance, key, descriptor)
   })
-
-  Object.keys(instance).forEach(key => {
-    if (hasKey(defaultInstance, key)) return
-
-    disableEnumerabilityForInstanceReservedProperties(instance[key])
-  })
+  Object.defineProperty(instance, '$bind', descriptor)
 }
 
-export function attachFunctions(instance: Instance) {
-  instance.$validate = target => validate({ instance, path: [], target })
-  instance.$reset = () => reset({ instance })
+export function attachFunctions(instance: Instance, path: Path) {
+  instance.$bind = (target: any) => _bindRecursively(instance, target)
+  _attachFunctions(instance, path)
+}
+function _bindRecursively(instance: Instance, target: any) {
+  instance._target = target
 
   Object.keys(instance).forEach(key => {
     if (hasKey(defaultInstance, key)) return
     if (isPlainObject(instance[key]) === false) return
 
-    attachFunctions(instance[key])
+    _bindRecursively(instance[key], target)
   })
 }
-
-type ValidateParams = {
-  instance: Instance
-  path: Path
-  target: any
+function _attachFunctions(instance: Instance, path: Path) {
+  instance.$validate = () => validate({ instance, path })
+  instance.$reset = () => reset({ instance })
 }
-export async function validate({ instance, path, target }: ValidateParams): Promise<void> {
+
+export async function validate({ instance, path }: ValidateParams): Promise<void> {
+  await Promise.all([
+    _validate({ instance, path }),
+    ...Object.keys(instance).map(async key => {
+      if (isPlainObject(instance[key]) === false) return
+
+      await validate({ instance: instance[key], path: path.concat(key) })
+    }),
+  ])
+}
+
+async function _validate({ instance, path }: ValidateParams): Promise<void> {
   instance.$hasValidated = true
   instance.$isPending = true
   instance.$hasError = false
-  instance.$errors = {}
+  Object.keys(instance.$errors).forEach(key => (instance.$errors[key] = undefined))
 
+  const target = instance._target
   const key = path[path.length - 1]
   const value = getByPath(target, path)
   const params = instance._schema.$params
@@ -118,30 +109,20 @@ export async function validate({ instance, path, target }: ValidateParams): Prom
     }),
   )
   instance.$isPending = false
-
-  if (isPlainObject(value) === false && isArray(value) === false) return
-  await Promise.all(
-    Object.keys(instance).map(async key => {
-      if (isPlainObject(instance[key]) === false) return
-
-      await validate({ instance: instance[key], path: [...path, key], target: target })
-    }),
-  )
 }
 
-type ResetParams = {
-  instance: Instance
-}
 export function reset({ instance }: ResetParams) {
-  instance.$hasValidated = false
-  instance.$isPending = false
-  instance.$hasError = false
-  instance.$errors = {}
-
+  _reset({ instance })
   Object.keys(instance).forEach(key => {
     if (hasKey(defaultInstance, key)) return
     if (isPlainObject(instance[key]) === false) return
 
     reset({ instance: instance[key] })
   })
+}
+export function _reset({ instance }: ResetParams) {
+  instance.$hasValidated = false
+  instance.$isPending = false
+  instance.$hasError = false
+  Object.keys(instance.$errors).forEach(key => (instance.$errors[key] = undefined))
 }

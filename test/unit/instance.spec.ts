@@ -1,85 +1,95 @@
-import {
-  createDefaultInstance,
-  addSchemaProxy,
-  disableEnumerabilityForInstanceReservedProperties,
-} from '../../src/instance'
+import { _createInstance, disableEnumerabilityForInstanceReservedProperties } from '../../src/instance'
 import { createDefaultSchema } from '../../src/schema'
 
-test('createDefaultInstance', () => {
-  const instance = createDefaultInstance()
+test('_createInstance', () => {
+  const validator = _createInstance()
   const schema = createDefaultSchema()
 
-  expect(typeof instance.$validate).toStrictEqual('function')
-  expect(typeof instance.$reset).toStrictEqual('function')
+  expect(typeof validator.$validate).toStrictEqual('function')
+  expect(typeof validator.$reset).toStrictEqual('function')
 
-  expect(instance.$hasError).toStrictEqual(false)
-  expect(instance.$hasValidated).toStrictEqual(false)
-  expect(instance.$errors).toStrictEqual({})
-  expect(instance.$isPending).toStrictEqual(false)
-  expect(instance.$iter).toStrictEqual({})
-  expect(instance.$params).toStrictEqual({})
+  expect(validator.$hasError).toStrictEqual(false)
+  expect(validator.$hasValidated).toStrictEqual(false)
+  expect(validator.$errors).toStrictEqual({})
+  expect(validator.$isPending).toStrictEqual(false)
+  expect(validator.$iter).toStrictEqual({})
+  expect(validator.$params).toStrictEqual({})
 
-  expect(instance._schema).toStrictEqual(schema)
-})
-
-test('addSchemaProxy', () => {
-  const schema = {
-    $params: {},
-    $normalizer: () => {},
-    $rules: {},
-    $errors: {},
-
-    deep: {
-      $params: {},
-      $normalizer: () => {},
-      $rules: {},
-      $errors: {},
-
-      nesting: {
-        $params: {},
-        $normalizer: () => {},
-        $rules: {},
-        $errors: {},
-      },
-    },
-  }
-  const instance = createDefaultInstance()
-  instance.deep = createDefaultInstance()
-
-  addSchemaProxy(instance, schema)
-
-  expect(instance._schema.$params).toBe(schema.$params)
-  expect(instance._schema.$normalizer).toBe(schema.$normalizer)
-  expect(instance._schema.$rules).toBe(schema.$rules)
-  expect(instance._schema.$errors).toBe(schema.$errors)
-
-  expect(instance._schema.deep.$params).toBe(schema.deep.$params)
-  expect(instance._schema.deep.$normalizer).toBe(schema.deep.$normalizer)
-  expect(instance._schema.deep.$rules).toBe(schema.deep.$rules)
-  expect(instance._schema.deep.$errors).toBe(schema.deep.$errors)
-
-  expect(instance._schema.deep.nesting.$params).toBe(schema.deep.nesting.$params)
-  expect(instance._schema.deep.nesting.$normalizer).toBe(schema.deep.nesting.$normalizer)
-  expect(instance._schema.deep.nesting.$rules).toBe(schema.deep.nesting.$rules)
-  expect(instance._schema.deep.nesting.$errors).toBe(schema.deep.nesting.$errors)
-
-  expect(instance.deep._schema.$params).toBe(schema.deep.$params)
-  expect(instance.deep._schema.$normalizer).toBe(schema.deep.$normalizer)
-  expect(instance.deep._schema.$rules).toBe(schema.deep.$rules)
-  expect(instance.deep._schema.$errors).toBe(schema.deep.$errors)
-
-  expect(instance.deep._schema.nesting.$params).toBe(schema.deep.nesting.$params)
-  expect(instance.deep._schema.nesting.$normalizer).toBe(schema.deep.nesting.$normalizer)
-  expect(instance.deep._schema.nesting.$rules).toBe(schema.deep.nesting.$rules)
-  expect(instance.deep._schema.nesting.$errors).toBe(schema.deep.nesting.$errors)
+  expect(validator._schema).toStrictEqual(schema)
+  expect(validator._rootTarget).toStrictEqual(undefined)
 })
 
 test('disableEnumerabilityForInstanceReservedProperties', () => {
-  const instance = createDefaultInstance()
+  const $errors = {}
+  const $hasError = false
+  const $hasValidated = false
+  const $isPending = false
+  const $iter = {}
+  const $params = {}
+  const $reset = () => undefined
+  const $validate = () => Promise.resolve()
+  const _schema = createDefaultSchema()
+  const _target = {}
+  const another1 = {}
+  const $another2 = {}
 
-  expect(Object.keys(instance).length).toStrictEqual(9)
+  const validator = {
+    $errors,
+    $hasError,
+    $hasValidated,
+    $isPending,
+    $iter,
+    $params,
+    $reset,
+    $validate,
+    _schema,
+    _target,
+    another1,
+    $another2,
+  }
 
-  disableEnumerabilityForInstanceReservedProperties(instance)
+  expect(Object.keys(validator)).toEqual(
+    expect.arrayContaining([
+      '$errors',
+      '$hasError',
+      '$hasValidated',
+      '$isPending',
+      '$iter',
+      '$params',
+      '$reset',
+      '$validate',
+      '_schema',
+      '_target',
+      'another1',
+      '$another2',
+    ]),
+  )
+  expect(validator.$errors).toBe($errors)
+  expect(validator.$hasError).toBe($hasError)
+  expect(validator.$hasValidated).toBe($hasValidated)
+  expect(validator.$isPending).toBe($isPending)
+  expect(validator.$iter).toBe($iter)
+  expect(validator.$params).toBe($params)
+  expect(validator.$reset).toBe($reset)
+  expect(validator.$validate).toBe($validate)
+  expect(validator._schema).toBe(_schema)
+  expect(validator._target).toBe(_target)
+  expect(validator.another1).toBe(another1)
+  expect(validator.$another2).toBe($another2)
 
-  expect(Object.keys(instance)).toStrictEqual([])
+  disableEnumerabilityForInstanceReservedProperties(validator)
+
+  expect(Object.keys(validator)).toEqual(expect.arrayContaining(['another1', '$another2']))
+  expect(validator.$errors).toBe($errors)
+  expect(validator.$hasError).toBe($hasError)
+  expect(validator.$hasValidated).toBe($hasValidated)
+  expect(validator.$isPending).toBe($isPending)
+  expect(validator.$iter).toBe($iter)
+  expect(validator.$params).toBe($params)
+  expect(validator.$reset).toBe($reset)
+  expect(validator.$validate).toBe($validate)
+  expect(validator._schema).toBe(_schema)
+  expect(validator._target).toBe(_target)
+  expect(validator.another1).toBe(another1)
+  expect(validator.$another2).toBe($another2)
 })

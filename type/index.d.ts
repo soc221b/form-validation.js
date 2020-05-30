@@ -11,14 +11,14 @@ export type Schema = {
 
 export type Param = {
   value?: any
-  key?: string
+  key?: string | undefined
   path?: Path
   target?: any
   params?: { [key: string]: any }
 }
 
 // rules
-export type Rule = ({ value, key, path, target, params }: Required<Param>) => boolean | Promise<boolean>
+export type Rule = ({ value, key, path, target, params }: Required<Param>) => any | Promise<any>
 
 // normlizer
 export type Normalizer = ({ value, key, path, target, params }: Required<Param>) => any
@@ -27,7 +27,7 @@ export type Normalizer = ({ value, key, path, target, params }: Required<Param>)
 export type Error = ({ value, key, path, target, params }: Required<Param>) => any
 
 export type Instance = {
-  $validate: (target: any) => Promise<void>
+  $validate: () => Promise<void>
   $reset: () => void
 
   $errors: { [key: string]: any }
@@ -35,9 +35,10 @@ export type Instance = {
   $hasValidated: boolean
   $isPending: boolean
   $params: { [key: string]: any }
-  $iter: { [key: string]: Instance }
+  $iter: { [key: string]: Omit<Instance, '$bind'> }
 
   _schema: Required<Schema>
+  _target: any
 
   [key: string]: any
 }

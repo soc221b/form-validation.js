@@ -23,7 +23,11 @@ export function normalizeSchema(schema: Schema): Required<Schema> {
 
   Object.keys(schema).forEach(key => {
     if (hasKey(normalizedSchema, key)) return
-    if (isPlainObject(schema[key]) === false) return
+
+    if (isPlainObject(schema[key]) === false) {
+      normalizedSchema[key] = schema[key]
+      return
+    }
 
     normalizedSchema[key] = normalizeSchema(schema[key])
   })

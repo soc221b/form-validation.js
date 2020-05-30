@@ -10,59 +10,64 @@ test('createDefaultSchema', () => {
 })
 
 test('normalizeSchema', () => {
-  const schema1 = {
-    deep: {
-      nesting: {},
-    },
+  const anotherKey1 = Symbol('anotherKey1')
+  const schema = {
+    anotherKey1,
+    nesting: {},
   }
-  const normalizedSchema1 = normalizeSchema(schema1)
-  expect(normalizedSchema1.$params).toStrictEqual({})
-  expect(typeof normalizedSchema1.$normalizer).toStrictEqual('function')
-  expect(normalizedSchema1.$rules).toStrictEqual({})
-  expect(normalizedSchema1.$errors).toStrictEqual({})
 
-  expect(normalizedSchema1.deep.$params).toStrictEqual({})
-  expect(typeof normalizedSchema1.deep.$normalizer).toStrictEqual('function')
-  expect(normalizedSchema1.deep.$rules).toStrictEqual({})
-  expect(normalizedSchema1.deep.$errors).toStrictEqual({})
+  const normalizedSchema = normalizeSchema(schema)
+  expect(normalizedSchema.$params).toStrictEqual({})
+  expect(typeof normalizedSchema.$normalizer).toStrictEqual('function')
+  expect(normalizedSchema.$rules).toStrictEqual({})
+  expect(normalizedSchema.$errors).toStrictEqual({})
 
-  expect(normalizedSchema1.deep.nesting.$params).toStrictEqual({})
-  expect(typeof normalizedSchema1.deep.nesting.$normalizer).toStrictEqual('function')
-  expect(normalizedSchema1.deep.nesting.$rules).toStrictEqual({})
-  expect(normalizedSchema1.deep.nesting.$errors).toStrictEqual({})
+  expect(normalizedSchema.nesting.$params).toStrictEqual({})
+  expect(typeof normalizedSchema.nesting.$normalizer).toStrictEqual('function')
+  expect(normalizedSchema.nesting.$rules).toStrictEqual({})
+  expect(normalizedSchema.nesting.$errors).toStrictEqual({})
 
-  const schema2 = createDefaultSchema()
-  schema2.deep = createDefaultSchema()
-  schema2.deep.nesting = createDefaultSchema()
-  const normalizedSchema2 = normalizeSchema(schema2)
-
-  expect(normalizedSchema2.$params.param).toBe(schema2.$params.param)
-  expect(normalizedSchema2.$normalizer).toBe(schema2.$normalizer)
-  expect(normalizedSchema2.$rules.rule).toBe(schema2.$rules.rule)
-  expect(normalizedSchema2.$errors.rule).toBe(schema2.$errors.rule)
-
-  expect(normalizedSchema2.deep.$params.param).toBe(schema2.deep.$params.param)
-  expect(normalizedSchema2.deep.$normalizer).toBe(schema2.deep.$normalizer)
-  expect(normalizedSchema2.deep.$rules.rule).toBe(schema2.deep.$rules.rule)
-  expect(normalizedSchema2.deep.$errors.rule).toBe(schema2.deep.$errors.rule)
-
-  expect(normalizedSchema2.deep.nesting.$params.param).toBe(schema2.deep.nesting.$params.param)
-  expect(normalizedSchema2.deep.nesting.$normalizer).toBe(schema2.deep.nesting.$normalizer)
-  expect(normalizedSchema2.deep.nesting.$rules.rule).toBe(schema2.deep.nesting.$rules.rule)
-  expect(normalizedSchema2.deep.nesting.$errors.rule).toBe(schema2.deep.nesting.$errors.rule)
+  expect(normalizedSchema.anotherKey1).toStrictEqual(anotherKey1)
 })
 
 test('disableEnumerabilityForSchemaReservedProperties', () => {
-  const schema = createDefaultSchema()
-  schema.deep = createDefaultSchema()
-  schema.deep.nesting = createDefaultSchema()
+  const $errors = {}
+  const $normalizer = function () {}
+  const $params = {}
+  const $rules = {}
+  const anotherKey1 = {}
+  const $anotherKey2 = {}
+  const schema = {
+    $errors,
+    $normalizer,
+    $params,
+    $rules,
+    anotherKey1,
+    $anotherKey2,
+  }
 
-  expect(Object.keys(schema).length).toStrictEqual(5)
-  expect(Object.keys(schema.deep).length).toStrictEqual(5)
-  expect(Object.keys(schema.deep.nesting).length).toStrictEqual(4)
+  expect(Object.keys(schema)).toStrictEqual([
+    '$errors',
+    '$normalizer',
+    '$params',
+    '$rules',
+    'anotherKey1',
+    '$anotherKey2',
+  ])
+  expect(schema.$errors).toBe($errors)
+  expect(schema.$normalizer).toBe($normalizer)
+  expect(schema.$params).toBe($params)
+  expect(schema.$rules).toBe($rules)
+  expect(schema.anotherKey1).toBe(anotherKey1)
+  expect(schema.$anotherKey2).toBe($anotherKey2)
 
   disableEnumerabilityForSchemaReservedProperties(schema)
-  expect(Object.keys(schema)).toStrictEqual(['deep'])
-  expect(Object.keys(schema.deep)).toStrictEqual(['nesting'])
-  expect(Object.keys(schema.deep.nesting)).toStrictEqual([])
+
+  expect(Object.keys(schema)).toStrictEqual(['anotherKey1', '$anotherKey2'])
+  expect(schema.$errors).toBe($errors)
+  expect(schema.$normalizer).toBe($normalizer)
+  expect(schema.$params).toBe($params)
+  expect(schema.$rules).toBe($rules)
+  expect(schema.anotherKey1).toBe(anotherKey1)
+  expect(schema.$anotherKey2).toBe($anotherKey2)
 })

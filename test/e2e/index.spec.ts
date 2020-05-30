@@ -1,4 +1,4 @@
-import createInstance from '../../src/createInstance'
+import { createInstance } from '../../src/index'
 
 test('it should pass param to reserved functions', async () => {
   const param = {}
@@ -6,7 +6,7 @@ test('it should pass param to reserved functions', async () => {
   const form = {
     nesting,
   }
-  let called = Array(6).fill(false)
+  const called = Array(6).fill(false)
   const schema = {
     $params: {
       param,
@@ -78,8 +78,10 @@ test('it should pass param to reserved functions', async () => {
     },
   }
 
-  const instance = createInstance(schema)
-  await instance.$validate(form)
+  const validator = createInstance(schema)
+  validator.$bind(form)
+
+  await validator.$validate()
   expect(called.every(called => called)).toStrictEqual(true)
 })
 
@@ -99,8 +101,9 @@ test('it should validate with rules', async () => {
     },
   }
   const validator = createInstance(schema)
+  validator.$bind(form)
 
-  await validator.$validate(form)
+  await validator.$validate()
   expect(validator.$errors.rule).toBe(value)
 })
 
@@ -121,8 +124,9 @@ test('it should normalize value before validate it', async () => {
     },
   }
   const validator = createInstance(schema)
+  validator.$bind(form)
 
-  await validator.$validate(form)
+  await validator.$validate()
   expect(validator.$errors.rule).toBe(value)
 })
 
@@ -170,8 +174,9 @@ test('it should validate recursively (object)', async () => {
     },
   }
   const validator = createInstance(schema)
+  validator.$bind(form)
 
-  await validator.$validate(form)
+  await validator.$validate()
   expect(validator.$errors.rule).toBe(value)
   expect(validator.nesting.$errors.rule).toBe(value)
   expect(validator.nesting.value.$errors.rule).toBe(value)
@@ -217,8 +222,9 @@ test('it should validate recursively (array)', async () => {
     },
   }
   const validator = createInstance(schema)
+  validator.$bind(form)
 
-  await validator.$validate(form)
+  await validator.$validate()
   expect(validator.$errors.rule).toBe(value)
   expect(validator[0].$errors.rule).toBe(value)
   expect(validator[0][0].$errors.rule).toBe(value)
@@ -268,8 +274,9 @@ test('it should reset recursively (object)', async () => {
     },
   }
   const validator = createInstance(schema)
+  validator.$bind(form)
 
-  await validator.$validate(form)
+  await validator.$validate()
   expect(validator.$errors.rule).toBe(value)
   expect(validator.nesting.$errors.rule).toBe(value)
   expect(validator.nesting.value.$errors.rule).toBe(value)
@@ -279,21 +286,13 @@ test('it should reset recursively (object)', async () => {
   expect(validator.nesting.$errors.rule).toBe(value)
   expect(validator.nesting.value.$errors.rule).toBe(undefined)
 
-  await validator.$validate(form)
-  expect(validator.$errors.rule).toBe(value)
-  expect(validator.nesting.$errors.rule).toBe(value)
-  expect(validator.nesting.value.$errors.rule).toBe(value)
-
+  await validator.$validate()
   validator.nesting.$reset()
   expect(validator.$errors.rule).toBe(value)
   expect(validator.nesting.$errors.rule).toBe(undefined)
   expect(validator.nesting.value.$errors.rule).toBe(undefined)
 
-  await validator.$validate(form)
-  expect(validator.$errors.rule).toBe(value)
-  expect(validator.nesting.$errors.rule).toBe(value)
-  expect(validator.nesting.value.$errors.rule).toBe(value)
-
+  await validator.$validate()
   validator.$reset()
   expect(validator.$errors.rule).toBe(undefined)
   expect(validator.nesting.$errors.rule).toBe(undefined)
@@ -340,8 +339,9 @@ test('it should reset recursively (array)', async () => {
     },
   }
   const validator = createInstance(schema)
+  validator.$bind(form)
 
-  await validator.$validate(form)
+  await validator.$validate()
   expect(validator.$errors.rule).toBe(value)
   expect(validator[0].$errors.rule).toBe(value)
   expect(validator[0][0].$errors.rule).toBe(value)
@@ -351,23 +351,66 @@ test('it should reset recursively (array)', async () => {
   expect(validator[0].$errors.rule).toBe(value)
   expect(validator[0][0].$errors.rule).toBe(undefined)
 
-  await validator.$validate(form)
-  expect(validator.$errors.rule).toBe(value)
-  expect(validator[0].$errors.rule).toBe(value)
-  expect(validator[0][0].$errors.rule).toBe(value)
-
+  await validator.$validate()
   validator[0].$reset()
   expect(validator.$errors.rule).toBe(value)
   expect(validator[0].$errors.rule).toBe(undefined)
   expect(validator[0][0].$errors.rule).toBe(undefined)
 
-  await validator.$validate(form)
-  expect(validator.$errors.rule).toBe(value)
-  expect(validator[0].$errors.rule).toBe(value)
-  expect(validator[0][0].$errors.rule).toBe(value)
-
+  await validator.$validate()
   validator.$reset()
   expect(validator.$errors.rule).toBe(undefined)
   expect(validator[0].$errors.rule).toBe(undefined)
   expect(validator[0][0].$errors.rule).toBe(undefined)
+})
+
+test('it should bind target recursively (object)', async () => {
+  const form = { nesting: { value: {} } }
+  const called = Array(3).fill(false)
+  const schema = {
+    $rules: {
+      rule({ value, target }: any) {
+        called[0] = true
+        expect(value).toBe(form)
+        expect(target).toBe(form)
+      },
+    },
+    nesting: {
+      $rules: {
+        rule({ value, target }: any) {
+          called[1] = true
+          expect(value).toBe(form.nesting)
+          expect(target).toBe(form)
+        },
+      },
+      value: {
+        $rules: {
+          rule({ value, target }: any) {
+            called[2] = true
+            expect(value).toBe(form.nesting.value)
+            expect(target).toBe(form)
+          },
+        },
+      },
+    },
+  }
+  const validator = createInstance(schema)
+
+  validator.$bind(form)
+  await validator.$validate()
+  expect(called[0]).toStrictEqual(true)
+  expect(called[1]).toStrictEqual(true)
+  expect(called[2]).toStrictEqual(true)
+
+  called.fill(false)
+  await validator.nesting.$validate()
+  expect(called[0]).toStrictEqual(false)
+  expect(called[1]).toStrictEqual(true)
+  expect(called[2]).toStrictEqual(true)
+
+  called.fill(false)
+  await validator.nesting.value.$validate()
+  expect(called[0]).toStrictEqual(false)
+  expect(called[1]).toStrictEqual(false)
+  expect(called[2]).toStrictEqual(true)
 })
