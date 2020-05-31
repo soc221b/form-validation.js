@@ -1,7 +1,7 @@
 import { Schema, Param } from '../type/index'
 import { isPlainObject, hasKey } from './util'
 
-const defaultSchema = createDefaultSchema()
+export const defaultSchema = createDefaultSchema()
 const defaultNormalizer = ({ value }: Param) => value
 export function createDefaultSchema(): Required<Schema> {
   return {

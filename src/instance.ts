@@ -12,10 +12,11 @@ type ResetParams = {
   instance: Instance
 }
 
-const defaultInstance = _createInstance()
+export const defaultInstance = _createInstance()
 
 export function _createInstance(schema: Required<Schema> = createDefaultSchema()): Instance {
   const instance: Instance = {
+    $bind: undefined,
     $validate: () => Promise.resolve(),
     $reset: noop,
     $hasValidated: false,
@@ -37,18 +38,11 @@ export function _createInstance(schema: Required<Schema> = createDefaultSchema()
   return instance
 }
 
-export function disableEnumerabilityForInstanceReservedProperties(instance: Instance): void {
-  if (isPlainObject(instance) === false) return
-
-  const descriptor = {
-    enumerable: false,
-    configurable: true,
-    writable: true,
-  }
-  Object.keys(defaultInstance).forEach(key => {
-    Object.defineProperty(instance, key, descriptor)
+export function attachIter(instance: Instance, path: Path) {
+  Object.keys(instance).forEach(key => {
+    if (hasKey(defaultInstance, key)) return
+    instance.$iter[key] = instance[key]
   })
-  Object.defineProperty(instance, '$bind', descriptor)
 }
 
 export function attachFunctions(instance: Instance, path: Path) {
@@ -74,6 +68,7 @@ export async function validate({ instance, path }: ValidateParams): Promise<void
   await Promise.all([
     _validate({ instance, path }),
     ...Object.keys(instance).map(async key => {
+      if (hasKey(defaultInstance, key)) return
       if (isPlainObject(instance[key]) === false) return
 
       await validate({ instance: instance[key], path: path.concat(key) })
