@@ -1,15 +1,17 @@
-function defineReactiveForValidator(context, key) {
-  Vue.observable(context[key]['$errors'])
-  context = context[key]
-  Object.keys(context).forEach(key => defineReactiveForValidator(context, key))
+function defineReactiveForValidator(validator) {
+  Object.keys(validator).forEach(key => {
+    if (typeof validator[key] !== 'object') return
+    validator[key] = Vue.observable(validator[key])
+  })
+  return validator
 }
+
 Vue.mixin({
-  beforeCreate() {
-    if (this.$options.schema) {
-      const validator = FormValidation.createInstance(this.$options.schema)
-      this.$v = validator
-      defineReactiveForValidator(this, '$v')
-    }
+  computed: {
+    $v() {
+      if (this.$options.schema === undefined) return
+      return defineReactiveForValidator(FormValidation.createInstance(this.$options.schema))
+    },
   },
   created() {
     this.$v.$bind(this.$data)
@@ -44,7 +46,7 @@ new Vue({
   },
   methods: {
     renderValidatorInfo() {
-      // console.clear()
+      console.clear()
       console.log(this.$v)
       console.log('form: ', JSON.stringify(this.$data, null, 2))
       console.log('validator: ', getValidatorInfo(this.$v))

@@ -1,20 +1,12 @@
-function getValidatorInfo(validator, info = {}, cache = new WeakMap()) {
-  if (cache.has(validator)) return cache.get(validator)
-  else cache.set(validator, info)
-
-  info.$hasValidated = validator.$hasValidated
-  info.$hasError = validator.$hasError
-  info.$errors = validator.$errors
-  info.$isPending = validator.$isPending
-  info.$params = validator.$params
-  info.$iter = validator.$iter
+function getValidatorInfo(validator, info = {}) {
+  if (typeof validator !== 'object') return
 
   for (const key of Object.keys(validator)) {
-    try {
-      info[key] = {}
-      getValidatorInfo(validator[key], info[key], cache)
-    } catch (error) {}
+    if (key === '_target') continue
+    if (key === '_schema') continue
+    info[key] = validator[key]
+    getValidatorInfo(validator[key], info[key])
   }
 
-  return JSON.stringify(info, null, 2)
+  return info
 }

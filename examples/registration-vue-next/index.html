@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Example: Vue</title>
+    <script src="http://unpkg.com/vue@next"></script>
+    <script src="../../dist/form-validation.umd.js"></script>
+  </head>
+  <body>
+    <div id="app">
+      <form>
+        <div>
+          <label for="account">Account</label>
+          <input id="account" v-model="state.account">
+          <span>{{  state.$v.account.$errors.required }}</span>
+        </div>
+
+        <div>
+          <label for="password">Password</label>
+          <input id="password" v-model="state.password" type="password">
+          <span>{{ state.$v.password.$errors.required }}</span>
+        </div>
+      </form>
+    </div>
+
+    <script src="../util/index.js"></script>
+    <script src="./index.js"></script>
+  </body>
+</html>
