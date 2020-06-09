@@ -10,6 +10,8 @@ Type Annotation Support. 💡
 
 Written in TypeScript. 💪
 
+Iterable protocol Support.
+
 Self Sufficient.
 
 # Getting Started
