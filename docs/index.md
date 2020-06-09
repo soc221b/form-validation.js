@@ -24,7 +24,7 @@ const form = {
 const instance = FormValidation.createInstance({
   password: {
     $rules: {
-      required({ value }) {
+      required({ value, key, path, target, params }) {
         if (value.length === 0) {
           return 'Something went wrong'
         }
