@@ -57,6 +57,30 @@ const instance = FormValidation.createInstance({
 })
 ```
 
+Since the `Map` is implemented with
+[iteration protocols](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Iteration_protocols), it can
+also be iterated.
+
+> Note: **FormValidation** also use Constructor.prototype.keys (like `new Map()` here) or Object.keys(instance) (like
+> `{}` in the previous example) to achieve iteration.
+
+```javascript
+const form = new Map([
+  ['account', '123'],
+  ['password', '123'],
+])
+
+const instance = FormValidation.createInstance({
+  $rules: {}, // rules for the form
+  $iter: {
+    $rules: {}, // rules for the form.? (i.e. the form.get('account') in here)
+  },
+  password: {
+    $rules: {}, // rules for the form.get('password')
+  },
+})
+```
+
 # Rules
 
 Except for the `undefined`, Anything is returned from rule methods that will be treated as invalid.
