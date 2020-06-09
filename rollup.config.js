@@ -3,6 +3,8 @@ import path from 'path'
 import ts from 'rollup-plugin-typescript2'
 import { terser } from 'rollup-plugin-terser'
 import replace from '@rollup/plugin-replace'
+import resolve from '@rollup/plugin-node-resolve'
+import globals from 'rollup-plugin-node-globals'
 
 rm.sync(path.resolve('dist/**/*'))
 
@@ -30,6 +32,8 @@ formats.forEach(format => {
       replace({
         __DEV__: true,
       }),
+      resolve(),
+      globals(),
     ],
     output: {
       ...config.output,
@@ -44,6 +48,8 @@ formats.forEach(format => {
       replace({
         __DEV__: false,
       }),
+      resolve(),
+      globals(),
       terser(),
     ],
     output: {
