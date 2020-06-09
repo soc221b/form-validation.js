@@ -31,7 +31,7 @@ const instance = FormValidation.createInstance(
   {
     $rules: {}, // rules for the passwords
     $iter: {
-      $rules: {}, // rules for the passwords[?] (i.e. the passwords[0] and passwords[1] in here)
+      $rules: {}, // rules for the passwords[?] (i.e. the passwords[1] in here)
     },
     0: {
       $rules: {}, // rules for the passwords[0]
@@ -42,13 +42,14 @@ const instance = FormValidation.createInstance(
 
 ```javascript
 const form = {
+  account: '123',
   password: '123',
 }
 
 const instance = FormValidation.createInstance({
   $rules: {}, // rules for the form
   $iter: {
-    $rules: {}, // rules for the form.? (i.e. the form.password in here)
+    $rules: {}, // rules for the form.? (i.e. the form.account in here)
   },
   password: {
     $rules: {}, // rules for the form.password
