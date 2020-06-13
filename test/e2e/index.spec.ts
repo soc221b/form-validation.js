@@ -126,7 +126,10 @@ test('it should pass param to reserved functions', async () => {
 test('it should validate with rules', async () => {
   const value = {}
   const form = undefined
-  const schema = {
+  let schema
+  let validator
+
+  schema = {
     $rules: {
       rule() {
         return false
@@ -138,11 +141,30 @@ test('it should validate with rules', async () => {
       },
     },
   }
-  const validator = createInstance(schema)
+  validator = createInstance(schema)
   validator.$bind(form)
 
   await validator.$validate()
   expect(validator.$errors.rule).toBe(value)
+
+
+  schema = {
+    $rules: {
+      rule() {
+        return undefined
+      },
+    },
+    $errors: {
+      rule() {
+        return value
+      },
+    },
+  }
+  validator = createInstance(schema)
+  validator.$bind(form)
+
+  await validator.$validate()
+  expect(validator.$errors.rule).toBe(undefined)
 })
 
 test('it should normalize value before validate it', async () => {
