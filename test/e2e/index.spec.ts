@@ -170,7 +170,32 @@ test('it should validate with rules', async () => {
 test('it should normalize value before validate it', async () => {
   const value = {}
   const form = undefined
-  const schema = {
+  let schema
+  let validator
+
+  schema = {
+    $normalizer: () => undefined,
+    $rules: {
+      rule({ value }: any) {
+        return value
+      },
+    },
+    $errors: {
+      rule({ value }: any) {
+        return value
+      },
+    },
+  }
+  validator = createInstance(schema)
+  validator.$bind(form)
+
+  await validator.$validate()
+  expect(validator.$hasError).toBe(false)
+  expect(validator.$errors.rule).toBe(undefined)
+
+  // ---
+
+  schema = {
     $normalizer: () => value,
     $rules: {
       rule({ value }: any) {
@@ -183,10 +208,11 @@ test('it should normalize value before validate it', async () => {
       },
     },
   }
-  const validator = createInstance(schema)
+  validator = createInstance(schema)
   validator.$bind(form)
 
   await validator.$validate()
+  expect(validator.$hasError).toBe(true)
   expect(validator.$errors.rule).toBe(value)
 })
 
