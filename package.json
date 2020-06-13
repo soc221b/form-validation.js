@@ -15,7 +15,7 @@
     "build": "rollup --config",
     "dev": "rollup --config --watch",
     "test": "jest --clearCache && jest --testTimeout 30 --all",
-    "prettify": "prettier --check **/*.js **/*.ts **/*.json **/*.md"
+    "prettify": "prettier --check **/*.js **/*.ts **/*.spec.ts **/*.json **/*.md"
   },
   "dependencies": {
     "@babel/runtime": "^7.9.6",
