@@ -3,6 +3,8 @@ import { Instance, Schema, Rule, Path, Param } from '../type/index'
 import { isPlainObject, noop, hasKey, isArray, getByPath, isPromise, deepCopy, curry } from './util'
 import { createDefaultSchema } from './schema'
 
+import { normalizeSchema, defaultSchema } from './schema'
+
 type ValidateParams = {
   instance: Instance
   path: Path
@@ -10,6 +12,20 @@ type ValidateParams = {
 
 type ResetParams = {
   instance: Instance
+}
+
+export function createInstance(schema: Schema, path: Path = []): Instance {
+  const normalizedSchema: Required<Schema> = normalizeSchema(schema)
+
+  const instance: Instance = _createInstance(normalizedSchema)
+  Object.keys(normalizedSchema).forEach(key => {
+    if (hasKey(defaultSchema, key)) return
+    instance[key] = createInstance(normalizedSchema[key], path.concat(key))
+  })
+  attachFunctions(instance, path)
+  attachIter(instance, path)
+
+  return instance
 }
 
 export const defaultInstance = _createInstance()
