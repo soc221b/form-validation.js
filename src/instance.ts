@@ -1,6 +1,6 @@
-import { Instance, Schema, Rule, Path, Param } from '../type/index'
+import { Instance, Schema, Path } from '../type/index'
 
-import { isPlainObject, noop, hasKey, isArray, getByPath, isPromise, deepCopy, curry } from './util'
+import { isPlainObject, noop, hasKey, getByPath } from './util'
 import { createDefaultSchema } from './schema'
 
 import { normalizeSchema, defaultSchema } from './schema'
