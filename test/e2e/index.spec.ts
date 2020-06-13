@@ -112,7 +112,7 @@ test('it should pass param to reserved functions', async () => {
             expect(params.param).toBe(param)
           },
         },
-      }
+      },
     },
   }
 
@@ -146,7 +146,6 @@ test('it should validate with rules', async () => {
 
   await validator.$validate()
   expect(validator.$errors.rule).toBe(value)
-
 
   schema = {
     $rules: {
