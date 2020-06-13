@@ -173,8 +173,8 @@ test('it should normalize value before validate it', async () => {
   const schema = {
     $normalizer: () => value,
     $rules: {
-      rule() {
-        return false
+      rule({ value }: any) {
+        return value
       },
     },
     $errors: {

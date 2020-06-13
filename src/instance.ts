@@ -107,7 +107,7 @@ async function _validate({ instance, path }: ValidateParams): Promise<void> {
     Object.keys(instance._schema.$rules).map(async ruleKey => {
       const rule = instance._schema.$rules[ruleKey]
       const success = await rule({ value: normalizedValue, key, path, params, target })
-      if (success === false) {
+      if (success !== undefined) {
         instance.$hasError = true
         instance.$errors[ruleKey] = instance._schema.$errors[ruleKey]({
           value: normalizedValue,
