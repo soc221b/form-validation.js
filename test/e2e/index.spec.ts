@@ -2,7 +2,10 @@ import { createInstance } from '../../src/index'
 
 test('it should pass param to reserved functions', async () => {
   const param = {}
-  const nesting = {}
+  const value = {}
+  const nesting = {
+    value,
+  }
   const form = {
     nesting,
   }
@@ -75,6 +78,41 @@ test('it should pass param to reserved functions', async () => {
           expect(params.param).toBe(param)
         },
       },
+      value: {
+        $params: {
+          param,
+        },
+        $normalizer({ value, key, path, target, params }: any) {
+          called[3] = true
+          expect(value).toBe(value)
+          expect(key).toBe('value')
+          expect(path).toStrictEqual(['nesting', 'value'])
+          expect(target).toBe(form)
+          expect(params.param).toBe(param)
+          return value
+        },
+        $rules: {
+          rule({ value, key, path, target, params }: any) {
+            called[4] = true
+            expect(value).toBe(value)
+            expect(key).toBe('value')
+            expect(path).toStrictEqual(['nesting', 'value'])
+            expect(target).toBe(form)
+            expect(params.param).toBe(param)
+            return false
+          },
+        },
+        $errors: {
+          rule({ value, key, path, target, params }: any) {
+            called[5] = true
+            expect(value).toBe(value)
+            expect(key).toBe('value')
+            expect(path).toStrictEqual(['nesting', 'value'])
+            expect(target).toBe(form)
+            expect(params.param).toBe(param)
+          },
+        },
+      }
     },
   }
 
