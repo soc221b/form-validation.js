@@ -268,7 +268,6 @@ test('it should validate recursively (object)', async () => {
 })
 
 test('it should validate recursively (array)', async () => {
-  const value = {}
   const form = [[null]]
   const schema = {
     $rules: {
@@ -278,10 +277,10 @@ test('it should validate recursively (array)', async () => {
     },
     $errors: {
       rule() {
-        return value
+        return 1
       },
     },
-    0: {
+    $iter: {
       $rules: {
         rule() {
           return false
@@ -289,10 +288,10 @@ test('it should validate recursively (array)', async () => {
       },
       $errors: {
         rule() {
-          return value
+          return 2
         },
       },
-      0: {
+      $iter: {
         $rules: {
           rule() {
             return false
@@ -300,7 +299,7 @@ test('it should validate recursively (array)', async () => {
         },
         $errors: {
           rule() {
-            return value
+            return 3
           },
         },
       },
@@ -310,9 +309,9 @@ test('it should validate recursively (array)', async () => {
   validator.$bind(form)
 
   await validator.$validate()
-  expect(validator.$errors.rule).toBe(value)
-  expect(validator[0].$errors.rule).toBe(value)
-  expect(validator[0][0].$errors.rule).toBe(value)
+  expect(validator.$errors.rule).toBe(1)
+  expect(validator[0].$errors.rule).toBe(2)
+  expect(validator[0][0].$errors.rule).toBe(3)
 })
 
 test('it should reset recursively (object)', async () => {
@@ -385,7 +384,6 @@ test('it should reset recursively (object)', async () => {
 })
 
 test('it should reset recursively (array)', async () => {
-  const value = {}
   const form = [[null]]
   const schema = {
     $rules: {
@@ -395,10 +393,10 @@ test('it should reset recursively (array)', async () => {
     },
     $errors: {
       rule() {
-        return value
+        return 1
       },
     },
-    0: {
+    $iter: {
       $rules: {
         rule() {
           return false
@@ -406,10 +404,10 @@ test('it should reset recursively (array)', async () => {
       },
       $errors: {
         rule() {
-          return value
+          return 2
         },
       },
-      0: {
+      $iter: {
         $rules: {
           rule() {
             return false
@@ -417,7 +415,7 @@ test('it should reset recursively (array)', async () => {
         },
         $errors: {
           rule() {
-            return value
+            return 3
           },
         },
       },
@@ -427,18 +425,18 @@ test('it should reset recursively (array)', async () => {
   validator.$bind(form)
 
   await validator.$validate()
-  expect(validator.$errors.rule).toBe(value)
-  expect(validator[0].$errors.rule).toBe(value)
-  expect(validator[0][0].$errors.rule).toBe(value)
+  expect(validator.$errors.rule).toBe(1)
+  expect(validator[0].$errors.rule).toBe(2)
+  expect(validator[0][0].$errors.rule).toBe(3)
 
   validator[0][0].$reset()
-  expect(validator.$errors.rule).toBe(value)
-  expect(validator[0].$errors.rule).toBe(value)
+  expect(validator.$errors.rule).toBe(1)
+  expect(validator[0].$errors.rule).toBe(2)
   expect(validator[0][0].$errors.rule).toBe(undefined)
 
   await validator.$validate()
   validator[0].$reset()
-  expect(validator.$errors.rule).toBe(value)
+  expect(validator.$errors.rule).toBe(1)
   expect(validator[0].$errors.rule).toBe(undefined)
   expect(validator[0][0].$errors.rule).toBe(undefined)
 
