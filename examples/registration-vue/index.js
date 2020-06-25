@@ -1,81 +1,56 @@
-function defineReactiveForValidator(validator) {
-  Object.keys(validator).forEach(key => {
-    if (typeof validator[key] !== 'object') return
-    validator[key] = Vue.observable(validator[key])
-  })
-  return validator
-}
-
 Vue.mixin({
+  data() {
+    this._validator = {}
+    return {}
+  },
   computed: {
-    $v() {
-      if (this.$options.schema === undefined) return
-      return defineReactiveForValidator(FormValidation.createInstance(this.$options.schema))
+    validator() {
+      return this._validator
     },
   },
   created() {
-    this.$v.$bind(this.$data)
+    if (this.$options.schema === undefined) return
+
+    FormValidation.proxy({
+      validator: this.$data.validator,
+      schema: this.$options.schema,
+      form: this.$data,
+    })
   },
 })
+
 new Vue({
   el: '#app',
   data() {
     return {
       account: '',
       password: '',
+      emails: ['', ''],
     }
   },
   watch: {
-    '$v.acccount.$errors': {
-      deep: true,
-      handler() {
-        console.log(123)
-      },
-    },
     async account() {
-      await this.$v.account.$validate()
-      this.renderValidatorInfo()
+      // await this.validator.account.$validate()
     },
     async password() {
-      await this.$v.password.$validate()
-      this.renderValidatorInfo()
+      // await this.validator.password.$validate()
     },
-  },
-  created() {
-    this.renderValidatorInfo()
+    $data: {
+      deep: true,
+      immediate: true,
+      handler() {
+        logInfo(this.$data, this.validator)
+      },
+    },
   },
   methods: {
-    renderValidatorInfo() {
-      console.clear()
-      console.log(this.$v)
-      console.log('form: ', JSON.stringify(this.$data, null, 2))
-      console.log('validator: ', getValidatorInfo(this.$v))
+    add() {
+      console.log(this.$data)
+      this.emails.push('')
+    },
+    remove(index) {
+      this.emails.splice(index, 1)
     },
   },
-  schema: {
-    account: {
-      $rules: {
-        required({ value }) {
-          if (value === '') return false
-        },
-      },
-      $errors: {
-        required() {
-          return 'Please enter an account.'
-        },
-      },
-    },
-    password: {
-      $rules: {
-        required({ value }) {
-          if (value === '') return false
-        },
-      },
-      $errors: {
-        required() {
-          return 'Please enter a passowrd.'
-        },
-      },
-    },
-  },
+  schema,
 })

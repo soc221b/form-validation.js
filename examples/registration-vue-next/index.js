@@ -1,53 +1,14 @@
-const schema = {
-  account: {
-    $rules: {
-      required({ value }) {
-        if (value === '') return false
-      },
-    },
-    $errors: {
-      required() {
-        return 'Please enter an account.'
-      },
-    },
-  },
-  password: {
-    $rules: {
-      required({ value }) {
-        if (value === '') return false
-      },
-    },
-    $errors: {
-      required() {
-        return 'Please enter a passowrd.'
-      },
-    },
-  },
-}
+const { createApp, reactive, watch } = Vue
 
-const { createApp, reactive, shallowReactive, watch, watchEffect } = Vue
-function reactiveForValidator(validator, cache = new WeakMap()) {
-  if (typeof validator !== 'object') return
-  if (cache.has(validator)) return
-
-  Object.keys(validator).forEach(key => {
-    if (typeof validator[key] !== 'object') return
-    reactiveForValidator(validator[key])
-    validator[key] = shallowReactive(validator[key])
-  })
-}
-
-let renderCount = 0
 createApp({
   setup() {
-    const validator = FormValidation.createInstance(schema)
-    reactiveForValidator(validator)
+    const validator = reactive({})
     const state = reactive({
       account: '',
       password: '',
-      $v: reactive(validator),
+      emails: ['', ''],
     })
-    validator.$bind(state)
+    FormValidation.proxy({ validator, schema, form: state })
 
     watch(
       () => state.account,
@@ -57,21 +18,38 @@ createApp({
       () => state.password,
       () => validator.password.$validate(),
     )
+    let oldEmails = []
+    watch(
+      () => state.emails,
+      emails => {
+        for (const index in emails) {
+          if (emails[index] !== oldEmails[index]) {
+            validator.emails[index].$validate()
+          }
+        }
+        oldEmails = JSON.parse(JSON.stringify(emails))
+      },
+      { deep: true },
+    )
 
     watch(
       () => state,
-      function renderValidatorInfo() {
-        console.clear()
-        console.log('state: ', JSON.stringify({ ...state, $v: undefined }, null, 2))
-        console.log('validator.account: ', JSON.stringify(getValidatorInfo(state.$v.account), null, 2))
-        console.log('validator.password: ', JSON.stringify(getValidatorInfo(state.$v.password), null, 2))
-        console.log(renderCount++)
-      },
+      () => logInfo(state, validator),
       { deep: true, immediate: true },
     )
 
+    function addEmail() {
+      state.emails.push('')
+    }
+    function removeEmail(index) {
+      state.emails.splice(index, 1)
+    }
+
     return {
       state,
+      validator,
+      addEmail,
+      removeEmail,
     }
   },
 }).mount('#app')

@@ -11,18 +11,28 @@
         <div>
           <label for="account">Account</label>
           <input id="account" v-model="state.account">
-          <span>{{  state.$v.account.$errors.required }}</span>
+          <span>{{ validator.account.$errors.required }}</span>
         </div>
 
         <div>
           <label for="password">Password</label>
           <input id="password" v-model="state.password" type="password">
-          <span>{{ state.$v.password.$errors.required }}</span>
+          <span>{{ validator.password.$errors.required }}</span>
         </div>
+
+        <button @click="addEmail" type="button">Add email</button>
+        <template v-for="(email, index) of state.emails">
+          <div>
+            <label :for="'emails.' + index">Email</label>
+            <input :id="'emails.' + index" v-model="state.emails[index]">
+            <span>{{ validator.emails[index].$errors.required }}</span>
+            <button @click="removeEmail(index)" type="button">Remove email</button>
+          </div>
+        </template>
       </form>
     </div>
 
-    <script src="../util/index.js"></script>
+    <script src="../common.js"></script>
     <script src="./index.js"></script>
   </body>
 </html>

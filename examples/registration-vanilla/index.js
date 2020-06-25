@@ -3,33 +3,6 @@ const form = {
   password: '',
 }
 
-const schema = {
-  account: {
-    $rules: {
-      required({ value }) {
-        if (value === '') return false
-      },
-    },
-    $errors: {
-      required() {
-        return 'Please enter an account.'
-      },
-    },
-  },
-  password: {
-    $rules: {
-      required({ value }) {
-        if (value === '') return false
-      },
-    },
-    $errors: {
-      required() {
-        return 'Please enter a passowrd.'
-      },
-    },
-  },
-}
-
 const validator = FormValidation.createInstance(schema)
 validator.$bind(form)
 
