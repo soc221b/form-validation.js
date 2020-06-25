@@ -8,7 +8,14 @@
   "module": "dist/form-validation.es.prod.js",
   "source": "src/index.ts",
   "types": "dist/index.d.ts",
-  "repository": "git@github.com:iendeavor/form-validation.js.git",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/iendeavor/form-validation.js.git"
+  },
+  "bugs": {
+    "url": "https://github.com/iendeavor/form-validation.js/issues"
+  },
+  "homepage": "https://github.com/iendeavor/form-validation.js#readme",
   "author": "Ernest <iattempt.net@gmail.com>",
   "license": "MIT",
   "scripts": {
