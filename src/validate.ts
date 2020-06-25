@@ -1,40 +1,40 @@
+import { getByPath } from './util'
+
 export interface ISchema {
   $params: { [key: string]: any }
-  $rules: { [key: string]: ({}: IRuleParams) => any }
-  $errors: { [key: string]: any }
+  $rules: { [key: string]: ({}: IFunctionParams) => any }
+  $errors: { [key: string]: ({}: IFunctionParams) => any }
   // TODO: use recursive definition to highlight nesting types
   [key: string]: any
 }
 export interface IInstance {
-  $rootModel: any
-  $parentModel: any
-  $model: any
-  $path: string
+  _rootModel: any
+  _path: string
   $errors: { [key: string]: any }
   // TODO: use recursive definition to highlight nesting types
   [key: string]: any
 }
-export interface IRuleParams {
+export interface IFunctionParams {
   value: any
-  key: string
-  parent: any
-  path: string
+  key?: string
+  parent?: any
+  path?: string[]
   root: any
   params: { [key: string]: any }
 }
 
 export const validate = ({ schema, instance }: { schema: ISchema; instance: IInstance }) => {
-  const value = instance.$model
-  const splitedPath = instance.$path.split('.')
-  const key = splitedPath.length === 0 ? '' : splitedPath[splitedPath.length - 1]
-  const parent = instance.$parentModel
-  const path = instance.$path
-  const root = instance.$rootModel
+  const path = instance._path === '' ? undefined : instance._path.split('.')
+  const value = path === undefined ? instance._rootModel : getByPath(instance._rootModel, path)
+  const key = path === undefined ? undefined : path[path.length - 1]
+  const parent = path === undefined || path.length === 1 ? undefined : getByPath(instance._rootModel, path.slice(0, -1))
+  const root = instance._rootModel
   const params = schema.$params
 
   for (const ruleKey of Object.keys(schema.$rules)) {
-    if (schema.$rules[ruleKey]({ value, key, parent, path, root, params }) !== undefined) {
-      instance.$errors[ruleKey] = schema.$errors[ruleKey]
+    const functionParams = { value, key, parent, path, root, params }
+    if (schema.$rules[ruleKey](functionParams) !== undefined) {
+      instance.$errors[ruleKey] = schema.$errors[ruleKey](functionParams)
     }
   }
 }

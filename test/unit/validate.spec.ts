@@ -1,13 +1,15 @@
-import { validate, IRuleParams, IInstance, ISchema } from '../../src/validate'
+import { validate, IFunctionParams, IInstance, ISchema } from '../../src/validate'
+
+const uniqueSymbol = Symbol('uniqueSymbol')
 
 test('validate', () => {
-  const params: Partial<IRuleParams> = {
-    value: undefined,
-    key: undefined,
-    parent: undefined,
-    params: undefined,
-    path: undefined,
-    root: undefined,
+  const params: { [key: string]: any } = {
+    value: uniqueSymbol,
+    key: uniqueSymbol,
+    parent: uniqueSymbol,
+    params: uniqueSymbol,
+    path: uniqueSymbol,
+    root: uniqueSymbol,
   }
   const rule = ({
     value: _value,
@@ -16,7 +18,7 @@ test('validate', () => {
     params: _params,
     path: _path,
     root: _root,
-  }: IRuleParams) => {
+  }: IFunctionParams) => {
     params.value = _value
     params.key = _key
     params.parent = _parent
@@ -33,13 +35,13 @@ test('validate', () => {
     $rules: {
       required: rule,
     },
-    $errors: {},
+    $errors: {
+      required: () => {},
+    },
   }
   const instance: IInstance = {
-    $rootModel: root,
-    $parentModel: undefined,
-    $model: root,
-    $path: '',
+    _rootModel: root,
+    _path: '',
     $errors: {
       required: undefined,
     },
@@ -47,21 +49,21 @@ test('validate', () => {
 
   validate({ schema, instance })
   expect(params.value).toBe(root)
-  expect(params.key).toBe('')
+  expect(params.key).toBe(undefined)
   expect(params.parent).toBe(undefined)
-  expect(params.path).toBe('')
+  expect(params.path).toBe(undefined)
   expect(params.root).toBe(root)
-  expect((params.params as any).param).toBe(param)
+  expect((params.params as any).param).toStrictEqual(param)
 })
 
 test('validate (nested)', () => {
-  const params: Partial<IRuleParams> = {
-    value: undefined,
-    key: undefined,
-    parent: undefined,
-    params: undefined,
-    path: undefined,
-    root: undefined,
+  const params: { [key: string]: any } = {
+    value: uniqueSymbol,
+    key: uniqueSymbol,
+    parent: uniqueSymbol,
+    params: uniqueSymbol,
+    path: uniqueSymbol,
+    root: uniqueSymbol,
   }
   const rule = ({
     value: _value,
@@ -70,7 +72,7 @@ test('validate (nested)', () => {
     params: _params,
     path: _path,
     root: _root,
-  }: IRuleParams) => {
+  }: IFunctionParams) => {
     params.value = _value
     params.key = _key
     params.parent = _parent
@@ -99,27 +101,23 @@ test('validate (nested)', () => {
         $rules: {
           required: rule,
         },
-        $errors: {},
+        $errors: {
+          required: () => {},
+        },
       },
     },
   }
   const instance: IInstance = {
-    $rootModel: root,
-    $parentModel: undefined,
-    $model: root,
-    $path: '',
+    _rootModel: root,
+    _path: '',
     $errors: {},
     nested: {
-      $rootModel: root,
-      $parentModel: root,
-      $model: parent,
-      $path: 'nested',
+      _rootModel: root,
+      _path: 'nested',
       $errors: {},
       key: {
-        $rootModel: root,
-        $parentModel: parent,
-        $model: value,
-        $path: 'nested.key',
+        _rootModel: root,
+        _path: 'nested.key',
         $errors: {
           required: undefined,
         },
@@ -131,7 +129,7 @@ test('validate (nested)', () => {
   expect(params.value).toBe(value)
   expect(params.key).toBe(key)
   expect(params.parent).toBe(parent)
-  expect(params.path).toBe(path)
+  expect((params.path as string[]).join('.')).toBe(path)
   expect(params.root).toBe(root)
   expect((params.params as any).param).toBe(param)
 })
