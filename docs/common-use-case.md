@@ -13,7 +13,7 @@ const form = {
   password: '123',
 }
 
-const instance = FormValidation.createInstance({
+const schema = {
   password: {
     $params: {
       min: 5,
@@ -31,10 +31,14 @@ const instance = FormValidation.createInstance({
       },
     },
   },
-})
+}
 
-await instance.$validate(form)
-const [type, message] = instance.password.$errors.minLength
+const validator = {}
+
+FormValidation.proxy({ form, schema, validator })
+
+validator.$validate()
+const [type, message] = validator.password.$errors.minLength
 if (type === 'error') {
   console.log(message)
   // > Must be at least 5 charcters
@@ -49,7 +53,7 @@ const form = {
   confirmPassword: '456',
 }
 
-const instance = FormValidation.createInstance({
+const schema = {
   confirmPassword: {
     $params: {
       sameAsField: ['password'],
@@ -69,10 +73,14 @@ const instance = FormValidation.createInstance({
       },
     },
   },
-})
+}
 
-await instance.$validate(form)
-console.log(instance.confirmPassword.$errors.sameAs)
+const validator = {}
+
+FormValidation.proxy({ form, schema, validator })
+
+validator.$validate()
+console.log(validator.confirmPassword.$errors.sameAs)
 // > This field should be the same as the Password.
 ```
 
@@ -83,7 +91,7 @@ const form = {
   ipWhiteList: ['8.8.8.8', '8.8.8.8'],
 }
 
-const instance = FormValidation.createInstance({
+const schema = {
   ipWhiteList: {
     $iter: {
       $params: {
@@ -107,11 +115,15 @@ const instance = FormValidation.createInstance({
       },
     },
   },
-})
+}
 
-await instance.$validate(form)
-console.log(instance.ipWhiteList[0].$errors.unique)
+const validator = {}
+
+FormValidation.proxy({ form, schema, validator })
+
+validator.$validate()
+console.log(validator.ipWhiteList[0].$errors.unique)
 // > undefined
-console.log(instance.ipWhiteList[1].$errors.unique)
+console.log(validator.ipWhiteList[1].$errors.unique)
 // > This Ip is duplicated
 ```

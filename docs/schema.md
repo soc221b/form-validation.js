@@ -11,34 +11,7 @@
 Everything is pretty intuitive and reasonable, validation schema is as same as the structure of data which you wanted to
 validate for.
 
-## Example
-
-```javascript
-const password = '123'
-
-const instance = FormValidation.createInstance({
-  $rules: {}, // rules for the password
-})
-```
-
-```javascript
-const passwords = [
-  '123'
-  '456'
-]
-
-const instance = FormValidation.createInstance(
-  {
-    $rules: {}, // rules for the passwords
-    $iter: {
-      $rules: {}, // rules for the passwords[?] (i.e. the passwords[1] in here)
-    },
-    0: {
-      $rules: {}, // rules for the passwords[0]
-    },
-  }
-)
-```
+## Classic Example
 
 ```javascript
 const form = {
@@ -46,39 +19,36 @@ const form = {
   password: '123',
 }
 
-const instance = FormValidation.createInstance({
-  $rules: {}, // rules for the form
+const schema = {
+  $rules: {}, // rules for the entire form
   $iter: {
     $rules: {}, // rules for the form.? (i.e. the form.account in here)
   },
   password: {
     $rules: {}, // rules for the form.password
   },
-})
+}
 ```
 
-Since the `Map` is implemented with
-[iteration protocols](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Iteration_protocols), it can
-also be iterated.
-
-> Note: **FormValidation** also use Constructor.prototype.keys (like `new Map()` here) or Object.keys(instance) (like
-> `{}` in the previous example) to achieve iteration.
-
 ```javascript
-const form = new Map([
-  ['account', '123'],
-  ['password', '123'],
-])
+const form = {
+  emails: [
+    '123'
+    '456'
+  ],
+}
 
-const instance = FormValidation.createInstance({
-  $rules: {}, // rules for the form
-  $iter: {
-    $rules: {}, // rules for the form.? (i.e. the form.get('account') in here)
-  },
-  password: {
-    $rules: {}, // rules for the form.get('password')
-  },
-})
+const schema = {
+  emails: {
+    $rules: {}, // rules for the entire emails
+    $iter: {
+      $rules: {}, // rules for the emails[?] (i.e. the emails[1] in here)
+    },
+    0: {
+      $rules: {}, // rules for the emails[0]
+    },
+  }
+}
 ```
 
 # Rules
@@ -92,7 +62,7 @@ const form = {
   password: '',
 }
 
-const instance = FormValidation.createInstance({
+const schema = {
   password: {
     $rules: {
       required({ value }) {
@@ -102,28 +72,17 @@ const instance = FormValidation.createInstance({
       },
     },
   },
-})
-
-await instance.$validate(form)
-
-console.log(instance.$hasError)
-// > true
+}
 ```
 
 # Errors
-
-```typescript
-type $errors = {
-  [key: string]: Error
-}
-```
 
 ```javascript
 const form = {
   password: '',
 }
 
-const instance = FormValidation.createInstance({
+const schema = {
   password: {
     $rules: {
       required({ value }) {
@@ -138,12 +97,7 @@ const instance = FormValidation.createInstance({
       },
     },
   },
-})
-
-await instance.$validate(form)
-
-console.log(instance.$errors.required)
-// > Must be filled.
+}
 ```
 
 # Normalizer
@@ -155,7 +109,7 @@ const form = {
   password: '   ',
 }
 
-const instance = FormValidation.createInstance({
+const schema = {
   password: {
     $normalizer: ({ value }) => value.trim(),
     $rules: {
@@ -171,12 +125,7 @@ const instance = FormValidation.createInstance({
       },
     },
   },
-})
-
-await instance.$validate(form)
-
-console.log(instance.$errors.required)
-// > Must be filled.
+}
 ```
 
 # Params
@@ -190,7 +139,7 @@ const form = {
   password: '',
 }
 
-const instance = FormValidation.createInstance({
+const schema = {
   password: {
     $params: {
       languageCode: 'fr',
@@ -209,10 +158,5 @@ const instance = FormValidation.createInstance({
       },
     },
   },
-})
-
-await instance.$validate(form)
-
-console.log(instance.$errors.required)
-// > Doit être rempli.
+}
 ```

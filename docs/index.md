@@ -14,37 +14,48 @@ Iterable protocol Support.
 
 Self Sufficient.
 
-# Getting Started
+# Overview
 
 ```javascript
-// to be validated for
+// the form to be validated for
 const form = {
-  password: '',
+  password: '  ',
 }
 
-// create form validation instance
-const instance = FormValidation.createInstance({
+// the rules for validate
+const schema = {
   password: {
+    $normalizer({ value, key, parent, path, root, params }) {
+      return value.trim()
+    },
+    $params: {
+      minLength: 6,
+    },
     $rules: {
-      required({ value, key, path, target, params }) {
-        if (value.length === 0) {
-          return 'Something went wrong'
+      minLength({ value, key, parent, path, root, params }) {
+        if (value.length < params.minLength) {
+          return 'Invalid'
         }
       },
     },
     $errors: {
-      required() {
-        return 'Must be filled'
+      minLength({ value, key, parent, path, root, params }) {
+        return `Must be at least ${params.minLength} charachars.`
       },
     },
   },
-})
+}
 
-// validate the form
-await instance.$validate(form)
+// the validation instance
+const valdiator = {}
 
-console.log(instance.$hasError)
+FormValidation.proxy({ form, schema, validator })
+
+// validate the entire form
+await valdiator.$validate(form)
+
+console.log(valdiator.$isError)
 // > true
-console.log(instance.$errors.required)
-// > 'Must be filled`
+console.log(valdiator.$errors.minLength)
+// > 'Must be at least 6 charachars.'
 ```
