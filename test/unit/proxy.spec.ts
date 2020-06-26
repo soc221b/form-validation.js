@@ -1,10 +1,11 @@
 import { proxyStructure, modelKey } from '../../src/proxy'
 
 test('proxyStructure', () => {
-  let form: { [key: string]: any } = {}
   const validator: { [key: string]: any } = {}
+  let form: { [key: string]: any } = {}
   form = proxyStructure({ object: form, clone: validator })
 
+  expect(validator.account).toBe(undefined)
   form.account = undefined
   expect(validator.account).toStrictEqual({ [modelKey]: undefined })
   form.account = ''
@@ -14,15 +15,13 @@ test('proxyStructure', () => {
 })
 
 test('proxyStructure (object)', () => {
-  let form: { [key: string]: any } = {}
   const validator: { [key: string]: any } = {}
+  let form: { [key: string]: any } = {}
   form = proxyStructure({ object: form, clone: validator })
 
   expect(validator.mapping).toStrictEqual(undefined)
-
   form.mapping = undefined
   expect(validator.mapping).toStrictEqual({ [modelKey]: undefined })
-
   delete form.mapping
   expect(validator.mapping).toStrictEqual(undefined)
 
@@ -59,8 +58,8 @@ test('proxyStructure (object)', () => {
 })
 
 test('proxyStructure (array)', () => {
-  let form: { [key: string]: any } = {}
   const validator: { [key: string]: any } = {}
+  let form: { [key: string]: any } = {}
   form = proxyStructure({ object: form, clone: validator })
 
   expect(validator.ipAddresses).toStrictEqual(undefined)
@@ -71,6 +70,7 @@ test('proxyStructure (array)', () => {
 
   form.ipAddresses = []
   expect(validator.ipAddresses).toStrictEqual({ [modelKey]: [], length: { [modelKey]: 0 } })
+
   form.ipAddresses.push('1.1.1.1')
   expect(validator.ipAddresses).toStrictEqual({
     [modelKey]: ['1.1.1.1'],
@@ -78,6 +78,7 @@ test('proxyStructure (array)', () => {
     length: { [modelKey]: 1 },
   })
   expect(validator.ipAddresses[0]).toStrictEqual({ [modelKey]: '1.1.1.1' })
+
   form.ipAddresses.push('3.3.3.3')
   expect(validator.ipAddresses).toStrictEqual({
     [modelKey]: ['1.1.1.1', '3.3.3.3'],
@@ -87,6 +88,7 @@ test('proxyStructure (array)', () => {
   })
   expect(validator.ipAddresses[0]).toStrictEqual({ [modelKey]: '1.1.1.1' })
   expect(validator.ipAddresses[1]).toStrictEqual({ [modelKey]: '3.3.3.3' })
+
   form.ipAddresses.splice(1, 0, '2.2.2.2')
   expect(validator.ipAddresses).toStrictEqual({
     [modelKey]: ['1.1.1.1', '2.2.2.2', '3.3.3.3'],
@@ -98,6 +100,7 @@ test('proxyStructure (array)', () => {
   expect(validator.ipAddresses[0]).toStrictEqual({ [modelKey]: '1.1.1.1' })
   expect(validator.ipAddresses[1]).toStrictEqual({ [modelKey]: '2.2.2.2' })
   expect(validator.ipAddresses[2]).toStrictEqual({ [modelKey]: '3.3.3.3' })
+
   form.ipAddresses.splice(1, 1)
   expect(validator.ipAddresses).toStrictEqual({
     [modelKey]: ['1.1.1.1', '3.3.3.3'],
@@ -107,6 +110,7 @@ test('proxyStructure (array)', () => {
   })
   expect(validator.ipAddresses[0]).toStrictEqual({ [modelKey]: '1.1.1.1' })
   expect(validator.ipAddresses[1]).toStrictEqual({ [modelKey]: '3.3.3.3' })
+
   form.ipAddresses.pop()
   expect(validator.ipAddresses).toStrictEqual({
     [modelKey]: ['1.1.1.1'],
@@ -114,8 +118,10 @@ test('proxyStructure (array)', () => {
     length: { [modelKey]: 1 },
   })
   expect(validator.ipAddresses[0]).toStrictEqual({ [modelKey]: '1.1.1.1' })
+
   form.ipAddresses.shift()
   expect(validator.ipAddresses).toStrictEqual({ [modelKey]: [], length: { [modelKey]: 0 } })
+
   form.ipAddresses = undefined
   expect(validator.ipAddresses).toStrictEqual({ [modelKey]: undefined })
 
@@ -136,8 +142,8 @@ test('proxyStructure (array)', () => {
 })
 
 test('proxyStructure (nested)', () => {
-  let form: { [key: string]: any } = {}
   const validator: { [key: string]: any } = {}
+  let form: { [key: string]: any } = {}
   form = proxyStructure({ object: form, clone: validator })
 
   form.nested = {}
