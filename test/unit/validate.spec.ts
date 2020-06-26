@@ -7,30 +7,35 @@ test('validate', () => {
     value: uniqueSymbol,
     key: uniqueSymbol,
     parent: uniqueSymbol,
-    params: uniqueSymbol,
     path: uniqueSymbol,
     root: uniqueSymbol,
+    params: uniqueSymbol,
   }
   const result = {}
   const error = {}
   const value = {}
-  const root = value
-  const validateParams: IValidateParams = {
-    root,
-    path: [],
-    params: { param: {} },
-    rules: {
-      rule: ({ value, key, parent, params, path, root }: IFunctionParams) => {
+  const rootForm = value
+  const rootSchema = {
+    $params: { param: {} },
+    $rules: {
+      rule: ({ value, key, parent, path, root, params }: IFunctionParams) => {
         functionParams.value = value
         functionParams.key = key
         functionParams.parent = parent
-        functionParams.params = params
         functionParams.path = path
         functionParams.root = root
+        functionParams.params = params
         return result
       },
     },
-    errors: { rule: () => error },
+    $errors: {
+      rule: () => error,
+    },
+  }
+  const validateParams: IValidateParams = {
+    rootForm,
+    rootSchema,
+    path: [],
   }
 
   const validateResult = validate(validateParams)
@@ -40,7 +45,7 @@ test('validate', () => {
   expect(functionParams.parent).toBe(undefined)
   expect(functionParams.path).toStrictEqual([])
   expect(functionParams.root).toBe(value)
-  expect(functionParams.params).toStrictEqual(validateParams.params)
+  expect(functionParams.params).toStrictEqual(rootSchema.$params)
 
   expect(validateResult.rule).toBe(error)
   expect(validateResult.$rulesResult.rule).toBe(result)
@@ -51,38 +56,46 @@ test('validate (nested)', () => {
     value: uniqueSymbol,
     key: uniqueSymbol,
     parent: uniqueSymbol,
-    params: uniqueSymbol,
     path: uniqueSymbol,
     root: uniqueSymbol,
+    params: uniqueSymbol,
   }
   const result = {}
   const error = {}
-  const validateParams: IValidateParams = {
-    root: { nested: { value: {} } },
-    path: ['nested', 'value'],
-    params: { param: {} },
-    rules: {
-      rule: ({ value, key, parent, params, path, root }: IFunctionParams) => {
-        functionParams.value = value
-        functionParams.key = key
-        functionParams.parent = parent
-        functionParams.params = params
-        functionParams.path = path
-        functionParams.root = root
-        return result
+  const rootForm = { nested: { value: {} } }
+  const rootSchema = {
+    nested: {
+      value: {
+        $params: { param: {} },
+        $rules: {
+          rule: ({ value, key, parent, path, root, params }: IFunctionParams) => {
+            functionParams.value = value
+            functionParams.key = key
+            functionParams.parent = parent
+            functionParams.path = path
+            functionParams.root = root
+            functionParams.params = params
+            return result
+          },
+        },
+        $errors: { rule: () => error },
       },
     },
-    errors: { rule: () => error },
+  }
+  const validateParams: IValidateParams = {
+    rootForm,
+    rootSchema,
+    path: ['nested', 'value'],
   }
 
   const validateResult = validate(validateParams)
 
-  expect(functionParams.value).toBe(validateParams.root.nested.value)
+  expect(functionParams.value).toBe(rootForm.nested.value)
   expect(functionParams.key).toBe('value')
-  expect(functionParams.parent).toBe(validateParams.root.nested)
+  expect(functionParams.parent).toBe(rootForm.nested)
   expect(functionParams.path).toStrictEqual(['nested', 'value'])
-  expect(functionParams.root).toBe(validateParams.root)
-  expect(functionParams.params).toStrictEqual(validateParams.params)
+  expect(functionParams.root).toBe(rootForm)
+  expect(functionParams.params).toStrictEqual(rootSchema.nested.value.$params)
 
   expect(validateResult.rule).toBe(error)
   expect(validateResult.$rulesResult.rule).toBe(result)
