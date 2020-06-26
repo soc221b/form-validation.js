@@ -554,3 +554,160 @@ test('proxyStructure (nested)', () => {
     },
   })
 })
+
+test('proxyStructure listener', () => {
+  const validator: { [key: string]: any } = {}
+  let form: { [key: string]: any } = {}
+  form = proxyStructure({ object: form, clone: validator })
+  const fn = jest.fn(() => {})
+
+  validator[privateKey][listenerKey].push(fn)
+
+  fn.mockClear()
+  form.nested1 = undefined
+  expect(JSON.stringify(fn.mock.calls)).toStrictEqual(JSON.stringify([[['nested1']]]))
+
+  fn.mockClear()
+  delete form.nested1
+  expect(JSON.stringify(fn.mock.calls)).toStrictEqual(JSON.stringify([[['nested1']]]))
+
+  fn.mockClear()
+  form.nested1 = {}
+  expect(JSON.stringify(fn.mock.calls)).toStrictEqual(JSON.stringify([[['nested1']]]))
+})
+
+test('proxyStructure listener (nested 2 layer)', () => {
+  const validator: { [key: string]: any } = {}
+  let form: { [key: string]: any } = {}
+  form = proxyStructure({ object: form, clone: validator })
+  const fn = jest.fn(() => {})
+  const fn1 = jest.fn(() => {})
+
+  form.nested1 = {}
+  validator[privateKey][listenerKey].push(fn)
+  validator.nested1[privateKey][listenerKey].push(fn1)
+
+  fn.mockClear()
+  fn1.mockClear()
+  form.nested1.nested11 = undefined
+  expect(JSON.stringify(fn.mock.calls)).toStrictEqual(JSON.stringify([]))
+  expect(JSON.stringify(fn1.mock.calls)).toStrictEqual(JSON.stringify([[['nested1', 'nested11']]]))
+
+  fn.mockClear()
+  fn1.mockClear()
+  delete form.nested1.nested11
+  expect(JSON.stringify(fn.mock.calls)).toStrictEqual(JSON.stringify([]))
+  expect(JSON.stringify(fn1.mock.calls)).toStrictEqual(JSON.stringify([[['nested1', 'nested11']]]))
+
+  fn.mockClear()
+  fn1.mockClear()
+  form.nested1.nested11 = {}
+  expect(JSON.stringify(fn.mock.calls)).toStrictEqual(JSON.stringify([]))
+  expect(JSON.stringify(fn1.mock.calls)).toStrictEqual(JSON.stringify([[['nested1', 'nested11']]]))
+
+  fn.mockClear()
+  fn1.mockClear()
+  form.nested1 = undefined
+  expect(JSON.stringify(fn.mock.calls)).toStrictEqual(JSON.stringify([[['nested1']]]))
+  expect(JSON.stringify(fn1.mock.calls)).toStrictEqual(JSON.stringify([]))
+
+  fn.mockClear()
+  fn1.mockClear()
+  delete form.nested1
+  expect(JSON.stringify(fn.mock.calls)).toStrictEqual(JSON.stringify([[['nested1']]]))
+  expect(JSON.stringify(fn1.mock.calls)).toStrictEqual(JSON.stringify([]))
+
+  fn.mockClear()
+  fn1.mockClear()
+  form.nested1 = { nested11: {}, nested12: {} }
+  expect(JSON.stringify(fn.mock.calls)).toStrictEqual(JSON.stringify([[['nested1']]]))
+  expect(JSON.stringify(fn1.mock.calls)).toStrictEqual(JSON.stringify([]))
+})
+
+test('proxyStructure listener (nested 3 layer)', () => {
+  const validator: { [key: string]: any } = {}
+  let form: { [key: string]: any } = {}
+  form = proxyStructure({ object: form, clone: validator })
+  const fn = jest.fn(() => {})
+  const fn1 = jest.fn(() => {})
+  const fn11 = jest.fn(() => {})
+
+  form.nested1 = {}
+  form.nested1.nested11 = {}
+  form.nested1.nested11.nested111 = {}
+  validator[privateKey][listenerKey].push(fn)
+  validator.nested1[privateKey][listenerKey].push(fn1)
+  validator.nested1.nested11[privateKey][listenerKey].push(fn11)
+
+  fn.mockClear()
+  fn1.mockClear()
+  fn11.mockClear()
+  form.nested1.nested11.nested111 = undefined
+  expect(JSON.stringify(fn.mock.calls)).toStrictEqual(JSON.stringify([]))
+  expect(JSON.stringify(fn1.mock.calls)).toStrictEqual(JSON.stringify([]))
+  expect(JSON.stringify(fn11.mock.calls)).toStrictEqual(JSON.stringify([[['nested1', 'nested11', 'nested111']]]))
+
+  fn.mockClear()
+  fn1.mockClear()
+  fn11.mockClear()
+  delete form.nested1.nested11.nested111
+  expect(JSON.stringify(fn.mock.calls)).toStrictEqual(JSON.stringify([]))
+  expect(JSON.stringify(fn1.mock.calls)).toStrictEqual(JSON.stringify([]))
+  expect(JSON.stringify(fn11.mock.calls)).toStrictEqual(JSON.stringify([[['nested1', 'nested11', 'nested111']]]))
+
+  fn.mockClear()
+  fn1.mockClear()
+  fn11.mockClear()
+  form.nested1.nested11.nested111 = {}
+  expect(JSON.stringify(fn.mock.calls)).toStrictEqual(JSON.stringify([]))
+  expect(JSON.stringify(fn1.mock.calls)).toStrictEqual(JSON.stringify([]))
+  expect(JSON.stringify(fn11.mock.calls)).toStrictEqual(JSON.stringify([[['nested1', 'nested11', 'nested111']]]))
+
+  fn.mockClear()
+  fn1.mockClear()
+  fn11.mockClear()
+  form.nested1.nested11 = undefined
+  expect(JSON.stringify(fn.mock.calls)).toStrictEqual(JSON.stringify([]))
+  expect(JSON.stringify(fn1.mock.calls)).toStrictEqual(JSON.stringify([[['nested1', 'nested11']]]))
+  expect(JSON.stringify(fn11.mock.calls)).toStrictEqual(JSON.stringify([]))
+
+  fn.mockClear()
+  fn1.mockClear()
+  fn11.mockClear()
+  delete form.nested1.nested11
+  expect(JSON.stringify(fn.mock.calls)).toStrictEqual(JSON.stringify([]))
+  expect(JSON.stringify(fn1.mock.calls)).toStrictEqual(JSON.stringify([[['nested1', 'nested11']]]))
+  expect(JSON.stringify(fn11.mock.calls)).toStrictEqual(JSON.stringify([]))
+
+  fn.mockClear()
+  fn1.mockClear()
+  fn11.mockClear()
+  form.nested1.nested11 = { nested111: {} }
+  expect(JSON.stringify(fn.mock.calls)).toStrictEqual(JSON.stringify([]))
+  expect(JSON.stringify(fn1.mock.calls)).toStrictEqual(JSON.stringify([[['nested1', 'nested11']]]))
+  expect(JSON.stringify(fn11.mock.calls)).toStrictEqual(JSON.stringify([]))
+
+  fn.mockClear()
+  fn1.mockClear()
+  fn11.mockClear()
+  form.nested1 = undefined
+  expect(JSON.stringify(fn.mock.calls)).toStrictEqual(JSON.stringify([[['nested1']]]))
+  expect(JSON.stringify(fn1.mock.calls)).toStrictEqual(JSON.stringify([]))
+  expect(JSON.stringify(fn11.mock.calls)).toStrictEqual(JSON.stringify([]))
+
+  fn.mockClear()
+  fn1.mockClear()
+  fn11.mockClear()
+  delete form.nested1
+  expect(JSON.stringify(fn.mock.calls)).toStrictEqual(JSON.stringify([[['nested1']]]))
+  expect(JSON.stringify(fn1.mock.calls)).toStrictEqual(JSON.stringify([]))
+  expect(JSON.stringify(fn11.mock.calls)).toStrictEqual(JSON.stringify([]))
+
+  fn.mockClear()
+  fn1.mockClear()
+  fn11.mockClear()
+  form.nested1 = { nested11: { nested111: {} } }
+  expect(JSON.stringify(fn.mock.calls)).toStrictEqual(JSON.stringify([[['nested1']]]))
+  expect(JSON.stringify(fn1.mock.calls)).toStrictEqual(JSON.stringify([]))
+  expect(JSON.stringify(fn11.mock.calls)).toStrictEqual(JSON.stringify([]))
+})

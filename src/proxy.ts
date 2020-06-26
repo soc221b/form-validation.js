@@ -42,10 +42,17 @@ const _proxyStructure = ({
   return new Proxy(object, {
     deleteProperty(target, key) {
       Reflect.deleteProperty(clone, key)
+      for (const listener of clone[privateKey][listenerKey]) {
+        listener([...clone[privateKey][pathKey], key])
+      }
       return Reflect.deleteProperty(target, key)
     },
     set(target: any, key: string, value: any, receiver: any) {
       const result = Reflect.set(target, key, value, receiver)
+
+      for (const listener of clone[privateKey][listenerKey]) {
+        listener([...clone[privateKey][pathKey], key])
+      }
 
       clone[key] = wrapper(value, [...path, key])
 
