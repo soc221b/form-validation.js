@@ -64,9 +64,12 @@ const _proxyStructure = ({
           }
         }
 
-        for (const index in clone[key][modelKey]) {
-          if (clone[key][index] === undefined) {
-            clone[key][index] = wrapper(clone[key][modelKey][index], clone[key][privateKey][pathKey].concat(index))
+        for (const innerKey in clone[key][modelKey]) {
+          if (clone[key][innerKey] === undefined) {
+            clone[key][innerKey] = wrapper(
+              clone[key][modelKey][innerKey],
+              clone[key][privateKey][pathKey].concat(innerKey),
+            )
           }
         }
 
