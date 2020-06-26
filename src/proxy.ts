@@ -2,20 +2,33 @@ const validationWrapper = (value: any): any => {
   return { [modelKey]: value }
 }
 
-export const modelKey = '$model'
+export const modelKey = '_model'
+export const pathKey = '_path'
 export const obSymbol = Symbol('__form_validation_ob__')
 
 export const proxyStructure = ({
   object,
   clone,
+}: {
+  object: { [key: string]: any }
+  clone: { [key: string]: any }
+}) => {
+  clone[modelKey] = object
+  clone[pathKey] = []
+  return _proxyStructure({ object, clone, path: [], wrapper: validationWrapper })
+}
+
+const _proxyStructure = ({
+  object,
+  clone,
+  path,
   wrapper,
 }: {
   object: { [key: string]: any }
   clone: { [key: string]: any }
-  wrapper?: { (value: any): any }
+  path: string[]
+  wrapper: { (value: any): any }
 }) => {
-  wrapper = wrapper === undefined ? validationWrapper : wrapper
-
   return new Proxy(object, {
     deleteProperty(target, key) {
       Reflect.deleteProperty(clone, key)
@@ -24,7 +37,8 @@ export const proxyStructure = ({
     set(target: any, key: string, value: any, receiver: any) {
       const result = Reflect.set(target, key, value, receiver)
 
-      clone[key] = wrapper!(value)
+      clone[key] = wrapper(value)
+      clone[key][pathKey] = [...path, key]
 
       const representingType = Object.prototype.toString.call(receiver[key])
       if (
@@ -33,13 +47,15 @@ export const proxyStructure = ({
       ) {
         if (representingType === '[object Array]') {
           if (clone[key].length === undefined) {
-            clone[key].length = wrapper!(clone[key][modelKey].length)
+            clone[key].length = wrapper(clone[key][modelKey].length)
+            clone[key].length[pathKey] = clone[key][pathKey].concat('length')
           }
         }
 
         for (const index in clone[key][modelKey]) {
           if (clone[key][index] === undefined) {
-            clone[key][index] = wrapper!(clone[key][modelKey][index])
+            clone[key][index] = wrapper(clone[key][modelKey][index])
+            clone[key][index][pathKey] = clone[key][pathKey].concat(index)
           }
         }
 
@@ -49,7 +65,12 @@ export const proxyStructure = ({
           value: obSymbol,
         })
 
-        Reflect.set(target, key, proxyStructure({ object: receiver[key], clone: clone[key] }), receiver)
+        Reflect.set(
+          target,
+          key,
+          _proxyStructure({ object: receiver[key], clone: clone[key], path: clone[key][pathKey], wrapper }),
+          receiver,
+        )
       }
 
       return result
