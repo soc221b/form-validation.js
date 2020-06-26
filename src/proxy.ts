@@ -9,7 +9,7 @@ const validationWrapper = (value: any, path: string[]): any => {
 }
 
 export const privateKey = '__form_validation__'
-export const modelKey = 'model'
+export const modelKey = '$model'
 export const pathKey = 'path'
 export const listenerKey = 'listener'
 
