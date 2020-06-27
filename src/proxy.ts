@@ -1,33 +1,42 @@
 import { noop } from './util'
 
 export const privateKey = '__form_validation__'
+export const publicKey = '$v'
 export const pathKey = 'path'
 export const listenerKey = 'listener'
 
-type IKey = string
-type IPath = IKey[]
+export type IKey = string
+export type IPath = IKey[]
 
-interface IPrivateWrap {
+export interface IBaseValidator {
   [privateKey]: {
     [pathKey]: IPath
     [listenerKey]: ((...args: any) => any)[]
+
+    [key: string]: any
   }
+  [publicKey]: {
+    [key: string]: any
+  }
+
+  [key: string]: any
 }
 
 interface IWrapCallback {
-  (wrapper: IPrivateWrap): any
+  (wrapper: IBaseValidator): any
 }
 
 interface IWrap {
-  (path: IPath, callback: IWrapCallback): IPrivateWrap
+  (path: IPath, callback: IWrapCallback): IBaseValidator
 }
 
 const wrap: IWrap = (path, callback) => {
-  const wrapper: IPrivateWrap = {
+  const wrapper: IBaseValidator = {
     [privateKey]: {
       [pathKey]: path,
       [listenerKey]: [],
     },
+    [publicKey]: {},
   }
   callback(wrapper)
   return wrapper
@@ -44,6 +53,7 @@ export const proxyStructure = ({
 }) => {
   const wrapper = wrap([], callback)
   clone[privateKey] = wrapper[privateKey]
+  clone[publicKey] = wrapper[publicKey]
 
   return _proxyStructure({ object, clone, path: [], callback })
 }
