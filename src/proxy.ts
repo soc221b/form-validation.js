@@ -1,82 +1,106 @@
-const validationWrapper = (value: any, path: string[]): any => {
-  return {
-    [modelKey]: value,
+import { noop } from './util'
+
+export const privateKey = '__form_validation__'
+export const pathKey = 'path'
+export const listenerKey = 'listener'
+
+type IKey = string
+type IPath = IKey[]
+
+interface IPrivateWrap {
+  [privateKey]: {
+    [pathKey]: IPath
+    [listenerKey]: ((...args: any) => any)[]
+  }
+}
+
+interface IWrapCallback {
+  (wrapper: IPrivateWrap): any
+}
+
+interface IWrap {
+  (path: IPath, callback: IWrapCallback): IPrivateWrap
+}
+
+const wrap: IWrap = (path, callback) => {
+  const wrapper: IPrivateWrap = {
     [privateKey]: {
       [pathKey]: path,
       [listenerKey]: [],
     },
   }
+  callback(wrapper)
+  return wrapper
 }
-
-export const privateKey = '__form_validation__'
-export const modelKey = '$model'
-export const pathKey = 'path'
-export const listenerKey = 'listener'
 
 export const proxyStructure = ({
   object,
   clone,
+  callback = noop,
 }: {
   object: { [key: string]: any }
   clone: { [key: string]: any }
+  callback?: IWrapCallback
 }) => {
-  const wrapped = validationWrapper(object, [])
-  for (const key in wrapped) {
-    clone[key] = wrapped[key]
-  }
+  const wrapper = wrap([], callback)
+  clone[privateKey] = wrapper[privateKey]
 
-  return _proxyStructure({ object, clone, path: [], wrapper: validationWrapper })
+  return _proxyStructure({ object, clone, path: [], callback })
 }
 
 const _proxyStructure = ({
   object,
   clone,
   path,
-  wrapper,
+  callback,
 }: {
   object: { [key: string]: any }
   clone: { [key: string]: any }
-  path: string[]
-  wrapper: { (...args: any): any }
+  path: IPath
+  callback: IWrapCallback
 }) => {
   return new Proxy(object, {
     deleteProperty(target, key) {
       Reflect.deleteProperty(clone, key)
+      const result = Reflect.deleteProperty(target, key)
       for (const listener of clone[privateKey][listenerKey]) {
-        listener([...clone[privateKey][pathKey], key])
+        listener(clone[privateKey][pathKey].concat(key))
       }
-      return Reflect.deleteProperty(target, key)
+      return result
     },
-    set(target: any, key: string, value: any, receiver: any) {
+
+    set(target: object, key: IKey, value: any, receiver: any) {
       const result = Reflect.set(target, key, value, receiver)
 
       for (const listener of clone[privateKey][listenerKey]) {
-        listener([...clone[privateKey][pathKey], key])
+        listener(clone[privateKey][pathKey].concat(key))
       }
 
-      clone[key] = wrapper(value, [...path, key])
+      clone[key] = wrap(path.concat(key), callback)
 
       const representingType = Object.prototype.toString.call(receiver[key])
       if (representingType === '[object Object]' || representingType === '[object Array]') {
         if (representingType === '[object Array]') {
           if (clone[key].length === undefined) {
-            clone[key].length = wrapper(clone[key][modelKey].length, clone[key][privateKey][pathKey].concat('length'))
+            clone[key].length = wrap(clone[key][privateKey][pathKey].concat('length'), callback)
           }
         }
 
-        for (const innerKey in clone[key][modelKey]) {
+        for (const innerKey in receiver[key]) {
           if (clone[key][innerKey] === undefined) {
-            clone[key][innerKey] = wrapper(
-              clone[key][modelKey][innerKey],
-              clone[key][privateKey][pathKey].concat(innerKey),
-            )
+            clone[key][innerKey] = wrap(clone[key][privateKey][pathKey].concat(innerKey), callback)
           }
         }
 
         Reflect.set(
           target,
           key,
-          _proxyStructure({ object: receiver[key], clone: clone[key], path: clone[key][privateKey][pathKey], wrapper }),
+          _proxyStructure({
+            object: receiver[key],
+            clone: clone[key],
+            path: clone[key][privateKey][pathKey],
+            callback,
+          }),
           receiver,
         )
       }

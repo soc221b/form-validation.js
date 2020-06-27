@@ -1,4 +1,4 @@
-import { proxyStructure, privateKey, modelKey, pathKey, listenerKey } from '../../src/proxy'
+import { proxyStructure, privateKey, pathKey, listenerKey } from '../../src/proxy'
 
 test('proxyStructure', () => {
   const validator: { [key: string]: any } = {}
@@ -6,7 +6,6 @@ test('proxyStructure', () => {
   form = proxyStructure({ object: form, clone: validator })
 
   expect(validator).toStrictEqual({
-    [modelKey]: {},
     [privateKey]: {
       [pathKey]: [],
       [listenerKey]: [],
@@ -14,13 +13,11 @@ test('proxyStructure', () => {
   })
   form.account = undefined
   expect(validator).toStrictEqual({
-    [modelKey]: { account: undefined },
     [privateKey]: {
       [pathKey]: [],
       [listenerKey]: [],
     },
     account: {
-      [modelKey]: undefined,
       [privateKey]: {
         [pathKey]: ['account'],
         [listenerKey]: [],
@@ -29,13 +26,11 @@ test('proxyStructure', () => {
   })
   form.account = ''
   expect(validator).toStrictEqual({
-    [modelKey]: { account: '' },
     [privateKey]: {
       [pathKey]: [],
       [listenerKey]: [],
     },
     account: {
-      [modelKey]: '',
       [privateKey]: {
         [pathKey]: ['account'],
         [listenerKey]: [],
@@ -44,7 +39,6 @@ test('proxyStructure', () => {
   })
   delete form.account
   expect(validator).toStrictEqual({
-    [modelKey]: {},
     [privateKey]: {
       [pathKey]: [],
       [listenerKey]: [],
@@ -60,7 +54,6 @@ test('proxyStructure (object)', () => {
   expect(validator.mapping).toStrictEqual(undefined)
   form.mapping = undefined
   expect(validator.mapping).toStrictEqual({
-    [modelKey]: undefined,
     [privateKey]: {
       [pathKey]: ['mapping'],
       [listenerKey]: [],
@@ -71,7 +64,6 @@ test('proxyStructure (object)', () => {
 
   form.mapping = {}
   expect(validator.mapping).toStrictEqual({
-    [modelKey]: {},
     [privateKey]: {
       [pathKey]: ['mapping'],
       [listenerKey]: [],
@@ -80,13 +72,11 @@ test('proxyStructure (object)', () => {
 
   form.mapping.key1 = 1
   expect(validator.mapping).toStrictEqual({
-    [modelKey]: { key1: 1 },
     [privateKey]: {
       [pathKey]: ['mapping'],
       [listenerKey]: [],
     },
     key1: {
-      [modelKey]: 1,
       [privateKey]: {
         [pathKey]: ['mapping', 'key1'],
         [listenerKey]: [],
@@ -96,20 +86,17 @@ test('proxyStructure (object)', () => {
 
   form.mapping.key2 = 2
   expect(validator.mapping).toStrictEqual({
-    [modelKey]: { key1: 1, key2: 2 },
     [privateKey]: {
       [pathKey]: ['mapping'],
       [listenerKey]: [],
     },
     key1: {
-      [modelKey]: 1,
       [privateKey]: {
         [pathKey]: ['mapping', 'key1'],
         [listenerKey]: [],
       },
     },
     key2: {
-      [modelKey]: 2,
       [privateKey]: {
         [pathKey]: ['mapping', 'key2'],
         [listenerKey]: [],
@@ -125,20 +112,17 @@ test('proxyStructure (object)', () => {
     key2: 2,
   }
   expect(validator.mapping).toStrictEqual({
-    [modelKey]: { key1: 1, key2: 2 },
     [privateKey]: {
       [pathKey]: ['mapping'],
       [listenerKey]: [],
     },
     key1: {
-      [modelKey]: 1,
       [privateKey]: {
         [pathKey]: ['mapping', 'key1'],
         [listenerKey]: [],
       },
     },
     key2: {
-      [modelKey]: 2,
       [privateKey]: {
         [pathKey]: ['mapping', 'key2'],
         [listenerKey]: [],
@@ -155,7 +139,6 @@ test('proxyStructure (array)', () => {
   expect(validator.ipAddresses).toStrictEqual(undefined)
   form.ipAddresses = undefined
   expect(validator.ipAddresses).toStrictEqual({
-    [modelKey]: undefined,
     [privateKey]: {
       [pathKey]: ['ipAddresses'],
       [listenerKey]: [],
@@ -166,13 +149,11 @@ test('proxyStructure (array)', () => {
 
   form.ipAddresses = []
   expect(validator.ipAddresses).toStrictEqual({
-    [modelKey]: [],
     [privateKey]: {
       [pathKey]: ['ipAddresses'],
       [listenerKey]: [],
     },
     length: {
-      [modelKey]: 0,
       [privateKey]: {
         [pathKey]: ['ipAddresses', 'length'],
         [listenerKey]: [],
@@ -182,20 +163,17 @@ test('proxyStructure (array)', () => {
 
   form.ipAddresses.push('1.1.1.1')
   expect(validator.ipAddresses).toStrictEqual({
-    [modelKey]: ['1.1.1.1'],
     [privateKey]: {
       [pathKey]: ['ipAddresses'],
       [listenerKey]: [],
     },
     0: {
-      [modelKey]: '1.1.1.1',
       [privateKey]: {
         [pathKey]: ['ipAddresses', '0'],
         [listenerKey]: [],
       },
     },
     length: {
-      [modelKey]: 1,
       [privateKey]: {
         [pathKey]: ['ipAddresses', 'length'],
         [listenerKey]: [],
@@ -205,27 +183,23 @@ test('proxyStructure (array)', () => {
 
   form.ipAddresses.push('3.3.3.3')
   expect(validator.ipAddresses).toStrictEqual({
-    [modelKey]: ['1.1.1.1', '3.3.3.3'],
     [privateKey]: {
       [pathKey]: ['ipAddresses'],
       [listenerKey]: [],
     },
     0: {
-      [modelKey]: '1.1.1.1',
       [privateKey]: {
         [pathKey]: ['ipAddresses', '0'],
         [listenerKey]: [],
       },
     },
     1: {
-      [modelKey]: '3.3.3.3',
       [privateKey]: {
         [pathKey]: ['ipAddresses', '1'],
         [listenerKey]: [],
       },
     },
     length: {
-      [modelKey]: 2,
       [privateKey]: {
         [pathKey]: ['ipAddresses', 'length'],
         [listenerKey]: [],
@@ -235,34 +209,29 @@ test('proxyStructure (array)', () => {
 
   form.ipAddresses.splice(1, 0, '2.2.2.2')
   expect(validator.ipAddresses).toStrictEqual({
-    [modelKey]: ['1.1.1.1', '2.2.2.2', '3.3.3.3'],
     [privateKey]: {
       [pathKey]: ['ipAddresses'],
       [listenerKey]: [],
     },
     0: {
-      [modelKey]: '1.1.1.1',
       [privateKey]: {
         [pathKey]: ['ipAddresses', '0'],
         [listenerKey]: [],
       },
     },
     1: {
-      [modelKey]: '2.2.2.2',
       [privateKey]: {
         [pathKey]: ['ipAddresses', '1'],
         [listenerKey]: [],
       },
     },
     2: {
-      [modelKey]: '3.3.3.3',
       [privateKey]: {
         [pathKey]: ['ipAddresses', '2'],
         [listenerKey]: [],
       },
     },
     length: {
-      [modelKey]: 3,
       [privateKey]: {
         [pathKey]: ['ipAddresses', 'length'],
         [listenerKey]: [],
@@ -272,27 +241,23 @@ test('proxyStructure (array)', () => {
 
   form.ipAddresses.splice(1, 1)
   expect(validator.ipAddresses).toStrictEqual({
-    [modelKey]: ['1.1.1.1', '3.3.3.3'],
     [privateKey]: {
       [pathKey]: ['ipAddresses'],
       [listenerKey]: [],
     },
     0: {
-      [modelKey]: '1.1.1.1',
       [privateKey]: {
         [pathKey]: ['ipAddresses', '0'],
         [listenerKey]: [],
       },
     },
     1: {
-      [modelKey]: '3.3.3.3',
       [privateKey]: {
         [pathKey]: ['ipAddresses', '1'],
         [listenerKey]: [],
       },
     },
     length: {
-      [modelKey]: 2,
       [privateKey]: {
         [pathKey]: ['ipAddresses', 'length'],
         [listenerKey]: [],
@@ -302,20 +267,17 @@ test('proxyStructure (array)', () => {
 
   form.ipAddresses.pop()
   expect(validator.ipAddresses).toStrictEqual({
-    [modelKey]: ['1.1.1.1'],
     [privateKey]: {
       [pathKey]: ['ipAddresses'],
       [listenerKey]: [],
     },
     0: {
-      [modelKey]: '1.1.1.1',
       [privateKey]: {
         [pathKey]: ['ipAddresses', '0'],
         [listenerKey]: [],
       },
     },
     length: {
-      [modelKey]: 1,
       [privateKey]: {
         [pathKey]: ['ipAddresses', 'length'],
         [listenerKey]: [],
@@ -325,13 +287,11 @@ test('proxyStructure (array)', () => {
 
   form.ipAddresses.shift()
   expect(validator.ipAddresses).toStrictEqual({
-    [modelKey]: [],
     [privateKey]: {
       [pathKey]: ['ipAddresses'],
       [listenerKey]: [],
     },
     length: {
-      [modelKey]: 0,
       [privateKey]: {
         [pathKey]: ['ipAddresses', 'length'],
         [listenerKey]: [],
@@ -341,7 +301,6 @@ test('proxyStructure (array)', () => {
 
   form.ipAddresses = undefined
   expect(validator.ipAddresses).toStrictEqual({
-    [modelKey]: undefined,
     [privateKey]: {
       [pathKey]: ['ipAddresses'],
       [listenerKey]: [],
@@ -350,34 +309,29 @@ test('proxyStructure (array)', () => {
 
   form.ipAddresses = ['1.1.1.1', '2.2.2.2', '3.3.3.3']
   expect(validator.ipAddresses).toStrictEqual({
-    [modelKey]: ['1.1.1.1', '2.2.2.2', '3.3.3.3'],
     [privateKey]: {
       [pathKey]: ['ipAddresses'],
       [listenerKey]: [],
     },
     0: {
-      [modelKey]: '1.1.1.1',
       [privateKey]: {
         [pathKey]: ['ipAddresses', '0'],
         [listenerKey]: [],
       },
     },
     1: {
-      [modelKey]: '2.2.2.2',
       [privateKey]: {
         [pathKey]: ['ipAddresses', '1'],
         [listenerKey]: [],
       },
     },
     2: {
-      [modelKey]: '3.3.3.3',
       [privateKey]: {
         [pathKey]: ['ipAddresses', '2'],
         [listenerKey]: [],
       },
     },
     length: {
-      [modelKey]: 3,
       [privateKey]: {
         [pathKey]: ['ipAddresses', 'length'],
         [listenerKey]: [],
@@ -387,13 +341,11 @@ test('proxyStructure (array)', () => {
 
   form.ipAddresses = []
   expect(validator.ipAddresses).toStrictEqual({
-    [modelKey]: [],
     [privateKey]: {
       [pathKey]: ['ipAddresses'],
       [listenerKey]: [],
     },
     length: {
-      [modelKey]: 0,
       [privateKey]: {
         [pathKey]: ['ipAddresses', 'length'],
         [listenerKey]: [],
@@ -409,13 +361,11 @@ test('proxyStructure (nested)', () => {
 
   form.nested = {}
   expect(validator).toStrictEqual({
-    [modelKey]: { nested: {} },
     [privateKey]: {
       [pathKey]: [],
       [listenerKey]: [],
     },
     nested: {
-      [modelKey]: {},
       [privateKey]: {
         [pathKey]: ['nested'],
         [listenerKey]: [],
@@ -425,19 +375,16 @@ test('proxyStructure (nested)', () => {
 
   form.nested.ipAddresses = undefined
   expect(validator).toStrictEqual({
-    [modelKey]: { nested: { ipAddresses: undefined } },
     [privateKey]: {
       [pathKey]: [],
       [listenerKey]: [],
     },
     nested: {
-      [modelKey]: { ipAddresses: undefined },
       [privateKey]: {
         [pathKey]: ['nested'],
         [listenerKey]: [],
       },
       ipAddresses: {
-        [modelKey]: undefined,
         [privateKey]: {
           [pathKey]: ['nested', 'ipAddresses'],
           [listenerKey]: [],
@@ -448,13 +395,11 @@ test('proxyStructure (nested)', () => {
 
   delete form.nested.ipAddresses
   expect(validator).toStrictEqual({
-    [modelKey]: { nested: {} },
     [privateKey]: {
       [pathKey]: [],
       [listenerKey]: [],
     },
     nested: {
-      [modelKey]: {},
       [privateKey]: {
         [pathKey]: ['nested'],
         [listenerKey]: [],
@@ -464,46 +409,39 @@ test('proxyStructure (nested)', () => {
 
   form.nested.ipAddresses = ['1.1.1.1', '2.2.2.2', '3.3.3.3']
   expect(validator).toStrictEqual({
-    [modelKey]: { nested: { ipAddresses: ['1.1.1.1', '2.2.2.2', '3.3.3.3'] } },
     [privateKey]: {
       [pathKey]: [],
       [listenerKey]: [],
     },
     nested: {
-      [modelKey]: { ipAddresses: ['1.1.1.1', '2.2.2.2', '3.3.3.3'] },
       [privateKey]: {
         [pathKey]: ['nested'],
         [listenerKey]: [],
       },
       ipAddresses: {
-        [modelKey]: ['1.1.1.1', '2.2.2.2', '3.3.3.3'],
         [privateKey]: {
           [pathKey]: ['nested', 'ipAddresses'],
           [listenerKey]: [],
         },
         0: {
-          [modelKey]: '1.1.1.1',
           [privateKey]: {
             [pathKey]: ['nested', 'ipAddresses', '0'],
             [listenerKey]: [],
           },
         },
         1: {
-          [modelKey]: '2.2.2.2',
           [privateKey]: {
             [pathKey]: ['nested', 'ipAddresses', '1'],
             [listenerKey]: [],
           },
         },
         2: {
-          [modelKey]: '3.3.3.3',
           [privateKey]: {
             [pathKey]: ['nested', 'ipAddresses', '2'],
             [listenerKey]: [],
           },
         },
         length: {
-          [modelKey]: 3,
           [privateKey]: {
             [pathKey]: ['nested', 'ipAddresses', 'length'],
             [listenerKey]: [],
@@ -519,32 +457,27 @@ test('proxyStructure (nested)', () => {
     key2: 2,
   }
   expect(validator).toStrictEqual({
-    [modelKey]: { nested: { mapping: { key1: 1, key2: 2 } } },
     [privateKey]: {
       [pathKey]: [],
       [listenerKey]: [],
     },
     nested: {
-      [modelKey]: { mapping: { key1: 1, key2: 2 } },
       [privateKey]: {
         [pathKey]: ['nested'],
         [listenerKey]: [],
       },
       mapping: {
-        [modelKey]: { key1: 1, key2: 2 },
         [privateKey]: {
           [pathKey]: ['nested', 'mapping'],
           [listenerKey]: [],
         },
         key1: {
-          [modelKey]: 1,
           [privateKey]: {
             [pathKey]: ['nested', 'mapping', 'key1'],
             [listenerKey]: [],
           },
         },
         key2: {
-          [modelKey]: 2,
           [privateKey]: {
             [pathKey]: ['nested', 'mapping', 'key2'],
             [listenerKey]: [],
@@ -710,4 +643,22 @@ test('proxyStructure listener (nested 3 layer)', () => {
   expect(JSON.stringify(fn.mock.calls)).toStrictEqual(JSON.stringify([[['nested1']]]))
   expect(JSON.stringify(fn1.mock.calls)).toStrictEqual(JSON.stringify([]))
   expect(JSON.stringify(fn11.mock.calls)).toStrictEqual(JSON.stringify([]))
+})
+
+test('callback', () => {
+  const validator: { [key: string]: any } = {}
+  const fn = jest.fn(wrapper => {})
+  const callback = (wrapper: any) => {
+    fn(wrapper)
+  }
+  let form: { [key: string]: any } = {}
+  form = proxyStructure({ object: form, clone: validator, callback })
+
+  expect(fn.mock.calls.length).toBe(1)
+  expect(fn.mock.calls[0][0]).toStrictEqual({
+    [privateKey]: {
+      [pathKey]: [],
+      [listenerKey]: [],
+    },
+  })
 })
