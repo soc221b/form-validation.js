@@ -70,7 +70,7 @@ export function setByPath(object: object | unknown[], path: Path, value: unknown
   return value
 }
 
-export function noop(): void {}
+export function noop(...args: any): any {}
 
 export function identity<T>(any: T): T {
   return any
