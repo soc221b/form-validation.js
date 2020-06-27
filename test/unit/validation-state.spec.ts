@@ -1,152 +1,103 @@
-import { IValidationState, getNested, ValidationState } from '../../src/validation-state'
+import { getNested, wrapState, IStatableValidator } from '../../src/validation-state'
+import { IBaseValidator, publicKey, privateKey, pathKey, listenerKey } from '../../src/proxy'
 
-let validationState: IValidationState
+let validationState: IStatableValidator
 
 function reset() {
-  validationState = ValidationState()
-  validationState.nested1 = ValidationState(validationState)
-  validationState.nested2 = ValidationState(validationState)
-  validationState.nested1.nested11 = ValidationState(validationState.nested1)
-  validationState.nested1.nested12 = ValidationState(validationState.nested1)
+  validationState = ({
+    [publicKey]: {},
+    [privateKey]: {
+      [pathKey]: [],
+      [listenerKey]: [],
+    },
+  } as IBaseValidator) as IStatableValidator
+  wrapState(validationState)
 }
 
 test('getNested', () => {
   reset()
-  expect(getNested(validationState)).toStrictEqual([validationState.nested1, validationState.nested2])
+  expect(getNested(validationState)).toStrictEqual([])
+
+  reset()
+  validationState.nested = {}
+  expect(getNested(validationState)).toStrictEqual([validationState.nested])
 })
 
 test('pending', () => {
   reset()
-  validationState._pending = true
-  expect(validationState.$pending).toBe(true)
+  validationState[privateKey].setPending(true)
+  expect(validationState[publicKey].pending).toBe(true)
 
   reset()
-  validationState.nested1._pending = true
-  expect(validationState.$pending).toBe(true)
+  validationState[privateKey].setPending(true)
+  validationState[privateKey].setPending(true)
+  expect(validationState[publicKey].pending).toBe(true)
+  validationState[privateKey].setPending(false)
+  expect(validationState[publicKey].pending).toBe(true)
+  validationState[privateKey].setPending(false)
+  expect(validationState[publicKey].pending).toBe(false)
 
   reset()
-  validationState.nested1.nested11._pending = true
-  expect(validationState.$pending).toBe(true)
+  validationState[privateKey].setPending(true)
+  validationState[privateKey].setPending(true)
+  expect(validationState[publicKey].pending).toBe(true)
+  validationState[privateKey].resetPending()
+  expect(validationState[publicKey].pending).toBe(false)
 })
 
 test('invalid', () => {
   reset()
-  validationState._invalid = true
-  expect(validationState.$invalid).toBe(true)
+  validationState[privateKey].setInvalid(true)
+  expect(validationState[publicKey].invalid).toBe(true)
 
   reset()
-  validationState._invalid = true
-  validationState._pending = true
-  expect(validationState.$invalid).toBe(false)
-
-  reset()
-  validationState.nested1._invalid = true
-  expect(validationState.$invalid).toBe(true)
-
-  reset()
-  validationState.nested1._invalid = true
-  validationState.nested1._pending = true
-  expect(validationState.$invalid).toBe(false)
-
-  reset()
-  validationState.nested1.nested11._invalid = true
-  expect(validationState.$invalid).toBe(true)
-
-  reset()
-  validationState.nested1.nested11._invalid = true
-  validationState.nested1.nested11._pending = true
-  expect(validationState.$invalid).toBe(false)
+  validationState[privateKey].setInvalid(true)
+  validationState[privateKey].setPending(true)
+  expect(validationState[publicKey].invalid).toBe(false)
 })
 
 test('dirty', () => {
   reset()
-  validationState._dirty = true
-  expect(validationState.$dirty).toBe(true)
-
-  reset()
-  validationState.nested1._dirty = true
-  expect(validationState.$dirty).toBe(false)
-
-  reset()
-  validationState.nested1._dirty = true
-  validationState.nested2._dirty = true
-  expect(validationState.$dirty).toBe(true)
-
-  reset()
-  validationState.nested1.nested11._dirty = true
-  expect(validationState.$dirty).toBe(false)
-
-  reset()
-  validationState.nested1.nested11._dirty = true
-  validationState.nested1.nested12._dirty = true
-  expect(validationState.$dirty).toBe(false)
-
-  reset()
-  validationState.nested1.nested11._dirty = true
-  validationState.nested1.nested12._dirty = true
-  validationState.nested2._dirty = true
-  expect(validationState.$dirty).toBe(true)
+  validationState[privateKey].setDirty(true)
+  expect(validationState[publicKey].dirty).toBe(true)
 })
 
 test('anyDirty', () => {
   reset()
-  validationState._dirty = true
-  expect(validationState.$anyDirty).toBe(true)
-
-  reset()
-  validationState.nested1._dirty = true
-  expect(validationState.$anyDirty).toBe(true)
-
-  reset()
-  validationState.nested1.nested11._dirty = true
-  expect(validationState.$anyDirty).toBe(true)
+  validationState[privateKey].setDirty(true)
+  expect(validationState[publicKey].anyDirty).toBe(true)
 })
 
 test('error', () => {
   reset()
-  validationState._invalid = true
-  expect(validationState.$error).toBe(false)
+  validationState[privateKey].setInvalid(true)
+  expect(validationState[publicKey].error).toBe(false)
 
   reset()
-  validationState._dirty = true
-  validationState._invalid = true
-  expect(validationState.$error).toBe(true)
+  validationState[privateKey].setDirty(true)
+  validationState[privateKey].setInvalid(true)
+  expect(validationState[publicKey].error).toBe(true)
 
   reset()
-  validationState._dirty = true
-  validationState._invalid = true
-  validationState._pending = true
-  expect(validationState.$error).toBe(false)
-
-  reset()
-  validationState.nested1._dirty = true
-  validationState.nested1._invalid = true
-  expect(validationState.$error).toBe(false)
+  validationState[privateKey].setDirty(true)
+  validationState[privateKey].setInvalid(true)
+  validationState[privateKey].setPending(true)
+  expect(validationState[publicKey].error).toBe(false)
 })
 
 test('anyError', () => {
   reset()
-  validationState._invalid = true
-  expect(validationState.$anyError).toBe(false)
+  validationState[privateKey].setInvalid(true)
+  expect(validationState[publicKey].anyError).toBe(false)
 
   reset()
-  validationState._dirty = true
-  validationState._invalid = true
-  expect(validationState.$anyError).toBe(true)
+  validationState[privateKey].setDirty(true)
+  validationState[privateKey].setInvalid(true)
+  expect(validationState[publicKey].anyError).toBe(true)
 
   reset()
-  validationState._dirty = true
-  validationState._invalid = true
-  validationState._pending = true
-  expect(validationState.$anyError).toBe(false)
-
-  reset()
-  validationState.nested1._dirty = true
-  validationState.nested1._invalid = true
-  expect(validationState.$anyError).toBe(true)
-
-  reset()
-  validationState.nested1.nested11._dirty = true
-  validationState.nested1.nested11._invalid = true
-  expect(validationState.$anyError).toBe(true)
+  validationState[privateKey].setDirty(true)
+  validationState[privateKey].setInvalid(true)
+  validationState[privateKey].setPending(true)
+  expect(validationState[publicKey].anyError).toBe(false)
 })
