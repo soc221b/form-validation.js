@@ -11,21 +11,21 @@
         <div>
           <label for="account">Account</label>
           <input id="account" v-model="state.account">
-          <span>{{ validator.account.$errors.required }}</span>
+          <span>{{ validator.account.$v.error }}</span>
         </div>
 
         <div>
           <label for="password">Password</label>
           <input id="password" v-model="state.password" type="password">
-          <span>{{ validator.password.$errors.required }}</span>
+          <span>{{ validator.password.$v.error }}</span>
         </div>
 
         <button @click="addEmail" type="button">Add email</button>
         <template v-for="(email, index) of state.emails">
           <div>
             <label :for="'emails.' + index">Email</label>
-            <input :id="'emails.' + index" v-model="state.emails[index]">
-            <span>{{ validator.emails[index].$errors.required }}</span>
+            <input :id="'emails.' + index" v-model="state.emails[index]" @change="validator.emails[index].$v.touch()">
+            <span>{{ validator.emails[index].$v.error }}</span>
             <button @click="removeEmail(index)" type="button">Remove email</button>
           </div>
         </template>

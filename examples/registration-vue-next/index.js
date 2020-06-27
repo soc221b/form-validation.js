@@ -2,21 +2,21 @@ const { createApp, reactive, watch } = Vue
 
 createApp({
   setup() {
-    const validator = reactive({})
-    const state = reactive({
+    const form = {
       account: '',
       password: '',
       emails: ['', ''],
-    })
-    FormValidation.proxy({ validator, schema, form: state })
+    }
+    const validator = reactive({})
+    const state = reactive(FormValidation.proxy({ form, schema, validator }))
 
     watch(
       () => state.account,
-      () => validator.account.$validate(),
+      () => validator.account.$v.validate(),
     )
     watch(
       () => state.password,
-      () => validator.password.$validate(),
+      () => validator.password.$v.validate(),
     )
     let oldEmails = []
     watch(
@@ -24,7 +24,7 @@ createApp({
       emails => {
         for (const index in emails) {
           if (emails[index] !== oldEmails[index]) {
-            validator.emails[index].$validate()
+            validator.emails[index].$v.validate()
           }
         }
         oldEmails = JSON.parse(JSON.stringify(emails))
