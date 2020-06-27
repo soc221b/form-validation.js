@@ -730,3 +730,31 @@ test('callback', () => {
     },
   })
 })
+
+test('callback (nested)', () => {
+  const validator: { [key: string]: any } = {}
+  const fn = jest.fn(wrapper => {})
+  const callback = (wrapper: any) => {
+    fn(wrapper)
+  }
+  let form: { [key: string]: any } = {
+    nested: {},
+  }
+  form = proxyStructure({ object: form, clone: validator, callback })
+
+  expect(fn.mock.calls.length).toBe(2)
+  expect(fn.mock.calls[0][0]).toStrictEqual({
+    [publicKey]: {},
+    [privateKey]: {
+      [pathKey]: [],
+      [listenerKey]: [],
+    },
+  })
+  expect(fn.mock.calls[1][0]).toStrictEqual({
+    [publicKey]: {},
+    [privateKey]: {
+      [pathKey]: ['nested'],
+      [listenerKey]: [],
+    },
+  })
+})

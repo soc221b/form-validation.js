@@ -55,7 +55,13 @@ export const proxyStructure = ({
   clone[privateKey] = wrapper[privateKey]
   clone[publicKey] = wrapper[publicKey]
 
-  return _proxyStructure({ object, clone, path: [], callback })
+  const proxied = _proxyStructure({ object, clone, path: [], callback })
+
+  for (const key in object) {
+    proxied[key] = object[key]
+  }
+
+  return proxied
 }
 
 const _proxyStructure = ({
