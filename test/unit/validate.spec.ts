@@ -34,8 +34,6 @@ test('validate', () => {
   }
   const validateParams: IValidateParams = {
     rootForm,
-    rootSchema,
-    path: [],
   }
 
   const validateResult = validate(validateParams)

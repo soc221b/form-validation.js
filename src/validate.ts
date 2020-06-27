@@ -1,4 +1,7 @@
 import { getByPath } from './util'
+import { IStatableValidator } from './validation-state'
+import { privateKey, pathKey } from './proxy'
+import { schemaKey } from './schema'
 
 export interface IFunctionParams {
   value: any
@@ -11,8 +14,7 @@ export interface IFunctionParams {
 
 export interface IValidateParams {
   rootForm: any
-  rootSchema: any
-  path: string[]
+  validator: IStatableValidator
 }
 
 export interface IValidateResult {
@@ -20,38 +22,33 @@ export interface IValidateResult {
   [key: string]: any
 }
 
-export const validate = ({ rootForm, rootSchema, path }: IValidateParams): IValidateResult => {
-  let root
-  let parent
-  let key
-  let value
-  let params
-  let rules
-  let errors
-  if (path.length === 0) {
-    root = rootForm
-    parent = undefined
-    key = undefined
-    value = rootForm
-    params = rootSchema.$params
-    rules = rootSchema.$rules
-    errors = rootSchema.$errors
-  } else {
-    root = rootForm
-    parent = getByPath(rootForm, path.slice(0, -1))
-    key = path[path.length - 1]
-    value = parent[key]
-    params = getByPath(rootSchema, path.concat('$params'))
-    rules = getByPath(rootSchema, path.concat('$rules'))
-    errors = getByPath(rootSchema, path.concat('$errors'))
-  }
+export const validate = ({ rootForm, validator }: IValidateParams): IValidateResult => {
+  const params = validator[privateKey][schemaKey].$params
+  const normalizer = validator[privateKey][schemaKey].$normalizer
+  const rules = validator[privateKey][schemaKey].$rules
+  const errors = validator[privateKey][schemaKey].$errors
 
+  const root = rootForm
+  const path = validator[privateKey][pathKey]
+  const parent = path.length === 0 ? undefined : getByPath(rootForm, path.slice(0, -1))
+  const key = path.length === 0 ? undefined : path[path.length - 1]
+  const value = normalizer({
+    value: path.length === 0 ? rootForm : getByPath(rootForm, path),
+    key,
+    parent,
+    path,
+    root,
+    params,
+  })
+
+  params.$rulesResult = {}
   const result: IValidateResult = { $rulesResult: {} }
   for (const ruleKey of Object.keys(rules)) {
     const functionParams: IFunctionParams = { value, key, parent, path, root, params }
     const validationResult = rules[ruleKey](functionParams)
+    params.$rulesResult[ruleKey] = validationResult
+    result[ruleKey] = undefined
     if (validationResult !== undefined) {
-      result.$rulesResult[ruleKey] = validationResult
       result[ruleKey] = errors[ruleKey](functionParams)
     }
   }
