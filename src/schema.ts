@@ -46,7 +46,7 @@ export interface ISchemaValidator extends IBaseValidator, IStatableValidator {
 
 const defaultSchema: ISchema = {
   $params: {},
-  $normalizer: () => {},
+  $normalizer: ({ value }) => value,
   $rules: {},
   $errors: {},
 }
