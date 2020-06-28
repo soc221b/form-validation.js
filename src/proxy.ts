@@ -1,12 +1,12 @@
-import { noop } from './util'
+import { noop, getByPath, isPlainObject, isArray } from './util'
 
 export const privateKey = '__form_validation__'
 export const publicKey = '$v'
 export const pathKey = 'path'
 export const listenerKey = 'listener'
+export const proxyKey = '__form_reactive'
 
-export type IKey = string
-export type IPath = IKey[]
+export type IPath = string[]
 
 export interface IBaseValidator {
   [privateKey]: {
@@ -27,19 +27,21 @@ interface IWrapCallback {
 }
 
 interface IWrap {
-  (path: IPath, callback: IWrapCallback): IBaseValidator
+  (object: any, path: IPath, callback: IWrapCallback): IBaseValidator
 }
 
-const wrap: IWrap = (path, callback) => {
-  const wrapper: IBaseValidator = {
-    [privateKey]: {
-      [pathKey]: path,
-      [listenerKey]: [],
-    },
-    [publicKey]: {},
+const wrap: IWrap = (object, path, callback) => {
+  object[privateKey] = {
+    [pathKey]: path,
+    [listenerKey]: [],
   }
-  callback(wrapper)
-  return wrapper
+  object[publicKey] = {}
+  Object.defineProperty(object, proxyKey, {
+    enumerable: false,
+    value: object,
+  })
+  callback(object)
+  return object
 }
 
 export const proxyStructure = ({
@@ -51,17 +53,7 @@ export const proxyStructure = ({
   clone: { [key: string]: any }
   callback?: IWrapCallback
 }) => {
-  const wrapper = wrap([], callback)
-  clone[privateKey] = wrapper[privateKey]
-  clone[publicKey] = wrapper[publicKey]
-
-  const proxied = _proxyStructure({ object, clone, path: [], callback })
-
-  for (const key in object) {
-    proxied[key] = object[key]
-  }
-
-  return proxied
+  return _proxyStructure({ object, clone, path: [], callback })
 }
 
 const _proxyStructure = ({
@@ -75,6 +67,22 @@ const _proxyStructure = ({
   path: IPath
   callback: IWrapCallback
 }) => {
+  // nested
+  wrap(clone, path, callback)
+
+  if (isPlainObject(object) === false && isArray(object) === false) return object
+
+  for (const key of Object.keys(object)) {
+    if (clone[key] === undefined) clone[key] = {}
+
+    object[key] = _proxyStructure({
+      object: object[key],
+      clone: clone[key],
+      path: path.concat(key),
+      callback,
+    })
+  }
+
   return new Proxy(object, {
     deleteProperty(target, key) {
       Reflect.deleteProperty(clone, key)
@@ -85,43 +93,23 @@ const _proxyStructure = ({
       return result
     },
 
-    set(target: object, key: IKey, value: any, receiver: any) {
-      const result = Reflect.set(target, key, value, receiver)
+    set(target: any, key: string, value: any, receiver: any) {
+      if (isArray(target) && key === 'length') return Reflect.set(target, key, value, receiver)
+
+      clone[key] = {}
+
+      value = _proxyStructure({
+        object: value,
+        clone: clone[key],
+        path: path.concat(key),
+        callback,
+      })
 
       for (const listener of clone[privateKey][listenerKey]) {
         listener(clone[privateKey][pathKey].concat(key))
       }
 
-      clone[key] = wrap(path.concat(key), callback)
-
-      const representingType = Object.prototype.toString.call(receiver[key])
-      if (representingType === '[object Object]' || representingType === '[object Array]') {
-        if (representingType === '[object Array]') {
-          if (clone[key].length === undefined) {
-            clone[key].length = wrap(clone[key][privateKey][pathKey].concat('length'), callback)
-          }
-        }
-
-        for (const innerKey in receiver[key]) {
-          if (clone[key][innerKey] === undefined) {
-            clone[key][innerKey] = wrap(clone[key][privateKey][pathKey].concat(innerKey), callback)
-          }
-        }
-
-        Reflect.set(
-          target,
-          key,
-          _proxyStructure({
-            object: receiver[key],
-            clone: clone[key],
-            path: clone[key][privateKey][pathKey],
-            callback,
-          }),
-          receiver,
-        )
-      }
-
-      return result
+      return Reflect.set(target, key, value, receiver)
     },
   })
 }
