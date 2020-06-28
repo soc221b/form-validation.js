@@ -171,13 +171,6 @@ test('proxyStructure (array)', () => {
       [pathKey]: ['ipAddresses'],
       [listenerKey]: [],
     },
-    length: {
-      [publicKey]: {},
-      [privateKey]: {
-        [pathKey]: ['ipAddresses', 'length'],
-        [listenerKey]: [],
-      },
-    },
   })
 
   form.ipAddresses.push('1.1.1.1')
@@ -191,13 +184,6 @@ test('proxyStructure (array)', () => {
       [publicKey]: {},
       [privateKey]: {
         [pathKey]: ['ipAddresses', '0'],
-        [listenerKey]: [],
-      },
-    },
-    length: {
-      [publicKey]: {},
-      [privateKey]: {
-        [pathKey]: ['ipAddresses', 'length'],
         [listenerKey]: [],
       },
     },
@@ -221,13 +207,6 @@ test('proxyStructure (array)', () => {
       [publicKey]: {},
       [privateKey]: {
         [pathKey]: ['ipAddresses', '1'],
-        [listenerKey]: [],
-      },
-    },
-    length: {
-      [publicKey]: {},
-      [privateKey]: {
-        [pathKey]: ['ipAddresses', 'length'],
         [listenerKey]: [],
       },
     },
@@ -261,13 +240,6 @@ test('proxyStructure (array)', () => {
         [listenerKey]: [],
       },
     },
-    length: {
-      [publicKey]: {},
-      [privateKey]: {
-        [pathKey]: ['ipAddresses', 'length'],
-        [listenerKey]: [],
-      },
-    },
   })
 
   form.ipAddresses.splice(1, 1)
@@ -291,13 +263,6 @@ test('proxyStructure (array)', () => {
         [listenerKey]: [],
       },
     },
-    length: {
-      [publicKey]: {},
-      [privateKey]: {
-        [pathKey]: ['ipAddresses', 'length'],
-        [listenerKey]: [],
-      },
-    },
   })
 
   form.ipAddresses.pop()
@@ -314,13 +279,6 @@ test('proxyStructure (array)', () => {
         [listenerKey]: [],
       },
     },
-    length: {
-      [publicKey]: {},
-      [privateKey]: {
-        [pathKey]: ['ipAddresses', 'length'],
-        [listenerKey]: [],
-      },
-    },
   })
 
   form.ipAddresses.shift()
@@ -329,13 +287,6 @@ test('proxyStructure (array)', () => {
     [privateKey]: {
       [pathKey]: ['ipAddresses'],
       [listenerKey]: [],
-    },
-    length: {
-      [publicKey]: {},
-      [privateKey]: {
-        [pathKey]: ['ipAddresses', 'length'],
-        [listenerKey]: [],
-      },
     },
   })
 
@@ -376,13 +327,6 @@ test('proxyStructure (array)', () => {
         [listenerKey]: [],
       },
     },
-    length: {
-      [publicKey]: {},
-      [privateKey]: {
-        [pathKey]: ['ipAddresses', 'length'],
-        [listenerKey]: [],
-      },
-    },
   })
 
   form.ipAddresses = []
@@ -391,13 +335,6 @@ test('proxyStructure (array)', () => {
     [privateKey]: {
       [pathKey]: ['ipAddresses'],
       [listenerKey]: [],
-    },
-    length: {
-      [publicKey]: {},
-      [privateKey]: {
-        [pathKey]: ['ipAddresses', 'length'],
-        [listenerKey]: [],
-      },
     },
   })
 })
@@ -499,13 +436,6 @@ test('proxyStructure (nested)', () => {
           [publicKey]: {},
           [privateKey]: {
             [pathKey]: ['nested', 'ipAddresses', '2'],
-            [listenerKey]: [],
-          },
-        },
-        length: {
-          [publicKey]: {},
-          [privateKey]: {
-            [pathKey]: ['nested', 'ipAddresses', 'length'],
             [listenerKey]: [],
           },
         },
