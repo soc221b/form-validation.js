@@ -679,6 +679,13 @@ test('callback (nested)', () => {
       [pathKey]: [],
       [listenerKey]: [],
     },
+    nested: {
+      [publicKey]: {},
+      [privateKey]: {
+        [pathKey]: ['nested'],
+        [listenerKey]: [],
+      },
+    },
   })
   expect(fn.mock.calls[1][0]).toStrictEqual({
     [publicKey]: {},
