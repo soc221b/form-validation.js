@@ -73,7 +73,7 @@ const _proxyStructure = ({
   if (isPlainObject(object) === false && isArray(object) === false) return object
 
   for (const key of Object.keys(object)) {
-    if (clone[key] === undefined) clone[key] = {}
+    Reflect.set(clone, key, clone[key] || (isArray(object) ? [] : {}))
 
     object[key] = _proxyStructure({
       object: object[key],
@@ -93,10 +93,10 @@ const _proxyStructure = ({
       return result
     },
 
-    set(target: any, key: string, value: any, receiver: any) {
-      if (isArray(target) && key === 'length') return Reflect.set(target, key, value, receiver)
+    set(target: any, key: string, value: any) {
+      const result = Reflect.set(target, key, value)
 
-      clone[key] = {}
+      Reflect.set(clone, key, clone[key] || (isArray(target) ? [] : {}))
 
       value = _proxyStructure({
         object: value,
@@ -109,7 +109,7 @@ const _proxyStructure = ({
         listener(clone[privateKey][pathKey].concat(key))
       }
 
-      return Reflect.set(target, key, value, receiver)
+      return result
     },
   })
 }
