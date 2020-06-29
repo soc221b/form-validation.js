@@ -5,6 +5,19 @@ const wait = ms => {
     }, ms)
   })
 }
+
+function logInfo(state, validator) {
+  console.log('state: ', state)
+  console.log('validator: ', validator)
+}
+
+const form = {
+  account1: '',
+  account2: '',
+  account3: '',
+  account4: '',
+}
+
 const schema = {
   account1: {
     $rules: {
@@ -63,7 +76,4 @@ const schema = {
   },
 }
 
-function logInfo(state, validator) {
-  console.log('state: ', state)
-  console.log('validator: ', validator)
-}
+const validator = {}

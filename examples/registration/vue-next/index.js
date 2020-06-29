@@ -2,14 +2,9 @@ const { createApp, reactive, watch } = Vue
 
 createApp({
   setup() {
-    const form = {
-      account1: '',
-      account2: '',
-      account3: '',
-      account4: '',
-    }
-    const validator = reactive({})
-    const state = reactive(FormValidation.proxy({ form, schema, validator }))
+    const reactiveValidator = reactive(validator)
+    const proxiedForm = FormValidation.proxy({ form, schema, validator: reactiveValidator })
+    const state = reactive(proxiedForm)
 
     watch(
       () => state.account1,
@@ -29,13 +24,13 @@ createApp({
     )
     watch(
       () => state,
-      () => logInfo(state, validator),
+      () => logInfo(state, reactiveValidator),
       { deep: true, immediate: true },
     )
 
     return {
       state,
-      validator,
+      validator: reactiveValidator,
     }
   },
 }).mount('#app')
