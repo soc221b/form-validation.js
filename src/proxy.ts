@@ -31,6 +31,8 @@ interface IWrap {
 }
 
 const wrap: IWrap = (object, path, callback) => {
+  if (object[proxyKey] !== undefined) return
+
   object[privateKey] = {
     [pathKey]: path,
     [listenerKey]: [],
