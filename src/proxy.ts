@@ -1,4 +1,4 @@
-import { noop, getByPath, isPlainObject, isArray } from './util'
+import { noop, isPlainObject, isArray } from './util'
 
 export const privateKey = '__form_validation__'
 export const publicKey = '$v'
