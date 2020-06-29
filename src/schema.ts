@@ -37,6 +37,9 @@ export interface ISchemaValidator extends IBaseValidator, IStatableValidator {
     anyDirty: boolean
     error: boolean
     anyError: boolean
+    errors: {
+      [key: string]: any
+    }
 
     [key: string]: any
   }

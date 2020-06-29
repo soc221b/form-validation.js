@@ -1,7 +1,9 @@
-import { getByPath } from './util'
+import { getByPath, isPromise } from './util'
 import { IStatableValidator } from './validation-state'
 import { privateKey, pathKey } from './proxy'
 import { schemaKey } from './schema'
+
+export const rulesResultKey = '$rulsResult'
 
 export interface IFunctionParams {
   value: any
@@ -18,7 +20,7 @@ export interface IValidateParams {
 }
 
 export interface IValidateResult {
-  $rulesResult: { [key: string]: any }
+  [rulesResultKey]: { [key: string]: any }
   [key: string]: any
 }
 
@@ -41,14 +43,19 @@ export const validate = ({ rootForm, validator }: IValidateParams): IValidateRes
     params,
   })
 
-  params.$rulesResult = {}
-  const result: IValidateResult = { $rulesResult: {} }
+  const result: IValidateResult = { [rulesResultKey]: {} }
   for (const ruleKey of Object.keys(rules)) {
     const functionParams: IFunctionParams = { value, key, parent, path, root, params }
     const validationResult = rules[ruleKey](functionParams)
-    params.$rulesResult[ruleKey] = validationResult
+    result[rulesResultKey][ruleKey] = validationResult
     result[ruleKey] = undefined
-    if (validationResult !== undefined) {
+    if (isPromise(validationResult)) {
+      validationResult.finally(async () => {
+        if ((await validationResult) !== undefined) {
+          result[ruleKey] = errors[ruleKey](functionParams)
+        }
+      })
+    } else if (validationResult !== undefined) {
       result[ruleKey] = errors[ruleKey](functionParams)
     }
   }

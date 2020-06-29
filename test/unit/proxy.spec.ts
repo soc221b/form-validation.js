@@ -339,6 +339,173 @@ test('proxyStructure (array)', () => {
   })
 })
 
+test('array: push', () => {
+  const clone: { [key: string]: any } = {}
+  let object: { [key: string]: any } = { ipAddresses: [] }
+  object = proxyStructure({ object, clone })
+  let oldClone = []
+
+  object.ipAddresses.push('')
+
+  oldClone = clone.ipAddresses.slice()
+
+  object.ipAddresses.push('')
+  expect(clone.ipAddresses.length).toBe(2)
+  expect(clone.ipAddresses[0]).toBe(oldClone[0])
+  expect(clone.ipAddresses[1]).toBeDefined()
+
+  oldClone = clone.ipAddresses.slice()
+
+  object.ipAddresses.push('')
+  expect(clone.ipAddresses.length).toBe(3)
+  expect(clone.ipAddresses[0]).toBe(oldClone[0])
+  expect(clone.ipAddresses[1]).toBe(oldClone[1])
+  expect(clone.ipAddresses[2]).toBeDefined()
+})
+
+test('array: pop', () => {
+  const clone: { [key: string]: any } = {}
+  let object: { [key: string]: any } = { ipAddresses: [] }
+  object = proxyStructure({ object, clone })
+  let oldClone = []
+
+  object.ipAddresses = ['', '', '']
+
+  oldClone = clone.ipAddresses.slice()
+
+  object.ipAddresses.pop()
+  expect(clone.ipAddresses.length).toBe(2)
+  expect(clone.ipAddresses[0]).toBe(oldClone[0])
+  expect(clone.ipAddresses[1]).toBe(oldClone[1])
+  expect(clone.ipAddresses[2]).not.toBeDefined()
+
+  oldClone = clone.ipAddresses.slice()
+
+  object.ipAddresses.pop()
+  expect(clone.ipAddresses.length).toBe(1)
+  expect(clone.ipAddresses[0]).toBe(oldClone[0])
+  expect(clone.ipAddresses[1]).not.toBeDefined()
+})
+
+test('array: unshift', () => {
+  const clone: { [key: string]: any } = {}
+  let object: { [key: string]: any } = { ipAddresses: [] }
+  object = proxyStructure({ object, clone })
+  let oldClone = []
+
+  object.ipAddresses = ['', '', '']
+
+  oldClone = clone.ipAddresses.slice()
+
+  object.ipAddresses.unshift('')
+  expect(clone.ipAddresses.length).toBe(4)
+  expect(clone.ipAddresses[0]).toBeDefined()
+  expect(clone.ipAddresses[1]).toBe(oldClone[0])
+  expect(clone.ipAddresses[2]).toBe(oldClone[1])
+  expect(clone.ipAddresses[3]).toBe(oldClone[2])
+
+  oldClone = clone.ipAddresses.slice()
+
+  object.ipAddresses.unshift('')
+  expect(clone.ipAddresses.length).toBe(5)
+  expect(clone.ipAddresses[0]).toBeDefined()
+  expect(clone.ipAddresses[1]).toBeDefined()
+  expect(clone.ipAddresses[2]).toBe(oldClone[0])
+  expect(clone.ipAddresses[3]).toBe(oldClone[1])
+  expect(clone.ipAddresses[4]).toBe(oldClone[2])
+})
+
+test('array: shift', () => {
+  const clone: { [key: string]: any } = {}
+  let object: { [key: string]: any } = { ipAddresses: [] }
+  object = proxyStructure({ object, clone })
+  let oldClone = []
+
+  object.ipAddresses = ['', '', '']
+
+  oldClone = clone.ipAddresses.slice()
+
+  object.ipAddresses.shift('')
+  expect(clone.ipAddresses.length).toBe(2)
+  expect(clone.ipAddresses[0]).toBe(oldClone[1])
+  expect(clone.ipAddresses[1]).toBe(oldClone[2])
+  expect(clone.ipAddresses[2]).not.toBeDefined()
+
+  oldClone = clone.ipAddresses.slice()
+
+  object.ipAddresses.shift('')
+  expect(clone.ipAddresses.length).toBe(1)
+  expect(clone.ipAddresses[0]).toBe(oldClone[2])
+  expect(clone.ipAddresses[1]).not.toBeDefined()
+})
+
+test('array: length', () => {
+  const clone: { [key: string]: any } = {}
+  let object: { [key: string]: any } = { ipAddresses: [] }
+  object = proxyStructure({ object, clone })
+  let oldClone = []
+
+  // length
+  object.ipAddresses = ['', '', '']
+
+  oldClone = clone.ipAddresses.slice()
+
+  object.ipAddresses.length = 2
+  expect(clone.ipAddresses.length).toBe(2)
+  expect(clone.ipAddresses[0]).toBe(oldClone[0])
+  expect(clone.ipAddresses[1]).toBe(oldClone[0])
+  expect(clone.ipAddresses[2]).not.toBeDefined()
+
+  oldClone = clone.ipAddresses.slice()
+
+  object.ipAddresses.length = 1
+  expect(clone.ipAddresses.length).toBe(1)
+  expect(clone.ipAddresses[0]).toBe(oldClone[0])
+  expect(clone.ipAddresses[1]).not.toBeDefined()
+})
+
+test('array: lookup setting', () => {
+  const clone: { [key: string]: any } = {}
+  let object: { [key: string]: any } = { ipAddresses: [] }
+  object = proxyStructure({ object, clone })
+  let oldClone = []
+
+  object.ipAddresses = ['']
+
+  oldClone = clone.ipAddresses.slice()
+
+  object.ipAddresses[2] = ''
+  expect(clone.ipAddresses.length).toBe(3)
+  expect(clone.ipAddresses[0]).toBe(oldClone[0])
+  expect(clone.ipAddresses[1]).not.toBeDefined()
+  expect(clone.ipAddresses[2]).toBeDefined()
+
+  oldClone = clone.ipAddresses.slice()
+
+  object.ipAddresses[1] = ''
+  expect(clone.ipAddresses.length).toBe(3)
+  expect(clone.ipAddresses[0]).toBe(oldClone[0])
+  expect(clone.ipAddresses[1]).toBeDefined()
+  expect(clone.ipAddresses[2]).toBe(oldClone[2])
+
+  oldClone = clone.ipAddresses.slice()
+
+  object.ipAddresses[0] = ''
+  expect(clone.ipAddresses.length).toBe(3)
+  expect(clone.ipAddresses[0]).toBeDefined()
+  expect(clone.ipAddresses[1]).toBe(oldClone[1])
+  expect(clone.ipAddresses[2]).toBe(oldClone[2])
+})
+
+test('array: splice', () => {
+  const clone: { [key: string]: any } = {}
+  let object: { [key: string]: any } = { ipAddresses: [] }
+  object = proxyStructure({ object, clone })
+  let oldClone = []
+
+  throw Error('not yet be implemented.')
+})
+
 test('proxyStructure (nested)', () => {
   const validator: { [key: string]: any } = {}
   let form: { [key: string]: any } = {}

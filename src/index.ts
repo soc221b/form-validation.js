@@ -1,8 +1,8 @@
 import { proxyStructure, publicKey, privateKey, pathKey } from './proxy'
-import { validate, IValidateResult } from './validate'
+import { validate, IValidateResult, rulesResultKey } from './validate'
 import { wrapState, IStatableValidator } from './validation-state'
 import { getByPath, isPromise } from './util'
-import { wrapSchema, ISchemaValidator } from './schema'
+import { wrapSchema, ISchemaValidator, schemaKey } from './schema'
 
 export interface IValidator extends IStatableValidator {
   [publicKey]: {
@@ -12,6 +12,9 @@ export interface IValidator extends IStatableValidator {
     anyDirty: boolean
     error: boolean
     anyError: boolean
+    errors: {
+      [key: string]: any
+    }
 
     validate: () => void
     reset: () => void
@@ -26,48 +29,51 @@ export const proxy = ({ form, schema, validator }: any) => {
     callback: baseValidator => {
       wrapState(baseValidator)
       wrapSchema({ rootSchema: schema, validator: baseValidator as ISchemaValidator })
-      wrapMethods({ form, schema, baseValidator })
+      wrapMethods(form, baseValidator)
     },
   })
 }
 
-const wrapMethods = ({ rootForm, rootSchema, rootValidator, wrapper }: any) => {
-  const path = wrapper[privateKey][pathKey]
-  const validator: IValidator = getByPath(rootValidator, path)
-  const schema = getByPath(rootSchema, path)
+const wrapMethods = (rootForm: any, validator: any) => {
+  const schema = validator[privateKey][schemaKey]
 
   let previousResult: any = null
 
   const $validate = () => {
     validator[privateKey].resetPending()
+    validator[publicKey].errors = {}
 
     const result = validate({ rootForm, validator })
     for (const ruleKey of Object.keys(schema.$rules)) {
-      if (isPromise(result[ruleKey])) {
+      if (isPromise(result[rulesResultKey][ruleKey])) {
         validator[privateKey].setPending(true)
 
-        result.$rulesResult[ruleKey].finally(async () => {
+        result[rulesResultKey][ruleKey].finally(async () => {
           // ignore previous promise
-          if (previousResult !== result.$rulesResult) return
+          if (previousResult !== result[rulesResultKey]) return
 
-          if ((await result.$rulesResult[ruleKey]) !== undefined) {
+          const ruleResult = await result[rulesResultKey][ruleKey]
+          if (ruleResult !== undefined) {
             validator[privateKey].setInvalid(true)
+            validator[publicKey].errors[ruleKey] = await result[ruleKey]
           }
           validator[privateKey].setPending(false)
         })
       } else {
-        if (result.$rulesResult[ruleKey] !== undefined) {
+        if (result[rulesResultKey][ruleKey] !== undefined) {
           validator[privateKey].setInvalid(true)
+          validator[publicKey].errors[ruleKey] = result[ruleKey]
         }
       }
     }
-
-    previousResult = result.$rulesResult
+    previousResult = result[rulesResultKey]
   }
   const $reset = () => {
     validator[privateKey].setInvalid(false)
     validator[privateKey].setDirty(false)
+    validator[privateKey].setInvalid(false)
     validator[privateKey].resetPending()
+    validator[publicKey].errors = {}
     previousResult = null
   }
   const $touch = () => {

@@ -23,6 +23,9 @@ export interface IStatableValidator extends IBaseValidator {
     anyDirty: boolean
     error: boolean
     anyError: boolean
+    errors: {
+      [key: string]: any
+    }
 
     [key: string]: any
   }
@@ -47,80 +50,77 @@ export function wrapState(validator: IBaseValidator) {
   theValidator[publicKey].anyDirty = false
   theValidator[publicKey].error = false
   theValidator[publicKey].anyError = false
+  theValidator[publicKey].errors = {}
 }
 
 const setPrivateInvalid = (validator: IStatableValidator) => (value: boolean) => {
   validator[privateKey].invalid = value
 
-  validator[publicKey].invalid = setInvalid(validator)
-  validator[publicKey].error = setError(validator)
-  validator[publicKey].anyError = setAnyError(validator)
+  updateInvalid(validator)
+  updateError(validator)
+  updateAnyError(validator)
 }
 
 const setPrivateDirty = (validator: IStatableValidator) => (value: boolean) => {
   validator[privateKey].dirty = value
 
-  validator[publicKey].dirty = setDirty(validator)
-  validator[publicKey].anyDirty = setAnyDirty(validator)
-  validator[publicKey].error = setError(validator)
-  validator[publicKey].anyError = setAnyError(validator)
+  updateDirty(validator)
+  updateAnyDirty(validator)
+  updateError(validator)
+  updateAnyError(validator)
 }
 
 const setPrivatePending = (validator: IStatableValidator) => (value: boolean) => {
   validator[privateKey].pending += value === true ? 1 : -1
 
-  validator[publicKey].pending = setPending(validator)
-  validator[publicKey].invalid = setInvalid(validator)
-  validator[publicKey].error = setError(validator)
-  validator[publicKey].anyError = setAnyError(validator)
+  updatePending(validator)
+  updateInvalid(validator)
+  updateError(validator)
+  updateAnyError(validator)
 }
 
 const resetPrivatePending = (validator: IStatableValidator) => () => {
   validator[privateKey].pending = 0
 
-  validator[publicKey].pending = setPending(validator)
-  validator[publicKey].invalid = setInvalid(validator)
-  validator[publicKey].error = setError(validator)
-  validator[publicKey].anyError = setAnyError(validator)
+  updatePending(validator)
+  updateInvalid(validator)
+  updateError(validator)
+  updateAnyError(validator)
 }
 
-const setPending = (validator: IStatableValidator): boolean => {
-  return (
+const updatePending = (validator: IStatableValidator) => {
+  validator[publicKey].pending =
     validator[privateKey].pending !== 0 ||
     getNested(validator).some(nestedValidator => nestedValidator[publicKey].pending)
-  )
 }
 
-const setInvalid = (validator: IStatableValidator): boolean => {
-  return (
+const updateInvalid = (validator: IStatableValidator) => {
+  validator[publicKey].invalid =
     (validator[privateKey].invalid && validator[privateKey].pending === 0) ||
     getNested(validator).some(nestedValidator => nestedValidator[publicKey].invalid)
-  )
 }
 
-const setDirty = (validator: IStatableValidator): boolean => {
-  return (
+const updateDirty = (validator: IStatableValidator) => {
+  validator[publicKey].dirty =
     validator[privateKey].dirty ||
     (getNested(validator).length !== 0 &&
       getNested(validator).every(nestedValidator => nestedValidator[publicKey].dirty))
-  )
 }
 
-const setAnyDirty = (validator: IStatableValidator): boolean => {
-  return (
+const updateAnyDirty = (validator: IStatableValidator) => {
+  validator[publicKey].anyDirty =
     validator[privateKey].dirty || getNested(validator).some(nestedValidator => nestedValidator[publicKey].anyDirty)
-  )
 }
 
-const setError = (validator: IStatableValidator): boolean => {
-  return validator[privateKey].dirty && validator[privateKey].invalid && validator[privateKey].pending === 0
+const updateError = (validator: IStatableValidator) => {
+  validator[publicKey].error =
+    validator[privateKey].dirty && validator[privateKey].invalid && validator[privateKey].pending === 0
 }
 
-const setAnyError = (validator: IStatableValidator): boolean => {
-  return (
+const updateAnyError = (validator: IStatableValidator) => {
+  validator[publicKey].anyError =
     (validator[privateKey].dirty && validator[privateKey].invalid && validator[privateKey].pending === 0) ||
     getNested(validator).some(nestedValidator => nestedValidator[publicKey].anyError)
-  )
 }
 
 export const getNested = (validator: IStatableValidator): IStatableValidator[] => {
