@@ -1,0 +1,31 @@
+ol {
+  display: flex;
+  flex-direction: column;
+}
+
+li {
+  color: red;
+  list-style-type: circle;
+}
+
+label {
+  font-size: .9rem;
+}
+
+input {
+  border-radius: 5px;
+}
+
+fieldset label {
+  display: inline-flex;
+  width: 120px;
+}
+
+button {
+  width: 160px;
+  border-radius: 5px;
+}
+
+ol {
+  display: block;
+}
