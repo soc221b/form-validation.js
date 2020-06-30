@@ -13,7 +13,7 @@ function logInfo(state, validator) {
 }
 
 const form = {
-  accountList: ['', '']
+  accountList: ['', ''],
 }
 
 const schema = {
@@ -57,7 +57,7 @@ const schema = {
           return `Must be full-name.`
         },
       },
-    }
+    },
   },
 }
 

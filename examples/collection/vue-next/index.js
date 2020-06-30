@@ -17,7 +17,7 @@ createApp({
         }
         oldAccountList = JSON.parse(JSON.stringify(state.accountList))
       },
-      { deep: true }
+      { deep: true },
     )
 
     const push = () => state.accountList.push('')

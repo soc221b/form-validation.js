@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Example: Vue</title>
+    <script src="http://unpkg.com/vue"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.css">
+    <script src="../../../dist/form-validation.umd.js"></script>
+    <link rel="stylesheet" type="text/css" href="../index.css">
+  </head>
+  <body>
+    <div id="app">
+      <form>
+        <fieldset>
+
+          <legend>Sign up</legend>
+
+          <div>
+            <label for="account1">basic validation:</label>
+            <input id="account1" v-model="state.account1" @input="validator.account1.$v.touch">
+            <ol>
+              <template v-for="ruleKey of Object.keys(validator.account1.$v.errors)">
+                <li v-if="validator.account1.$v.dirty" :key="ruleKey">{{ validator.account1.$v.errors[ruleKey] }}</li>
+              </template>
+            </ol>
+          </div>
+
+          <div>
+            <label for="account2">with normalizer:</label>
+            <input id="account2" v-model="state.account2" @input="validator.account2.$v.touch">
+            <ol>
+              <template v-for="ruleKey of Object.keys(validator.account2.$v.errors)">
+                <li v-if="validator.account2.$v.dirty" :key="ruleKey">{{ validator.account2.$v.errors[ruleKey] }}</li>
+              </template>
+            </ol>
+          </div>
+
+          <div>
+            <label for="account3">with params:</label>
+            <input id="account3" v-model="state.account3" @input="validator.account3.$v.touch">
+            <ol>
+              <template v-for="ruleKey of Object.keys(validator.account3.$v.errors)">
+                <li v-if="validator.account3.$v.dirty" :key="ruleKey">{{ validator.account3.$v.errors[ruleKey] }}</li>
+              </template>
+            </ol>
+          </div>
+
+          <div>
+            <label for="account4">with async:</label>
+            <input id="account4" v-model="state.account4" @input="validator.account4.$v.touch">
+            <ol>
+              <template v-for="(error, ruleKey) of validator.account4.$v.errors">
+                <li v-if="validator.account4.$v.dirty" :key="ruleKey">{{ validator.account4.$v.errors[ruleKey] }}</li>
+              </template>
+            </ol>
+          </div>
+
+          <div>
+            <button type="button" @click="validator.$v.reset">Reset</button>
+            <button type="button" @click="validator.$v.reset">Submit</button>
+          </div>
+
+        </fieldset>
+      </form>
+    </div>
+
+    <script src="../common.js"></script>
+    <script src="./index.js"></script>
+  </body>
+</html>
