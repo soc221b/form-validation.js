@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Example: Vue</title>
+    <script src="http://unpkg.com/vue@next"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.css">
+    <script src="../../../dist/form-validation.umd.js"></script>
+    <link rel="stylesheet" type="text/css" href="../index.css">
+  </head>
+  <body>
+    <div id="app">
+      <form>
+        <fieldset>
+          <legend>Non-Object Collection</legend>
+
+          <div>
+            <div v-for="(datum, index) of state.accountList">
+              <label :for="index">Account {{ index }}:</label>
+              <input :id="index" v-model="state.accountList[index]" @input="validator.accountList[index].$v.touch">
+              <ol>
+                <template v-for="ruleKey of Object.keys(validator.accountList[index].$v.errors)">
+                  <li v-if="validator.accountList[index].$v.dirty" :key="ruleKey">{{ validator.accountList[index].$v.errors[ruleKey] }}</li>
+                </template>
+              </ol>
+            </div>
+          </div>
+
+          <div>
+            <button type="button" @click="validator.$v.reset">Reset</button>
+            <button type="button" @click="validator.$v.reset">Submit</button>
+          </div>
+        </fieldset>
+      </form>
+
+      <div class="operations">
+        <button type="button" @click="push">Push</button>
+        <button type="button" @click="pop">Pop</button>
+        <button type="button" @click="shift">Shift</button>
+        <button type="button" @click="unshift">Unshift</button>
+        <button type="button" @click="splice">Splice</button>
+        <button type="button" @click="reverse">Reverse</button>
+        <button type="button" @click="sort">Sort</button>
+      </div>
+    </div>
+
+    <script src="../common.js"></script>
+    <script src="./index.js"></script>
+  </body>
+</html>

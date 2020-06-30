@@ -22,6 +22,7 @@ createApp({
       () => state.account4,
       () => validator.account4.$v.validate(),
     )
+
     watch(
       () => state,
       () => logInfo(state, reactiveValidator),
