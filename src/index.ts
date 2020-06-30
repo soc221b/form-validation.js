@@ -67,6 +67,10 @@ const wrapMethods = (rootForm: any, validator: any) => {
       }
     }
     previousResult = result[rulesResultKey]
+
+    for (const key of Object.keys(validator).filter(key => key !== publicKey && key !== privateKey)) {
+      validator[key][publicKey].validate()
+    }
   }
   const $reset = () => {
     validator[privateKey].setInvalid(false)
@@ -75,9 +79,17 @@ const wrapMethods = (rootForm: any, validator: any) => {
     validator[privateKey].resetPending()
     validator[publicKey].errors = {}
     previousResult = null
+
+    for (const key of Object.keys(validator).filter(key => key !== publicKey && key !== privateKey)) {
+      validator[key][publicKey].reset()
+    }
   }
   const $touch = () => {
     validator[privateKey].setDirty(true)
+
+    for (const key of Object.keys(validator).filter(key => key !== publicKey && key !== privateKey)) {
+      validator[key][publicKey].touch()
+    }
   }
 
   validator[publicKey].validate = $validate
