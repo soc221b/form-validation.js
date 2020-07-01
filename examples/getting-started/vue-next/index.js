@@ -25,12 +25,12 @@ createApp({
       if (isMounted.value === false) return
 
       refs.self.value.innerHTML = ''
-      djt.self = new DomJsonTree(deepCopy(reactiveValidator), refs.self.value)
+      djt.self = new DomJsonTree(deepCopy({ $v: reactiveValidator.$v }), refs.self.value)
       djt.self.render()
 
       for (const key in state) {
         refs[key].value.innerHTML = ''
-        djt[key] = new DomJsonTree(deepCopy(reactiveValidator[key]), refs[key].value)
+        djt[key] = new DomJsonTree(deepCopy({ $v: reactiveValidator[key].$v }), refs[key].value)
         djt[key].render()
       }
     }

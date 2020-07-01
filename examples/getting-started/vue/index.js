@@ -32,12 +32,12 @@ new Vue({
 
       for (const key in this.state) {
         this.$refs[key].innerHTML = ''
-        this.djt[key] = new DomJsonTree(deepCopy(this.validator[key].$v), this.$refs[key])
+        this.djt[key] = new DomJsonTree(deepCopy({ $v: this.validator[key].$v }), this.$refs[key])
         this.djt[key].render()
       }
 
       this.$refs.self.innerHTML = ''
-      this.djt.self = new DomJsonTree(deepCopy(this.validator.$v), this.$refs.self)
+      this.djt.self = new DomJsonTree(deepCopy({ $v: this.validator.$v }), this.$refs.self)
       this.djt.self.render()
     },
   },
