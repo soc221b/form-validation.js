@@ -1,43 +1,41 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+
 #app {
   display: flex;
-  width: 100vw;
-  height: 100vh;
-  position: relative;
-  align-items: center;
   justify-content: center;
 }
 
-fieldset {
-  border-radius: 5px;
-  max-width: 1080px;
-  min-width: 500px;
+body{
+  padding: 10px;
+}
+
+h1 {
+  display: block;
+  text-align: center;
+}
+
+form {
   display: flex;
+  width: 480px;
+  max-width: 96vw;
   flex-direction: column;
   justify-content: center;
-  align-items: center;
-}
-
-div {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-}
-
-fieldset label {
-  display: inline-flex;
-  width: 120px;
 }
 
 label {
-  font-size: .9rem;
+  display: block;
 }
 
 input {
   border-radius: 5px;
+  margin-top: 5px;
+  padding: 5px;
 }
 
 button {
-  width: 100px;
   border-radius: 5px;
   margin-right: 5px;
 }
@@ -45,9 +43,32 @@ button {
 ol {
   display: flex;
   flex-direction: column;
+  min-height: 1rem;
+  padding-left: 0;
+  margin-top: 10px;
+  margin-bottom: 0;
+}
+
+pre {
+  margin-top: 10px;
+  padding: 10px;
+  overflow-y: auto;
+  border: 1px solid #eee;
+  border-radius: 5px;
 }
 
 li {
-  list-style-type: circle;
+  list-style-type: disc;
+  list-style-position: inside;
   color: red;
+  line-height: 1;
+}
+
+br {
+  margin: 50px 0;
+}
+
+button {
+  width: 100%;
+  padding: 5px;
 }
