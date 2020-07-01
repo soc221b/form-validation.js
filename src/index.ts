@@ -40,8 +40,10 @@ const wrapMethods = (rootForm: any, validator: any) => {
   let previousResult: any = null
 
   const $validate = () => {
+    validator[privateKey].setInvalid(false)
     validator[privateKey].resetPending()
     validator[publicKey].errors = {}
+    previousResult = null
 
     const result = validate({ rootForm, validator })
     for (const ruleKey of Object.keys(schema.$rules)) {
