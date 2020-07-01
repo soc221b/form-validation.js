@@ -65,8 +65,8 @@ const schema = {
   },
   account4: {
     $rules: {
-      minLength({ value }) {
-        // await wait(1000)
+      async minLength({ value }) {
+        await wait(1000)
         if (value.length < 6) return false
       },
     },
