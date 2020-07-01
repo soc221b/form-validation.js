@@ -77,7 +77,6 @@ const wrapMethods = (rootForm: any, validator: any) => {
   const $reset = () => {
     validator[privateKey].setInvalid(false)
     validator[privateKey].setDirty(false)
-    validator[privateKey].setInvalid(false)
     validator[privateKey].resetPending()
     validator[publicKey].errors = {}
     previousResult = null
