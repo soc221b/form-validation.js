@@ -6,6 +6,8 @@ const wait = ms => {
   })
 }
 
+const deepCopy = value => JSON.parse(JSON.stringify(value))
+
 function logInfo(state, validator) {
   console.log('state: ', state)
   console.log('validator: ', validator)
@@ -63,8 +65,8 @@ const schema = {
   },
   account4: {
     $rules: {
-      async minLength({ value }) {
-        await wait(1000)
+      minLength({ value }) {
+        // await wait(1000)
         if (value.length < 6) return false
       },
     },
