@@ -219,7 +219,7 @@
   dependencies:
     "@babel/helper-plugin-utils" "^7.8.0"
 
-"@babel/runtime@^7.9.2", "@babel/runtime@^7.9.6":
+"@babel/runtime@^7.9.2":
   version "7.9.6"
   resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.9.6.tgz#a9102eb5cadedf3f31d08a9ecf294af7827ea29f"
   integrity sha512-64AF1xY3OAkFHqOb9s4jpgk1Mm5vDZ4L3acHvAml+53nO1XbXLuDodsVpO4OIUsmemlUHMxNdYMNJmsvOwLrvQ==
@@ -613,18 +613,6 @@
   integrity sha512-9T1auFmbPZoxHz0enUFlUuKRy3it01R+hlggyVUMtnCTQRunsQYifnSGb8hET4Xo8yiC0o0r1paW3ud5+rbURg==
   dependencies:
     "@types/yargs-parser" "*"
-
-"@vue/reactivity@^3.0.0-beta.6":
-  version "3.0.0-beta.6"
-  resolved "https://registry.yarnpkg.com/@vue/reactivity/-/reactivity-3.0.0-beta.6.tgz#d624a9ee0b60ba51999fae5a1c9f7791672fbebb"
-  integrity sha512-/B+3TIa/ahWzhDH595RZNjDwMP01KNbLw7lhQ1QErjS05Qv6V0OmDMu9DnxETIAS1U1n5slUN7k4qkEsWTv2aQ==
-  dependencies:
-    "@vue/shared" "3.0.0-beta.6"
-
-"@vue/shared@3.0.0-beta.6":
-  version "3.0.0-beta.6"
-  resolved "https://registry.yarnpkg.com/@vue/shared/-/shared-3.0.0-beta.6.tgz#28592f8d7b5e0f7039097b722e15ee72f3fe9819"
-  integrity sha512-cpaTp123l1fJgA5XpFkoodE3hTkVuvo7HEL6j9ktKb+dIkt8WDeWXPLjoPYM7qEpB2ls9uLe4sa3DhkGfnyGPA==
 
 abab@^2.0.0:
   version "2.0.3"
