@@ -18,11 +18,8 @@ h1 {
 }
 
 form {
-  display: flex;
   width: 480px;
   max-width: 96vw;
-  flex-direction: column;
-  justify-content: center;
 }
 
 label {
@@ -33,28 +30,38 @@ input {
   border-radius: 5px;
   margin-top: 5px;
   padding: 5px;
+  width: 150px;
+  outline: none;
+  border-color: grey;
+}
+
+input:focus {
+  border-color: black;
 }
 
 button {
   border-radius: 5px;
-  margin-right: 5px;
+  margin-left: 10px;
+  padding: 5px;
+  width: 55px;
 }
 
 ol {
   display: flex;
-  flex-direction: column;
   min-height: 1rem;
+  flex-direction: column;
   padding-left: 0;
-  margin-top: 10px;
   margin-bottom: 0;
+  margin-top: 10px;
 }
 
 pre {
   margin-top: 10px;
   padding: 10px;
   overflow-y: auto;
-  border: 1px solid #eee;
+  background-color: whitesmoke;
   border-radius: 5px;
+  min-height: 250px;
 }
 
 li {
@@ -64,11 +71,11 @@ li {
   line-height: 1;
 }
 
-br {
-  margin: 50px 0;
+li.loading {
+  list-style-type: none;
+  color: black;
 }
 
-button {
-  width: 100%;
-  padding: 5px;
+br {
+  margin: 50px 0;
 }

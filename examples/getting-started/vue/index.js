@@ -19,6 +19,12 @@ new Vue({
         this.renderDomJsonTree()
       },
     },
+    'validator.account4.$v.pending': {
+      handler() {
+        logInfo(this.state, this.validator)
+        this.renderDomJsonTree()
+      },
+    },
   },
 
   mounted() {
@@ -35,10 +41,14 @@ new Vue({
         this.djt[key] = new DomJsonTree(deepCopy({ $v: this.validator[key].$v }), this.$refs[key])
         this.djt[key].render()
       }
-
-      this.$refs.self.innerHTML = ''
-      this.djt.self = new DomJsonTree(deepCopy({ $v: this.validator.$v }), this.$refs.self)
-      this.djt.self.render()
+    },
+    reset(key) {
+      this.validator[key].$v.reset()
+      this.renderDomJsonTree()
+    },
+    blur(key) {
+      this.validator[key].$v.touch()
+      this.renderDomJsonTree()
     },
   },
 }).$mount('#app')

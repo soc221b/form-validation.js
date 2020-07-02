@@ -7,14 +7,12 @@ createApp({
     const state = reactive(proxiedForm)
     const isMounted = ref(false)
     const djt = {
-      self: null,
       account1: null,
       account2: null,
       account3: null,
       account4: null,
     }
     const refs = {
-      self: ref(undefined),
       account1: ref(undefined),
       account2: ref(undefined),
       account3: ref(undefined),
@@ -23,10 +21,6 @@ createApp({
 
     const renderDomJsonTree = () => {
       if (isMounted.value === false) return
-
-      refs.self.value.innerHTML = ''
-      djt.self = new DomJsonTree(deepCopy({ $v: reactiveValidator.$v }), refs.self.value)
-      djt.self.render()
 
       for (const key in state) {
         refs[key].value.innerHTML = ''
@@ -40,6 +34,16 @@ createApp({
       renderDomJsonTree()
     })
 
+    const blur = key => {
+      reactiveValidator[key].$v.touch()
+      renderDomJsonTree()
+    }
+
+    const reset = key => {
+      reactiveValidator[key].$v.reset()
+      renderDomJsonTree()
+    }
+
     watch(
       () => state,
       () => {
@@ -50,10 +54,20 @@ createApp({
       { deep: true, immediate: true },
     )
 
+    watch(
+      () => reactiveValidator.account4.$v.pending,
+      () => {
+        logInfo(state, reactiveValidator)
+        renderDomJsonTree()
+      },
+    )
+
     return {
       state,
       validator: reactiveValidator,
       ...refs,
+      blur,
+      reset,
     }
   },
 }).mount('#app')
