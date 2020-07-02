@@ -1,4 +1,3 @@
-console.log(123)
 const wait = ms => {
   return new Promise(resolve => {
     setTimeout(() => {
@@ -6,6 +5,8 @@ const wait = ms => {
     }, ms)
   })
 }
+
+const deepCopy = value => JSON.parse(JSON.stringify(value))
 
 function logInfo(state, validator) {
   console.log('state: ', state)

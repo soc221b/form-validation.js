@@ -5,7 +5,9 @@
 
 #app {
   display: flex;
+  flex-direction: column;
   justify-content: center;
+  align-items: center;
 }
 
 body{
@@ -19,6 +21,7 @@ h1 {
 
 form {
   width: 480px;
+  padding-top: 10px;
   max-width: 96vw;
 }
 
@@ -43,12 +46,12 @@ button {
   border-radius: 5px;
   margin-left: 10px;
   padding: 5px;
-  width: 55px;
+  width: fit-content;
 }
 
 ol {
   display: flex;
-  min-height: 1rem;
+  min-height: 2rem;
   flex-direction: column;
   padding-left: 0;
   margin-bottom: 0;
