@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    aside {
+      position: fixed;
+    }
+    hr {
+      border-width: 2px;
+    }
+    main {
+      position: relative;
+      left: 20vw;
+      width: 80vw;
+    }
+    embed {
+      width: 100%;
+      height: calc(100vh - 2px);
+    }
+  </style>
+</head>
+<body>
+  <aside>
+    <ol>
+      <li>
+        <a href="#getting-started">Getting Started</a>
+      </li>
+      <li>
+        <a href="#collection">Collection</a>
+      </li>
+    </ol>
+  </aside>
+  <main>
+    <embed id="getting-started" type="text/html" src="https://iendeavor.nctu.me/form-validation.js/examples/getting-started/vue-next/index.html">
+    <hr>
+    <embed id="collection" type="text/html" src="https://iendeavor.nctu.me/form-validation.js/examples/collection/vue-next/index.html">
+  </main>
+</body>
+</html>
