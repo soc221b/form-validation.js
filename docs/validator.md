@@ -1,37 +1,41 @@
 # ToC
 
-- [Getters](#getters)
-- [Methods](#methods)
+# Validator
 
-# Getters
+Getters
 
-- `validator.$isInvalid: boolean`
-- `validator.$isPending: boolean`
-- `validator.$isError: boolean`
-- `validator.$isAnyError: boolean`
-- `validator.$isDirty: boolean`
-- `validator.$isAnyDirty: boolean`
-- `validator.$errors: { [key: string]: any }`
-- `validator.$params: { $rulesResult: { [key: string]: any }, [key: string]: any }`
-- `validator.$iter: { [key: string]: Validator }`
+- `validator.$v.invalid: boolean`
+- `validator.$v.pending: boolean`
+- `validator.$v.error: boolean`
+- `validator.$v.anyError: boolean`
+- `validator.$v.dirty: boolean`
+- `validator.$v.anyDirty: boolean`
+- `validator.$v.errors: { [key: string]: any }`
+- `validator.$v.params: { $rules: { [key: string]: any }, [key: string]: any }`
+
+Methods:
+
+- `validator.$v.validate()`
+- `validator.$v.touch()`
+- `validator.$v.reset()`
 
 ```javascript
 const form = {
-  password: '',
+  account: '',
 }
 
 const schema = {
-  password: {
+  account: {
     $rules: {
-      required({ value }) {
-        if (value.length === 0) {
-          return 'Something went wrong'
+      async alreadyBeenUsed({ value }) {
+        if (await isExists(value)) {
+          return false
         }
       },
     },
     $errors: {
-      required() {
-        return 'Must be filled'
+      alreadyBeenUsed() {
+        return 'This account has already been used.'
       },
     },
   },
@@ -39,63 +43,99 @@ const schema = {
 
 const validator = {}
 
-FormValidation.proxy({ form, schema, validator })
-
-await validator.$validate(form)
-
-console.log(validator.password.$isError)
-// > true
-console.log(validator.password.$errors.required)
-// > `Must be filled`
-```
-
-# Methods
-
-- `validator.$validate()`
-- `validator.$touch()`
-- `validator.$reset()`
-
-```javascript
-const form = {
-  password: '',
-}
-
-const schema = {
-  password: {
+const proxiedForm = FormValidation.proxy({ form, schema, validator })
+/*
+validator.account.$v === {
+  invalid: false,
+  pending: false,
+  error: false,
+  anyError: false,
+  dirty: false,
+  anyDirty: false,
+  errors: {
+  },
+  params: {
     $rules: {
-      required({ value }) {
-        if (value.length === 0) {
-          return 'Something went wrong'
-        }
-      },
-    },
-  },
+    }
+  }
 }
+*/
 
-const validator = {}
+const mayBePromise = validator.$v.validate()
+/*
+validator.account.$v === {
+  invalid: false,
+  * pending: true,
+  error: false,
+  anyError: false,
+  dirty: false,
+  anyDirty: false,
+  errors: {
+  },
+  params: {
+    $rules: {
+    }
+  }
+}
+*/
 
-FormValidation.proxy({ form, schema, validator })
+await mayBePromise
+/*
+validator.account.$v === {
+  * invalid: true,
+  * pending: false,
+  error: false,
+  anyError: false,
+  dirty: false,
+  anyDirty: false,
+  * errors: {
+  *   alreadyBeenUsed: 'This account has already been used.'
+  * },
+  params: {
+    $rules: {
+      alreadyBeenUsed: false
+    }
+  }
+}
+*/
 
-console.log(validator.password.$isInvalid)
-// > false
-console.log(validator.password.$isError)
-// > false
+validator.$v.touch()
+/*
+validator.account.$v === {
+  invalid: true,
+  pending: false,
+  * error: true,
+  * anyError: true,
+  * dirty: true,
+  * anyDirty: true,
+  errors: {
+    alreadyBeenUsed: 'This account has already been used.'
+  },
+  params: {
+    $rules: {
+      alreadyBeenUsed: false
+    }
+  }
+}
+*/
 
-validator.$validate()
-console.log(validator.password.$isInvalid)
-// > true
-console.log(validator.password.$isError)
-// > false
-
-validator.$touch()
-console.log(validator.password.$isInvalid)
-// > true
-console.log(validator.password.$isError)
-// > true
-
-validator.$reset()
-console.log(validator.password.$isInvalid)
-// > false
-console.log(validator.password.$isError)
-// > false
+validator.$v.reset()
+/*
+validator.account.$v === {
+  * invalid: false,
+  pending: false,
+  * error: false,
+  * anyError: false,
+  * dirty: false,
+  * anyDirty: false,
+  * errors: {
+  *
+  * },
+  params: {
+    $rules: {
+  *
+    }
+  }
+}
+*/
 ```

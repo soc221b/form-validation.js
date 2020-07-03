@@ -47,7 +47,7 @@ const schema = {
           if (value === '') return false
         },
         fullName({ value }) {
-          if (value.split(' ').length < 2) return false
+          if (value.split(' ').filter(name => name.length > 0).length !== 2) return false
         },
       },
       $errors: {

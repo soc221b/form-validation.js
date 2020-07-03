@@ -1,10 +1,153 @@
 # ToC
 
-- [Structure](#structure)
 - [Rules](#rules)
 - [Errors](#errors)
 - [Normalizer](#normalizer)
 - [Params](#params)
+- [Structure](#structure)
+
+# Rules
+
+```javascript
+const form = {
+  account: '',
+}
+
+const schema = {
+  account: {
+    $rules: {
+      required({ value }) {
+        if (value === '') {
+          // return non-undefined value to denote the rule is rejected
+          return false
+        }
+      },
+      // asynchronizable
+      async alreadyBeenUsed({ value }) {
+        if (await isExists(value)) {
+          return false
+        }
+      },
+      weak({ value }) {
+        if (value.length < 6) {
+          // anything returned from rules will be passed as params.$rules[<ruleName>] to $errors
+          return 'too short'
+        }
+        if (/\W/.test(value)) {
+          return 'Must contain special charachar'
+        }
+      },
+    },
+  },
+}
+```
+
+# Errors
+
+```javascript
+const form = {
+  account: '',
+}
+
+const schema = {
+  account: {
+    $rules: {
+      required({ value }) {
+        if (value === '') {
+          return false
+        }
+      },
+      async alreadyBeenUsed ({ value }) {
+        if (await isExists(value)) {
+          return false
+        }
+      },
+      weak ({ value }) {
+        if (value.length < 6) {
+          return 'too short'
+        }
+        if (/\W/.test(value) === false) {
+          return 'Must contain special charachar'
+        }
+      }
+    }
+    $errors: {
+      required () {
+        // return an error message
+        return 'Must be filled.'
+      },
+      alreadyBeenUsed () {
+        // you can return anything from $errors
+        return ['error', 'This account has already been used.']
+      },
+      weak ({ params }) {
+        // params will always has the prop: $rules
+        // you can use it to get the result returned by all rules' validation
+        return params.$rules.weak
+      }
+    }
+  },
+}
+```
+
+# Normalizer
+
+```javascript
+const form = {
+  account: '',
+}
+
+const schema = {
+  account: {
+    $normalizer: ({ value }) => {
+      // normalizer will be called before validation
+      return value.trim()
+    },
+    $rules: {
+      required({ value }) {
+        if (value === '') {
+          return false
+        }
+      },
+    },
+    $errors: {
+      required({ value }) {
+        return `Must be filled.`
+      },
+    },
+  },
+}
+```
+
+# Params
+
+```javascript
+const form = {
+  account: '',
+}
+
+const schema = {
+  account: {
+    // to pass something to the rule methods or else to do more things
+    $params: {
+      languageCode: 'fr',
+    },
+    $rules: {
+      required({ value }) {
+        if (value === '') {
+          return false
+        }
+      },
+    },
+    $errros: {
+      required({ params }) {
+        const languageCode = params.languageCode || 'en-US'
+        return translate(`Must be filled.`, { languageCode })
+      },
+    },
+  },
+}
+```
 
 # Structure
 
@@ -20,143 +163,16 @@ const form = {
 }
 
 const schema = {
-  $rules: {}, // rules for the entire form
+  // rules for the entire form
+  $rules: {},
   $iter: {
-    $rules: {}, // rules for the form.? (i.e. the form.account in here)
+    // ruels for non-specified nested keys
+    // i.e. the form.account in here.
+    $rules: {},
   },
   password: {
-    $rules: {}, // rules for the form.password
-  },
-}
-```
-
-```javascript
-const form = {
-  emails: [
-    '123'
-    '456'
-  ],
-}
-
-const schema = {
-  emails: {
-    $rules: {}, // rules for the entire emails
-    $iter: {
-      $rules: {}, // rules for the emails[?] (i.e. the emails[1] in here)
-    },
-    0: {
-      $rules: {}, // rules for the emails[0]
-    },
-  }
-}
-```
-
-# Rules
-
-Except for the `undefined`, Anything is returned from rule methods that will be treated as invalid.
-
-## Example
-
-```javascript
-const form = {
-  password: '',
-}
-
-const schema = {
-  password: {
-    $rules: {
-      required({ value }) {
-        if (value.length === 0) {
-          return 'Something went wrong'
-        }
-      },
-    },
-  },
-}
-```
-
-# Errors
-
-```javascript
-const form = {
-  password: '',
-}
-
-const schema = {
-  password: {
-    $rules: {
-      required({ value }) {
-        if (value.length === 0) {
-          return 'Something went wrong'
-        }
-      },
-    },
-    $errors: {
-      required({ value }) {
-        return `Must be filled.`
-      },
-    },
-  },
-}
-```
-
-# Normalizer
-
-## Example
-
-```javascript
-const form = {
-  password: '   ',
-}
-
-const schema = {
-  password: {
-    $normalizer: ({ value }) => value.trim(),
-    $rules: {
-      required({ value }) {
-        if (value.length === 0) {
-          return 'Something went wrong'
-        }
-      },
-    },
-    $errors: {
-      required({ value }) {
-        return `Must be filled.`
-      },
-    },
-  },
-}
-```
-
-# Params
-
-## Example
-
-To pass something to the rule methods or else to override default behavior.
-
-```javascript
-const form = {
-  password: '',
-}
-
-const schema = {
-  password: {
-    $params: {
-      languageCode: 'fr',
-    },
-    $rules: {
-      required({ value }) {
-        if (value === '') {
-          return 'Something went wrong'
-        }
-      },
-    },
-    $errros: {
-      required({ params }) {
-        const languageCode = params.languageCode || 'en-US'
-        return translate(`Must be filled.`, { languageCode })
-      },
-    },
+    // rules for the form.password
+    $rules: {},
   },
 }
 ```

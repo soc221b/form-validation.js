@@ -10,21 +10,19 @@ Type Annotation Support. 💡
 
 Written in TypeScript. 💪
 
-Iterable protocol Support.
+Nested object/array Support.
 
-Self Sufficient.
+Zero dependencies.
 
 # Overview
 
 ```javascript
-// the form to be validated for
 const form = {
-  password: '  ',
+  account: '',
 }
 
-// the rules for validate
 const schema = {
-  password: {
+  account: {
     $normalizer({ value, key, parent, path, root, params }) {
       return value.trim()
     },
@@ -34,7 +32,7 @@ const schema = {
     $rules: {
       minLength({ value, key, parent, path, root, params }) {
         if (value.length < params.minLength) {
-          return 'Invalid'
+          return false
         }
       },
     },
@@ -46,16 +44,19 @@ const schema = {
   },
 }
 
-// the validation instance
 const valdiator = {}
 
-FormValidation.proxy({ form, schema, validator })
+const proxiedForm = FormValidation.proxy({ form, schema, validator })
+
+// in order to track form's data sctructure,
+// you should always update your fields from the proxiedForm instead of the original form
+proxiedForm.account = 'something...'
 
 // validate the entire form
-await valdiator.$validate(form)
+valdiator.$v.validate(form)
 
-console.log(valdiator.$isError)
+console.log(valdiator.$v.invalid)
 // > true
-console.log(valdiator.$errors.minLength)
+console.log(valdiator.$v.errors.minLength)
 // > 'Must be at least 6 charachars.'
 ```

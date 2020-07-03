@@ -10,18 +10,18 @@ You can return anything from rule methods, thus you can do anything to deal with
 
 ```javascript
 const form = {
-  password: '123',
+  account: '123',
 }
 
 const schema = {
-  password: {
+  account: {
     $params: {
       min: 5,
     },
     $rules: {
       minLength({ value, params }) {
         if (value.length <= params.min) {
-          return 'Something went wrong'
+          return false
         }
       },
     },
@@ -35,10 +35,10 @@ const schema = {
 
 const validator = {}
 
-FormValidation.proxy({ form, schema, validator })
+const proxiedForm = FormValidation.proxy({ form, schema, validator })
 
-validator.$validate()
-const [type, message] = validator.password.$errors.minLength
+validator.$v.validate()
+const [type, message] = validator.account.$v.errors.minLength
 if (type === 'error') {
   console.log(message)
   // > Must be at least 5 charcters
@@ -77,10 +77,10 @@ const schema = {
 
 const validator = {}
 
-FormValidation.proxy({ form, schema, validator })
+const proxiedForm = FormValidation.proxy({ form, schema, validator })
 
-validator.$validate()
-console.log(validator.confirmPassword.$errors.sameAs)
+validator.$v.validate()
+console.log(validator.confirmPassword.$v.errors.sameAs)
 // > This field should be the same as the Password.
 ```
 
@@ -119,11 +119,11 @@ const schema = {
 
 const validator = {}
 
-FormValidation.proxy({ form, schema, validator })
+const proxiedForm = FormValidation.proxy({ form, schema, validator })
 
 validator.$validate()
-console.log(validator.ipWhiteList[0].$errors.unique)
+console.log(validator.ipWhiteList[0].$v.errors.unique)
 // > undefined
-console.log(validator.ipWhiteList[1].$errors.unique)
+console.log(validator.ipWhiteList[1].$v.errors.unique)
 // > This Ip is duplicated
 ```

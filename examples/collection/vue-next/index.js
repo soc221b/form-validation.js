@@ -68,7 +68,7 @@ createApp({
         oldAccountList = JSON.parse(JSON.stringify(state.accountList))
         renderDomJsonTree()
       },
-      { deep: true, immediate: true },
+      { deep: true },
     )
 
     watch(

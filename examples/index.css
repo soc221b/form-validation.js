@@ -67,6 +67,19 @@ pre {
   min-height: 250px;
 }
 
+pre:first-line {
+  line-height: 0;
+}
+
+code {
+  padding: 0 !important;
+  background-color: whitesmoke !important;
+}
+
+code:first-line {
+  line-height: 0;
+}
+
 li {
   list-style-type: disc;
   list-style-position: inside;
