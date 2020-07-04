@@ -40,14 +40,14 @@ export const proxy = ({ form, schema, validator }: any) => {
 const wrapMethods = (rootForm: any, validator: any) => {
   const schema = validator[privateKey][schemaKey]
 
-  let previousResult: any = null
+  let previousResult: any = {}
 
   const $validate = () => {
     validator[privateKey].setValidated(true)
     validator[privateKey].setInvalid(false)
     validator[privateKey].resetPending()
     validator[publicKey].errors = {}
-    previousResult = null
+    previousResult = {}
 
     const result = validate({ rootForm, validator })
     for (const ruleKey of Object.keys(schema.$rules)) {
@@ -74,9 +74,14 @@ const wrapMethods = (rootForm: any, validator: any) => {
     }
     previousResult = result[rulesResultKey]
 
+    let nestedResult: any = {}
     for (const key of Object.keys(validator).filter(key => key !== publicKey && key !== privateKey)) {
-      validator[key][publicKey].validate()
+      nestedResult[key] = validator[key][publicKey].validate()
     }
+
+    return Promise.all(Object.values(previousResult))
+      .then(() => Promise.all(Object.values(nestedResult)))
+      .then(() => undefined)
   }
   const $reset = () => {
     validator[privateKey].setValidated(false)
@@ -84,7 +89,7 @@ const wrapMethods = (rootForm: any, validator: any) => {
     validator[privateKey].setDirty(false)
     validator[privateKey].resetPending()
     validator[publicKey].errors = {}
-    previousResult = null
+    previousResult = {}
 
     for (const key of Object.keys(validator).filter(key => key !== publicKey && key !== privateKey)) {
       validator[key][publicKey].reset()
