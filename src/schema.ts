@@ -19,8 +19,10 @@ export interface ISchemaValidator extends IBaseValidator, IStatableValidator {
     [pathKey]: IPath
     [listenerKey]: ((...args: any) => any)[]
     invalid: boolean
+    validated: boolean
     pending: number
     dirty: boolean
+    setValidated: (value: boolean) => void
     setInvalid: (value: boolean) => void
     setDirty: (value: boolean) => void
     setPending: (value: boolean) => void

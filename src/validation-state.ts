@@ -6,9 +6,11 @@ export interface IStatableValidator extends IBaseValidator {
     [listenerKey]: ((...args: any) => any)[]
 
     invalid: boolean
+    validated: boolean
     pending: number
     dirty: boolean
 
+    setValidated: (value: boolean) => void
     setInvalid: (value: boolean) => void
     setDirty: (value: boolean) => void
     setPending: (value: boolean) => void
@@ -37,8 +39,10 @@ export function wrapState(validator: IBaseValidator) {
   const theValidator = validator as IStatableValidator
 
   theValidator[privateKey].invalid = false
+  theValidator[privateKey].validated = false
   theValidator[privateKey].pending = 0
   theValidator[privateKey].dirty = false
+  theValidator[privateKey].setValidated = setPrivateValidated(theValidator)
   theValidator[privateKey].setInvalid = setPrivateInvalid(theValidator)
   theValidator[privateKey].setDirty = setPrivateDirty(theValidator)
   theValidator[privateKey].setPending = setPrivatePending(theValidator)
@@ -51,6 +55,10 @@ export function wrapState(validator: IBaseValidator) {
   theValidator[publicKey].error = false
   theValidator[publicKey].anyError = false
   theValidator[publicKey].errors = {}
+}
+
+const setPrivateValidated = (validator: IStatableValidator) => (value: boolean) => {
+  validator[privateKey].validated = value
 }
 
 const setPrivateInvalid = (validator: IStatableValidator) => (value: boolean) => {

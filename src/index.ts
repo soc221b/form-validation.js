@@ -30,6 +30,9 @@ export const proxy = ({ form, schema, validator }: any) => {
       wrapState(baseValidator)
       wrapSchema({ rootSchema: schema, validator: baseValidator as ISchemaValidator })
       wrapMethods(form, baseValidator)
+      if (baseValidator[privateKey].validated) {
+        baseValidator[publicKey].validate()
+      }
     },
   })
 }
@@ -40,6 +43,7 @@ const wrapMethods = (rootForm: any, validator: any) => {
   let previousResult: any = null
 
   const $validate = () => {
+    validator[privateKey].setValidated(true)
     validator[privateKey].setInvalid(false)
     validator[privateKey].resetPending()
     validator[publicKey].errors = {}
@@ -75,6 +79,7 @@ const wrapMethods = (rootForm: any, validator: any) => {
     }
   }
   const $reset = () => {
+    validator[privateKey].setValidated(false)
     validator[privateKey].setInvalid(false)
     validator[privateKey].setDirty(false)
     validator[privateKey].resetPending()
