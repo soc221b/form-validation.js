@@ -165,20 +165,23 @@ define(['exports'], function (exports) { 'use strict';
     };
 
     var schemaKey = 'schema';
-    var defaultSchema = {
-        $params: {},
-        $normalizer: function (_a) {
-            var value = _a.value;
-            return value;
-        },
-        $rules: {},
-        $errors: {},
+    var createDefaultSchema = function () {
+        return {
+            $params: {},
+            $normalizer: function (_a) {
+                var value = _a.value;
+                return value;
+            },
+            $rules: {},
+            $errors: {},
+        };
     };
     var wrapSchema = function (_a) {
         var rootSchema = _a.rootSchema, validator = _a.validator;
         var path = validator[privateKey][pathKey];
         var schema;
         // init
+        var defaultSchema = createDefaultSchema();
         validator[privateKey][schemaKey] = (validator[privateKey][schemaKey] || {});
         validator[privateKey][schemaKey].$params = defaultSchema.$params;
         validator[privateKey][schemaKey].$normalizer = defaultSchema.$normalizer;
