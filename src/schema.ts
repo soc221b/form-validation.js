@@ -46,11 +46,13 @@ export interface ISchemaValidator extends IBaseValidator, IStatableValidator {
   }
 }
 
-const defaultSchema: ISchema = {
-  $params: {},
-  $normalizer: ({ value }) => value,
-  $rules: {},
-  $errors: {},
+const createDefaultSchema = (): ISchema => {
+  return {
+    $params: {},
+    $normalizer: ({ value }) => value,
+    $rules: {},
+    $errors: {},
+  }
 }
 
 export const wrapSchema = ({
@@ -64,6 +66,7 @@ export const wrapSchema = ({
   let schema
 
   // init
+  const defaultSchema = createDefaultSchema()
   validator[privateKey][schemaKey] = (validator[privateKey][schemaKey] || {}) as ISchemaValidator
   validator[privateKey][schemaKey].$params = defaultSchema.$params
   validator[privateKey][schemaKey].$normalizer = defaultSchema.$normalizer
