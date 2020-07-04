@@ -3,6 +3,7 @@
 # Status: WIP
 
 [![npm version](https://badge.fury.io/js/form-validation.js.svg)](https://badge.fury.io/js/form-validation.js)
+![CI](https://github.com/iendeavor/form-validation.js/workflows/CI/badge.svg)
 [![Coverage Status](https://coveralls.io/repos/github/iendeavor/form-validation.js/badge.svg?branch=develop)](https://coveralls.io/github/iendeavor/form-validation.js?branch=develop)
 
 ## Docs
