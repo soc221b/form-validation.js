@@ -26,6 +26,12 @@ const form = {
 
 const schema = {
   account: {
+    $params: {
+      languageCode: 'en',
+    },
+    $normalizer({ value }) {
+      return value.trim()
+    },
     $rules: {
       async alreadyBeenUsed({ value }) {
         if (await isExists(value)) {
@@ -35,7 +41,8 @@ const schema = {
     },
     $errors: {
       alreadyBeenUsed() {
-        return 'This account has already been used.'
+        const languageCode = params.languageCode || 'en-US'
+        return translate(`This account has already been used.`, { languageCode })
       },
     },
   },
@@ -53,9 +60,12 @@ validator.account.$v === {
   dirty: false,
   anyDirty: false,
   errors: {
+      alreadyBeenUsed: undefined
   },
   params: {
+    languageCode: 'en',
     $rules: {
+      alreadyBeenUsed: undefined
     }
   }
 }
@@ -71,9 +81,12 @@ validator.account.$v === {
   dirty: false,
   anyDirty: false,
   errors: {
+      alreadyBeenUsed: undefined
   },
   params: {
+    languageCode: 'en',
     $rules: {
+      alreadyBeenUsed: undefined
     }
   }
 }
@@ -88,12 +101,13 @@ validator.account.$v === {
   anyError: false,
   dirty: false,
   anyDirty: false,
-  * errors: {
-  *   alreadyBeenUsed: 'This account has already been used.'
-  * },
+  errors: {
+    * alreadyBeenUsed: 'This account has already been used.'
+  },
   params: {
+    languageCode: 'en',
     $rules: {
-      alreadyBeenUsed: false
+    * alreadyBeenUsed: false
     }
   }
 }
@@ -112,6 +126,7 @@ validator.account.$v === {
     alreadyBeenUsed: 'This account has already been used.'
   },
   params: {
+    languageCode: 'en',
     $rules: {
       alreadyBeenUsed: false
     }
@@ -128,12 +143,13 @@ validator.account.$v === {
   * anyError: false,
   * dirty: false,
   * anyDirty: false,
-  * errors: {
-  *
-  * },
+  errors: {
+    * alreadyBeenUsed: undefined
+  },
   params: {
+    languageCode: 'en',
     $rules: {
-  *
+    * alreadyBeenUsed: undefined
     }
   }
 }
