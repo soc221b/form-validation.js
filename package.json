@@ -18,6 +18,14 @@
   "homepage": "https://github.com/iendeavor/form-validation.js#readme",
   "author": "Ernest <iattempt.net@gmail.com>",
   "license": "MIT",
+  "keywords": [
+    "form",
+    "validation",
+    "verification",
+    "easy-to-use",
+    "framework-independent",
+    "proxy"
+  ],
   "scripts": {
     "build": "rollup --config",
     "dev": "rollup --config --watch",
