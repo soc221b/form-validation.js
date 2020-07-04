@@ -1,5 +1,5 @@
 import { getNested, wrapState, IStatableValidator } from '../../src/validation-state'
-import { IBaseValidator, publicKey, privateKey, pathKey, listenerKey } from '../../src/proxy'
+import { IBaseValidator, publicKey, privateKey, pathKey } from '../../src/proxy'
 
 let validationState: IStatableValidator
 
@@ -8,7 +8,6 @@ function reset() {
     [publicKey]: {},
     [privateKey]: {
       [pathKey]: [],
-      [listenerKey]: [],
     },
   } as IBaseValidator) as IStatableValidator
   wrapState(validationState)

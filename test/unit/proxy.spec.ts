@@ -1,55 +1,22 @@
-import { proxyStructure, publicKey, privateKey, pathKey, listenerKey } from '../../src/proxy'
+import { proxyStructure, publicKey, privateKey, pathKey } from '../../src/proxy'
 
 test('proxyStructure', () => {
   const validator: { [key: string]: any } = {}
-  let form: { [key: string]: any } = {}
-  form = proxyStructure({ object: form, clone: validator })
+  const form: { [key: string]: any } = {}
+  const wrap = jest.fn()
+  const proxiedForm = proxyStructure({ object: form, clone: validator, wrap })
 
-  expect(validator).toStrictEqual({
-    [publicKey]: {},
-    [privateKey]: {
-      [pathKey]: [],
-      [listenerKey]: [],
-    },
-  })
+  expect(validator).toStrictEqual({})
   form.account = undefined
   expect(validator).toStrictEqual({
-    [publicKey]: {},
-    [privateKey]: {
-      [pathKey]: [],
-      [listenerKey]: [],
-    },
-    account: {
-      [publicKey]: {},
-      [privateKey]: {
-        [pathKey]: ['account'],
-        [listenerKey]: [],
-      },
-    },
+    account: {},
   })
   form.account = ''
   expect(validator).toStrictEqual({
-    [publicKey]: {},
-    [privateKey]: {
-      [pathKey]: [],
-      [listenerKey]: [],
-    },
-    account: {
-      [publicKey]: {},
-      [privateKey]: {
-        [pathKey]: ['account'],
-        [listenerKey]: [],
-      },
-    },
+    account: {},
   })
   delete form.account
-  expect(validator).toStrictEqual({
-    [publicKey]: {},
-    [privateKey]: {
-      [pathKey]: [],
-      [listenerKey]: [],
-    },
-  })
+  expect(validator).toStrictEqual({})
 })
 
 test('proxyStructure (object)', () => {
@@ -63,7 +30,6 @@ test('proxyStructure (object)', () => {
     [publicKey]: {},
     [privateKey]: {
       [pathKey]: ['mapping'],
-      [listenerKey]: [],
     },
   })
   delete form.mapping
@@ -74,7 +40,6 @@ test('proxyStructure (object)', () => {
     [publicKey]: {},
     [privateKey]: {
       [pathKey]: ['mapping'],
-      [listenerKey]: [],
     },
   })
 
@@ -83,13 +48,11 @@ test('proxyStructure (object)', () => {
     [publicKey]: {},
     [privateKey]: {
       [pathKey]: ['mapping'],
-      [listenerKey]: [],
     },
     key1: {
       [publicKey]: {},
       [privateKey]: {
         [pathKey]: ['mapping', 'key1'],
-        [listenerKey]: [],
       },
     },
   })
@@ -99,20 +62,17 @@ test('proxyStructure (object)', () => {
     [publicKey]: {},
     [privateKey]: {
       [pathKey]: ['mapping'],
-      [listenerKey]: [],
     },
     key1: {
       [publicKey]: {},
       [privateKey]: {
         [pathKey]: ['mapping', 'key1'],
-        [listenerKey]: [],
       },
     },
     key2: {
       [publicKey]: {},
       [privateKey]: {
         [pathKey]: ['mapping', 'key2'],
-        [listenerKey]: [],
       },
     },
   })
@@ -128,20 +88,17 @@ test('proxyStructure (object)', () => {
     [publicKey]: {},
     [privateKey]: {
       [pathKey]: ['mapping'],
-      [listenerKey]: [],
     },
     key1: {
       [publicKey]: {},
       [privateKey]: {
         [pathKey]: ['mapping', 'key1'],
-        [listenerKey]: [],
       },
     },
     key2: {
       [publicKey]: {},
       [privateKey]: {
         [pathKey]: ['mapping', 'key2'],
-        [listenerKey]: [],
       },
     },
   })
@@ -158,7 +115,6 @@ test('proxyStructure (array)', () => {
     [publicKey]: {},
     [privateKey]: {
       [pathKey]: ['ipAddresses'],
-      [listenerKey]: [],
     },
   })
   delete form.ipAddresses
@@ -169,7 +125,6 @@ test('proxyStructure (array)', () => {
     [publicKey]: {},
     [privateKey]: {
       [pathKey]: ['ipAddresses'],
-      [listenerKey]: [],
     },
   })
 
@@ -178,13 +133,11 @@ test('proxyStructure (array)', () => {
     [publicKey]: {},
     [privateKey]: {
       [pathKey]: ['ipAddresses'],
-      [listenerKey]: [],
     },
     0: {
       [publicKey]: {},
       [privateKey]: {
         [pathKey]: ['ipAddresses', '0'],
-        [listenerKey]: [],
       },
     },
   })
@@ -194,20 +147,17 @@ test('proxyStructure (array)', () => {
     [publicKey]: {},
     [privateKey]: {
       [pathKey]: ['ipAddresses'],
-      [listenerKey]: [],
     },
     0: {
       [publicKey]: {},
       [privateKey]: {
         [pathKey]: ['ipAddresses', '0'],
-        [listenerKey]: [],
       },
     },
     1: {
       [publicKey]: {},
       [privateKey]: {
         [pathKey]: ['ipAddresses', '1'],
-        [listenerKey]: [],
       },
     },
   })
@@ -217,27 +167,23 @@ test('proxyStructure (array)', () => {
     [publicKey]: {},
     [privateKey]: {
       [pathKey]: ['ipAddresses'],
-      [listenerKey]: [],
     },
     0: {
       [publicKey]: {},
       [privateKey]: {
         [pathKey]: ['ipAddresses', '0'],
-        [listenerKey]: [],
       },
     },
     1: {
       [publicKey]: {},
       [privateKey]: {
         [pathKey]: ['ipAddresses', '1'],
-        [listenerKey]: [],
       },
     },
     2: {
       [publicKey]: {},
       [privateKey]: {
         [pathKey]: ['ipAddresses', '2'],
-        [listenerKey]: [],
       },
     },
   })
@@ -247,20 +193,17 @@ test('proxyStructure (array)', () => {
     [publicKey]: {},
     [privateKey]: {
       [pathKey]: ['ipAddresses'],
-      [listenerKey]: [],
     },
     0: {
       [publicKey]: {},
       [privateKey]: {
         [pathKey]: ['ipAddresses', '0'],
-        [listenerKey]: [],
       },
     },
     1: {
       [publicKey]: {},
       [privateKey]: {
         [pathKey]: ['ipAddresses', '1'],
-        [listenerKey]: [],
       },
     },
   })
@@ -270,13 +213,11 @@ test('proxyStructure (array)', () => {
     [publicKey]: {},
     [privateKey]: {
       [pathKey]: ['ipAddresses'],
-      [listenerKey]: [],
     },
     0: {
       [publicKey]: {},
       [privateKey]: {
         [pathKey]: ['ipAddresses', '0'],
-        [listenerKey]: [],
       },
     },
   })
@@ -286,7 +227,6 @@ test('proxyStructure (array)', () => {
     [publicKey]: {},
     [privateKey]: {
       [pathKey]: ['ipAddresses'],
-      [listenerKey]: [],
     },
   })
 
@@ -295,7 +235,6 @@ test('proxyStructure (array)', () => {
     [publicKey]: {},
     [privateKey]: {
       [pathKey]: ['ipAddresses'],
-      [listenerKey]: [],
     },
   })
 
@@ -304,27 +243,23 @@ test('proxyStructure (array)', () => {
     [publicKey]: {},
     [privateKey]: {
       [pathKey]: ['ipAddresses'],
-      [listenerKey]: [],
     },
     0: {
       [publicKey]: {},
       [privateKey]: {
         [pathKey]: ['ipAddresses', '0'],
-        [listenerKey]: [],
       },
     },
     1: {
       [publicKey]: {},
       [privateKey]: {
         [pathKey]: ['ipAddresses', '1'],
-        [listenerKey]: [],
       },
     },
     2: {
       [publicKey]: {},
       [privateKey]: {
         [pathKey]: ['ipAddresses', '2'],
-        [listenerKey]: [],
       },
     },
   })
@@ -334,7 +269,6 @@ test('proxyStructure (array)', () => {
     [publicKey]: {},
     [privateKey]: {
       [pathKey]: ['ipAddresses'],
-      [listenerKey]: [],
     },
   })
 })
@@ -772,13 +706,11 @@ test('proxyStructure (nested)', () => {
     [publicKey]: {},
     [privateKey]: {
       [pathKey]: [],
-      [listenerKey]: [],
     },
     nested: {
       [publicKey]: {},
       [privateKey]: {
         [pathKey]: ['nested'],
-        [listenerKey]: [],
       },
     },
   })
@@ -788,19 +720,16 @@ test('proxyStructure (nested)', () => {
     [publicKey]: {},
     [privateKey]: {
       [pathKey]: [],
-      [listenerKey]: [],
     },
     nested: {
       [publicKey]: {},
       [privateKey]: {
         [pathKey]: ['nested'],
-        [listenerKey]: [],
       },
       ipAddresses: {
         [publicKey]: {},
         [privateKey]: {
           [pathKey]: ['nested', 'ipAddresses'],
-          [listenerKey]: [],
         },
       },
     },
@@ -811,13 +740,11 @@ test('proxyStructure (nested)', () => {
     [publicKey]: {},
     [privateKey]: {
       [pathKey]: [],
-      [listenerKey]: [],
     },
     nested: {
       [publicKey]: {},
       [privateKey]: {
         [pathKey]: ['nested'],
-        [listenerKey]: [],
       },
     },
   })
@@ -827,39 +754,33 @@ test('proxyStructure (nested)', () => {
     [publicKey]: {},
     [privateKey]: {
       [pathKey]: [],
-      [listenerKey]: [],
     },
     nested: {
       [publicKey]: {},
       [privateKey]: {
         [pathKey]: ['nested'],
-        [listenerKey]: [],
       },
       ipAddresses: {
         [publicKey]: {},
         [privateKey]: {
           [pathKey]: ['nested', 'ipAddresses'],
-          [listenerKey]: [],
         },
         0: {
           [publicKey]: {},
           [privateKey]: {
             [pathKey]: ['nested', 'ipAddresses', '0'],
-            [listenerKey]: [],
           },
         },
         1: {
           [publicKey]: {},
           [privateKey]: {
             [pathKey]: ['nested', 'ipAddresses', '1'],
-            [listenerKey]: [],
           },
         },
         2: {
           [publicKey]: {},
           [privateKey]: {
             [pathKey]: ['nested', 'ipAddresses', '2'],
-            [listenerKey]: [],
           },
         },
       },
@@ -875,194 +796,32 @@ test('proxyStructure (nested)', () => {
     [publicKey]: {},
     [privateKey]: {
       [pathKey]: [],
-      [listenerKey]: [],
     },
     nested: {
       [publicKey]: {},
       [privateKey]: {
         [pathKey]: ['nested'],
-        [listenerKey]: [],
       },
       mapping: {
         [publicKey]: {},
         [privateKey]: {
           [pathKey]: ['nested', 'mapping'],
-          [listenerKey]: [],
         },
         key1: {
           [publicKey]: {},
           [privateKey]: {
             [pathKey]: ['nested', 'mapping', 'key1'],
-            [listenerKey]: [],
           },
         },
         key2: {
           [publicKey]: {},
           [privateKey]: {
             [pathKey]: ['nested', 'mapping', 'key2'],
-            [listenerKey]: [],
           },
         },
       },
     },
   })
-})
-
-test('proxyStructure listener', () => {
-  const validator: { [key: string]: any } = {}
-  let form: { [key: string]: any } = {}
-  form = proxyStructure({ object: form, clone: validator })
-  const fn = jest.fn(() => {})
-
-  validator[privateKey][listenerKey].push(fn)
-
-  fn.mockClear()
-  form.nested1 = undefined
-  expect(JSON.stringify(fn.mock.calls)).toStrictEqual(JSON.stringify([[['nested1']]]))
-
-  fn.mockClear()
-  delete form.nested1
-  expect(JSON.stringify(fn.mock.calls)).toStrictEqual(JSON.stringify([[['nested1']]]))
-
-  fn.mockClear()
-  form.nested1 = {}
-  expect(JSON.stringify(fn.mock.calls)).toStrictEqual(JSON.stringify([[['nested1']]]))
-})
-
-test('proxyStructure listener (nested 2 layer)', () => {
-  const validator: { [key: string]: any } = {}
-  let form: { [key: string]: any } = {}
-  form = proxyStructure({ object: form, clone: validator })
-  const fn = jest.fn(() => {})
-  const fn1 = jest.fn(() => {})
-
-  form.nested1 = {}
-  validator[privateKey][listenerKey].push(fn)
-  validator.nested1[privateKey][listenerKey].push(fn1)
-
-  fn.mockClear()
-  fn1.mockClear()
-  form.nested1.nested11 = undefined
-  expect(JSON.stringify(fn.mock.calls)).toStrictEqual(JSON.stringify([]))
-  expect(JSON.stringify(fn1.mock.calls)).toStrictEqual(JSON.stringify([[['nested1', 'nested11']]]))
-
-  fn.mockClear()
-  fn1.mockClear()
-  delete form.nested1.nested11
-  expect(JSON.stringify(fn.mock.calls)).toStrictEqual(JSON.stringify([]))
-  expect(JSON.stringify(fn1.mock.calls)).toStrictEqual(JSON.stringify([[['nested1', 'nested11']]]))
-
-  fn.mockClear()
-  fn1.mockClear()
-  form.nested1.nested11 = {}
-  expect(JSON.stringify(fn.mock.calls)).toStrictEqual(JSON.stringify([]))
-  expect(JSON.stringify(fn1.mock.calls)).toStrictEqual(JSON.stringify([[['nested1', 'nested11']]]))
-
-  fn.mockClear()
-  fn1.mockClear()
-  form.nested1 = undefined
-  expect(JSON.stringify(fn.mock.calls)).toStrictEqual(JSON.stringify([[['nested1']]]))
-  expect(JSON.stringify(fn1.mock.calls)).toStrictEqual(JSON.stringify([]))
-
-  fn.mockClear()
-  fn1.mockClear()
-  delete form.nested1
-  expect(JSON.stringify(fn.mock.calls)).toStrictEqual(JSON.stringify([[['nested1']]]))
-  expect(JSON.stringify(fn1.mock.calls)).toStrictEqual(JSON.stringify([]))
-
-  fn.mockClear()
-  fn1.mockClear()
-  form.nested1 = { nested11: {}, nested12: {} }
-  expect(JSON.stringify(fn.mock.calls)).toStrictEqual(JSON.stringify([[['nested1']]]))
-  expect(JSON.stringify(fn1.mock.calls)).toStrictEqual(JSON.stringify([]))
-})
-
-test('proxyStructure listener (nested 3 layer)', () => {
-  const validator: { [key: string]: any } = {}
-  let form: { [key: string]: any } = {}
-  form = proxyStructure({ object: form, clone: validator })
-  const fn = jest.fn(() => {})
-  const fn1 = jest.fn(() => {})
-  const fn11 = jest.fn(() => {})
-
-  form.nested1 = {}
-  form.nested1.nested11 = {}
-  form.nested1.nested11.nested111 = {}
-  validator[privateKey][listenerKey].push(fn)
-  validator.nested1[privateKey][listenerKey].push(fn1)
-  validator.nested1.nested11[privateKey][listenerKey].push(fn11)
-
-  fn.mockClear()
-  fn1.mockClear()
-  fn11.mockClear()
-  form.nested1.nested11.nested111 = undefined
-  expect(JSON.stringify(fn.mock.calls)).toStrictEqual(JSON.stringify([]))
-  expect(JSON.stringify(fn1.mock.calls)).toStrictEqual(JSON.stringify([]))
-  expect(JSON.stringify(fn11.mock.calls)).toStrictEqual(JSON.stringify([[['nested1', 'nested11', 'nested111']]]))
-
-  fn.mockClear()
-  fn1.mockClear()
-  fn11.mockClear()
-  delete form.nested1.nested11.nested111
-  expect(JSON.stringify(fn.mock.calls)).toStrictEqual(JSON.stringify([]))
-  expect(JSON.stringify(fn1.mock.calls)).toStrictEqual(JSON.stringify([]))
-  expect(JSON.stringify(fn11.mock.calls)).toStrictEqual(JSON.stringify([[['nested1', 'nested11', 'nested111']]]))
-
-  fn.mockClear()
-  fn1.mockClear()
-  fn11.mockClear()
-  form.nested1.nested11.nested111 = {}
-  expect(JSON.stringify(fn.mock.calls)).toStrictEqual(JSON.stringify([]))
-  expect(JSON.stringify(fn1.mock.calls)).toStrictEqual(JSON.stringify([]))
-  expect(JSON.stringify(fn11.mock.calls)).toStrictEqual(JSON.stringify([[['nested1', 'nested11', 'nested111']]]))
-
-  fn.mockClear()
-  fn1.mockClear()
-  fn11.mockClear()
-  form.nested1.nested11 = undefined
-  expect(JSON.stringify(fn.mock.calls)).toStrictEqual(JSON.stringify([]))
-  expect(JSON.stringify(fn1.mock.calls)).toStrictEqual(JSON.stringify([[['nested1', 'nested11']]]))
-  expect(JSON.stringify(fn11.mock.calls)).toStrictEqual(JSON.stringify([]))
-
-  fn.mockClear()
-  fn1.mockClear()
-  fn11.mockClear()
-  delete form.nested1.nested11
-  expect(JSON.stringify(fn.mock.calls)).toStrictEqual(JSON.stringify([]))
-  expect(JSON.stringify(fn1.mock.calls)).toStrictEqual(JSON.stringify([[['nested1', 'nested11']]]))
-  expect(JSON.stringify(fn11.mock.calls)).toStrictEqual(JSON.stringify([]))
-
-  fn.mockClear()
-  fn1.mockClear()
-  fn11.mockClear()
-  form.nested1.nested11 = { nested111: {} }
-  expect(JSON.stringify(fn.mock.calls)).toStrictEqual(JSON.stringify([]))
-  expect(JSON.stringify(fn1.mock.calls)).toStrictEqual(JSON.stringify([[['nested1', 'nested11']]]))
-  expect(JSON.stringify(fn11.mock.calls)).toStrictEqual(JSON.stringify([]))
-
-  fn.mockClear()
-  fn1.mockClear()
-  fn11.mockClear()
-  form.nested1 = undefined
-  expect(JSON.stringify(fn.mock.calls)).toStrictEqual(JSON.stringify([[['nested1']]]))
-  expect(JSON.stringify(fn1.mock.calls)).toStrictEqual(JSON.stringify([]))
-  expect(JSON.stringify(fn11.mock.calls)).toStrictEqual(JSON.stringify([]))
-
-  fn.mockClear()
-  fn1.mockClear()
-  fn11.mockClear()
-  delete form.nested1
-  expect(JSON.stringify(fn.mock.calls)).toStrictEqual(JSON.stringify([[['nested1']]]))
-  expect(JSON.stringify(fn1.mock.calls)).toStrictEqual(JSON.stringify([]))
-  expect(JSON.stringify(fn11.mock.calls)).toStrictEqual(JSON.stringify([]))
-
-  fn.mockClear()
-  fn1.mockClear()
-  fn11.mockClear()
-  form.nested1 = { nested11: { nested111: {} } }
-  expect(JSON.stringify(fn.mock.calls)).toStrictEqual(JSON.stringify([[['nested1']]]))
-  expect(JSON.stringify(fn1.mock.calls)).toStrictEqual(JSON.stringify([]))
-  expect(JSON.stringify(fn11.mock.calls)).toStrictEqual(JSON.stringify([]))
 })
 
 test('callback', () => {
@@ -1079,7 +838,6 @@ test('callback', () => {
     [publicKey]: {},
     [privateKey]: {
       [pathKey]: [],
-      [listenerKey]: [],
     },
   })
 })
@@ -1100,13 +858,11 @@ test('callback (nested)', () => {
     [publicKey]: {},
     [privateKey]: {
       [pathKey]: [],
-      [listenerKey]: [],
     },
     nested: {
       [publicKey]: {},
       [privateKey]: {
         [pathKey]: ['nested'],
-        [listenerKey]: [],
       },
     },
   })
@@ -1114,7 +870,6 @@ test('callback (nested)', () => {
     [publicKey]: {},
     [privateKey]: {
       [pathKey]: ['nested'],
-      [listenerKey]: [],
     },
   })
 })

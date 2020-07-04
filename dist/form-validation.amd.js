@@ -15,6 +15,17 @@ define(['exports'], function (exports) { 'use strict';
     and limitations under the License.
     ***************************************************************************** */
 
+    var __assign = function() {
+        __assign = Object.assign || function __assign(t) {
+            for (var s, i = 1, n = arguments.length; i < n; i++) {
+                s = arguments[i];
+                for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];
+            }
+            return t;
+        };
+        return __assign.apply(this, arguments);
+    };
+
     function __awaiter(thisArg, _arguments, P, generator) {
         function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
         return new (P || (P = Promise))(function (resolve, reject) {
@@ -87,68 +98,68 @@ define(['exports'], function (exports) { 'use strict';
     var privateKey = '__form_validation__';
     var publicKey = '$v';
     var pathKey = 'path';
-    var listenerKey = 'listener';
-    var proxyKey = '__form_reactive';
-    var wrap = function (object, path, callback) {
+    var proxyKey = '__form_validation_reactive';
+    var validationWrap = function (object, clone, path) {
         var _a;
-        if (object[proxyKey] !== undefined)
-            return;
-        object[privateKey] = (_a = {},
-            _a[pathKey] = path,
-            _a[listenerKey] = [],
-            _a);
-        object[publicKey] = {};
-        Object.defineProperty(object, proxyKey, {
-            enumerable: false,
-            value: object,
-        });
-        callback(object);
-        return object;
+        if (isPlainObject(object) || isArray(object)) {
+            Object.defineProperty(object, proxyKey, {
+                enumerable: false,
+                configurable: true,
+                value: object,
+            });
+        }
+        if (isPlainObject(clone) || isArray(clone)) {
+            Object.defineProperty(clone, proxyKey, {
+                enumerable: false,
+                configurable: true,
+                value: clone,
+            });
+            Object.defineProperty(clone, privateKey, {
+                enumerable: false,
+                configurable: true,
+                value: clone[privateKey] || (_a = {},
+                    _a[pathKey] = path,
+                    _a),
+            });
+            Object.defineProperty(clone, publicKey, {
+                enumerable: false,
+                configurable: true,
+                value: clone[publicKey] || {},
+            });
+        }
     };
     var proxyStructure = function (_a) {
-        var object = _a.object, clone = _a.clone, _b = _a.callback, callback = _b === void 0 ? noop : _b;
-        return _proxyStructure({ object: object, clone: clone, path: [], callback: callback });
-    };
-    var _proxyStructure = function (_a) {
-        var object = _a.object, clone = _a.clone, path = _a.path, callback = _a.callback;
-        // nested
-        wrap(clone, path, callback);
+        var object = _a.object, clone = _a.clone, _b = _a.path, path = _b === void 0 ? [] : _b, _c = _a.wrap, wrap = _c === void 0 ? validationWrap : _c, _d = _a.callback, callback = _d === void 0 ? function () { } : _d;
+        wrap(object, clone, path);
+        if (isPlainObject(clone) || isArray(clone))
+            callback(clone);
         if (isPlainObject(object) === false && isArray(object) === false)
             return object;
-        for (var _i = 0, _b = Object.keys(object); _i < _b.length; _i++) {
-            var key = _b[_i];
-            Reflect.set(clone, key, clone[key] || (isArray(object) ? [] : {}));
-            object[key] = _proxyStructure({
+        for (var _i = 0, _e = Object.keys(object); _i < _e.length; _i++) {
+            var key = _e[_i];
+            Reflect.set(clone, key, clone[key] || (isArray(object[key]) ? [] : {}));
+            Reflect.set(object, key, proxyStructure({
                 object: object[key],
                 clone: clone[key],
                 path: path.concat(key),
+                wrap: wrap,
                 callback: callback,
-            });
+            }));
         }
         return new Proxy(object, {
             deleteProperty: function (target, key) {
                 Reflect.deleteProperty(clone, key);
-                var result = Reflect.deleteProperty(target, key);
-                for (var _i = 0, _a = clone[privateKey][listenerKey]; _i < _a.length; _i++) {
-                    var listener = _a[_i];
-                    listener(clone[privateKey][pathKey].concat(key));
-                }
-                return result;
+                return Reflect.deleteProperty(target, key);
             },
             set: function (target, key, value) {
-                var result = Reflect.set(target, key, value);
-                Reflect.set(clone, key, clone[key] || (isArray(target) ? [] : {}));
-                value = _proxyStructure({
+                Reflect.set(clone, key, clone[key] || (isArray(value) ? [] : {}));
+                return Reflect.set(target, key, proxyStructure({
                     object: value,
                     clone: clone[key],
                     path: path.concat(key),
+                    wrap: wrap,
                     callback: callback,
-                });
-                for (var _i = 0, _a = clone[privateKey][listenerKey]; _i < _a.length; _i++) {
-                    var listener = _a[_i];
-                    listener(clone[privateKey][pathKey].concat(key));
-                }
-                return result;
+                }));
             },
         });
     };
@@ -180,13 +191,13 @@ define(['exports'], function (exports) { 'use strict';
             }
             catch (error) { }
             if (schema) {
-                if (schema.$params !== undefined)
+                if (isPlainObject(schema.$params))
                     validator[privateKey][schemaKey].$params = schema.$params;
-                if (schema.$normalizer !== undefined)
+                if (isFunction(schema.$normalizer))
                     validator[privateKey][schemaKey].$normalizer = schema.$normalizer;
-                if (schema.$rules !== undefined)
+                if (isPlainObject(schema.$rules))
                     validator[privateKey][schemaKey].$rules = schema.$rules;
-                if (schema.$errors !== undefined)
+                if (isPlainObject(schema.$errors))
                     validator[privateKey][schemaKey].$errors = schema.$errors;
             }
         }
@@ -196,22 +207,28 @@ define(['exports'], function (exports) { 'use strict';
         }
         catch (error) { }
         if (schema) {
-            if (schema.$params !== undefined)
+            if (isPlainObject(schema.$params))
                 validator[privateKey][schemaKey].$params = schema.$params;
-            if (schema.$normalizer !== undefined)
+            if (isFunction(schema.$normalizer))
                 validator[privateKey][schemaKey].$normalizer = schema.$normalizer;
-            if (schema.$rules !== undefined)
+            if (isPlainObject(schema.$rules))
                 validator[privateKey][schemaKey].$rules = schema.$rules;
-            if (schema.$errors !== undefined)
+            if (isPlainObject(schema.$errors))
                 validator[privateKey][schemaKey].$errors = schema.$errors;
+        }
+        // normalize errors
+        for (var key in validator[privateKey][schemaKey].$rules) {
+            if (validator[privateKey][schemaKey].$errors[key] === undefined) {
+                validator[privateKey][schemaKey].$errors[key] = noop;
+            }
         }
     };
 
-    var rulesResultKey = '$rulsResult';
+    var rulesResultKey = '$rules';
     var validate = function (_a) {
-        var _b;
+        var _b, _c;
         var rootForm = _a.rootForm, validator = _a.validator;
-        var params = validator[privateKey][schemaKey].$params;
+        var params = __assign((_b = {}, _b[rulesResultKey] = {}, _b), validator[privateKey][schemaKey].$params);
         var normalizer = validator[privateKey][schemaKey].$normalizer;
         var rules = validator[privateKey][schemaKey].$rules;
         var errors = validator[privateKey][schemaKey].$errors;
@@ -227,11 +244,12 @@ define(['exports'], function (exports) { 'use strict';
             root: root,
             params: params,
         });
-        var result = (_b = {}, _b[rulesResultKey] = {}, _b);
+        var result = (_c = {}, _c[rulesResultKey] = {}, _c);
         var _loop_1 = function (ruleKey) {
             var functionParams = { value: value, key: key, parent: parent, path: path, root: root, params: params };
             var validationResult = rules[ruleKey](functionParams);
             result[rulesResultKey][ruleKey] = validationResult;
+            functionParams.params[rulesResultKey][ruleKey] = validationResult;
             result[ruleKey] = undefined;
             if (isPromise(validationResult)) {
                 validationResult.finally(function () { return __awaiter(void 0, void 0, void 0, function () {
@@ -251,8 +269,8 @@ define(['exports'], function (exports) { 'use strict';
                 result[ruleKey] = errors[ruleKey](functionParams);
             }
         };
-        for (var _i = 0, _c = Object.keys(rules); _i < _c.length; _i++) {
-            var ruleKey = _c[_i];
+        for (var _i = 0, _d = Object.keys(rules); _i < _d.length; _i++) {
+            var ruleKey = _d[_i];
             _loop_1(ruleKey);
         }
         return result;
@@ -260,9 +278,13 @@ define(['exports'], function (exports) { 'use strict';
 
     function wrapState(validator) {
         var theValidator = validator;
+        if (theValidator[privateKey].invalid !== undefined)
+            return;
         theValidator[privateKey].invalid = false;
+        theValidator[privateKey].validated = false;
         theValidator[privateKey].pending = 0;
         theValidator[privateKey].dirty = false;
+        theValidator[privateKey].setValidated = setPrivateValidated(theValidator);
         theValidator[privateKey].setInvalid = setPrivateInvalid(theValidator);
         theValidator[privateKey].setDirty = setPrivateDirty(theValidator);
         theValidator[privateKey].setPending = setPrivatePending(theValidator);
@@ -275,6 +297,9 @@ define(['exports'], function (exports) { 'use strict';
         theValidator[publicKey].anyError = false;
         theValidator[publicKey].errors = {};
     }
+    var setPrivateValidated = function (validator) { return function (value) {
+        validator[privateKey].validated = value;
+    }; };
     var setPrivateInvalid = function (validator) { return function (value) {
         validator[privateKey].invalid = value;
         updateInvalid(validator);
@@ -346,6 +371,9 @@ define(['exports'], function (exports) { 'use strict';
                 wrapState(baseValidator);
                 wrapSchema({ rootSchema: schema, validator: baseValidator });
                 wrapMethods(form, baseValidator);
+                if (baseValidator[privateKey].validated) {
+                    baseValidator[publicKey].validate();
+                }
             },
         });
     };
@@ -353,6 +381,7 @@ define(['exports'], function (exports) { 'use strict';
         var schema = validator[privateKey][schemaKey];
         var previousResult = null;
         var $validate = function () {
+            validator[privateKey].setValidated(true);
             validator[privateKey].setInvalid(false);
             validator[privateKey].resetPending();
             validator[publicKey].errors = {};
@@ -405,6 +434,7 @@ define(['exports'], function (exports) { 'use strict';
             }
         };
         var $reset = function () {
+            validator[privateKey].setValidated(false);
             validator[privateKey].setInvalid(false);
             validator[privateKey].setDirty(false);
             validator[privateKey].resetPending();

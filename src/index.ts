@@ -1,7 +1,7 @@
-import { proxyStructure, publicKey, privateKey, pathKey } from './proxy'
-import { validate, IValidateResult, rulesResultKey } from './validate'
+import { proxyStructure, publicKey, privateKey } from './proxy'
+import { validate, rulesResultKey } from './validate'
 import { wrapState, IStatableValidator } from './validation-state'
-import { getByPath, isPromise } from './util'
+import { isPromise } from './util'
 import { wrapSchema, ISchemaValidator, schemaKey } from './schema'
 
 export interface IValidator extends IStatableValidator {

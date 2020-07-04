@@ -1,7 +1,7 @@
 import { Normalizer, Rule, Error } from '../type'
-import { IBaseValidator, publicKey, privateKey, pathKey, listenerKey, IPath } from './proxy'
+import { IBaseValidator, publicKey, privateKey, pathKey } from './proxy'
 import { IStatableValidator } from './validation-state'
-import { getByPath } from './util'
+import { getByPath, noop, isPlainObject, isFunction } from './util'
 
 export const schemaKey = 'schema'
 
@@ -15,9 +15,9 @@ interface ISchema {
 }
 
 export interface ISchemaValidator extends IBaseValidator, IStatableValidator {
+  [key: string]: any
   [privateKey]: {
-    [pathKey]: IPath
-    [listenerKey]: ((...args: any) => any)[]
+    [pathKey]: string[]
     invalid: boolean
     validated: boolean
     pending: number
@@ -27,12 +27,13 @@ export interface ISchemaValidator extends IBaseValidator, IStatableValidator {
     setDirty: (value: boolean) => void
     setPending: (value: boolean) => void
     resetPending: () => void
+    [key: string]: any
 
     [schemaKey]: ISchema
-
-    [key: string]: any
   }
   [publicKey]: {
+    [key: string]: any
+
     pending: boolean
     invalid: boolean
     dirty: boolean
@@ -42,11 +43,7 @@ export interface ISchemaValidator extends IBaseValidator, IStatableValidator {
     errors: {
       [key: string]: any
     }
-
-    [key: string]: any
   }
-
-  [key: string]: any
 }
 
 const defaultSchema: ISchema = {
@@ -79,10 +76,10 @@ export const wrapSchema = ({
       schema = getByPath(rootSchema, path.slice(0, -1).concat('$iter'))
     } catch (error) {}
     if (schema) {
-      if (schema.$params !== undefined) validator[privateKey][schemaKey].$params = schema.$params
-      if (schema.$normalizer !== undefined) validator[privateKey][schemaKey].$normalizer = schema.$normalizer
-      if (schema.$rules !== undefined) validator[privateKey][schemaKey].$rules = schema.$rules
-      if (schema.$errors !== undefined) validator[privateKey][schemaKey].$errors = schema.$errors
+      if (isPlainObject(schema.$params)) validator[privateKey][schemaKey].$params = schema.$params
+      if (isFunction(schema.$normalizer)) validator[privateKey][schemaKey].$normalizer = schema.$normalizer
+      if (isPlainObject(schema.$rules)) validator[privateKey][schemaKey].$rules = schema.$rules
+      if (isPlainObject(schema.$errors)) validator[privateKey][schemaKey].$errors = schema.$errors
     }
   }
 
@@ -91,9 +88,16 @@ export const wrapSchema = ({
     schema = getByPath(rootSchema, path)
   } catch (error) {}
   if (schema) {
-    if (schema.$params !== undefined) validator[privateKey][schemaKey].$params = schema.$params
-    if (schema.$normalizer !== undefined) validator[privateKey][schemaKey].$normalizer = schema.$normalizer
-    if (schema.$rules !== undefined) validator[privateKey][schemaKey].$rules = schema.$rules
-    if (schema.$errors !== undefined) validator[privateKey][schemaKey].$errors = schema.$errors
+    if (isPlainObject(schema.$params)) validator[privateKey][schemaKey].$params = schema.$params
+    if (isFunction(schema.$normalizer)) validator[privateKey][schemaKey].$normalizer = schema.$normalizer
+    if (isPlainObject(schema.$rules)) validator[privateKey][schemaKey].$rules = schema.$rules
+    if (isPlainObject(schema.$errors)) validator[privateKey][schemaKey].$errors = schema.$errors
+  }
+
+  // normalize errors
+  for (const key in validator[privateKey][schemaKey].$rules) {
+    if (validator[privateKey][schemaKey].$errors[key] === undefined) {
+      validator[privateKey][schemaKey].$errors[key] = noop
+    }
   }
 }

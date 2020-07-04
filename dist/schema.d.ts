@@ -1,5 +1,5 @@
 import { Normalizer, Rule, Error } from '../type';
-import { IBaseValidator, publicKey, privateKey, pathKey, listenerKey, IPath } from './proxy';
+import { IBaseValidator, publicKey, privateKey, pathKey } from './proxy';
 import { IStatableValidator } from './validation-state';
 export declare const schemaKey = "schema";
 interface ISchema {
@@ -16,20 +16,23 @@ interface ISchema {
     [key: string]: any;
 }
 export interface ISchemaValidator extends IBaseValidator, IStatableValidator {
+    [key: string]: any;
     [privateKey]: {
-        [pathKey]: IPath;
-        [listenerKey]: ((...args: any) => any)[];
+        [pathKey]: string[];
         invalid: boolean;
+        validated: boolean;
         pending: number;
         dirty: boolean;
+        setValidated: (value: boolean) => void;
         setInvalid: (value: boolean) => void;
         setDirty: (value: boolean) => void;
         setPending: (value: boolean) => void;
         resetPending: () => void;
-        [schemaKey]: ISchema;
         [key: string]: any;
+        [schemaKey]: ISchema;
     };
     [publicKey]: {
+        [key: string]: any;
         pending: boolean;
         invalid: boolean;
         dirty: boolean;
@@ -39,9 +42,7 @@ export interface ISchemaValidator extends IBaseValidator, IStatableValidator {
         errors: {
             [key: string]: any;
         };
-        [key: string]: any;
     };
-    [key: string]: any;
 }
 export declare const wrapSchema: ({ rootSchema, validator, }: {
     rootSchema: Partial<ISchema>;

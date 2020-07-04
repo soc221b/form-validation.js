@@ -1,5 +1,5 @@
 import { IStatableValidator } from './validation-state';
-export declare const rulesResultKey = "$rulsResult";
+export declare const rulesResultKey = "$rules";
 export interface IFunctionParams {
     value: any;
     key?: string;

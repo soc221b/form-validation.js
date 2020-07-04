@@ -1,32 +1,25 @@
 export declare const privateKey = "__form_validation__";
 export declare const publicKey = "$v";
 export declare const pathKey = "path";
-export declare const listenerKey = "listener";
-export declare const proxyKey = "__form_reactive";
-export declare type IPath = string[];
+export declare const proxyKey = "__form_validation_reactive";
 export interface IBaseValidator {
+    [key: string]: any;
     [privateKey]: {
-        [pathKey]: IPath;
-        [listenerKey]: ((...args: any) => any)[];
         [key: string]: any;
+        [pathKey]: string[];
     };
     [publicKey]: {
         [key: string]: any;
     };
-    [key: string]: any;
 }
-interface IWrapCallback {
-    (wrapper: IBaseValidator): any;
-}
-export declare const proxyStructure: ({ object, clone, callback, }: {
+export declare const proxyStructure: ({ object, clone, path, wrap, callback, }: {
     object: {
         [key: string]: any;
     };
     clone: {
         [key: string]: any;
     };
-    callback?: IWrapCallback | undefined;
-}) => {
-    [key: string]: any;
-};
-export {};
+    path?: string[] | undefined;
+    wrap?: ((object: any, clone: any, path: string[]) => void) | undefined;
+    callback?: ((wrapper: IBaseValidator) => void) | undefined;
+}) => any;

@@ -16,6 +16,4 @@ export interface IValidator extends IStatableValidator {
         touch: () => void;
     };
 }
-export declare const proxy: ({ form, schema, validator }: any) => {
-    [key: string]: any;
-};
+export declare const proxy: ({ form, schema, validator }: any) => any;

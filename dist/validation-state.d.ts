@@ -1,18 +1,20 @@
-import { privateKey, pathKey, listenerKey, IPath, IBaseValidator, publicKey } from './proxy';
+import { privateKey, pathKey, IBaseValidator, publicKey } from './proxy';
 export interface IStatableValidator extends IBaseValidator {
     [privateKey]: {
-        [pathKey]: IPath;
-        [listenerKey]: ((...args: any) => any)[];
+        [pathKey]: string[];
+        [key: string]: any;
         invalid: boolean;
+        validated: boolean;
         pending: number;
         dirty: boolean;
+        setValidated: (value: boolean) => void;
         setInvalid: (value: boolean) => void;
         setDirty: (value: boolean) => void;
         setPending: (value: boolean) => void;
         resetPending: () => void;
-        [key: string]: any;
     };
     [publicKey]: {
+        [key: string]: any;
         pending: boolean;
         invalid: boolean;
         dirty: boolean;
@@ -22,7 +24,6 @@ export interface IStatableValidator extends IBaseValidator {
         errors: {
             [key: string]: any;
         };
-        [key: string]: any;
     };
     [key: string]: any;
 }

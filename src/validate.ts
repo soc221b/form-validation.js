@@ -3,7 +3,7 @@ import { IStatableValidator } from './validation-state'
 import { privateKey, pathKey } from './proxy'
 import { schemaKey } from './schema'
 
-export const rulesResultKey = '$rulsResult'
+export const rulesResultKey = '$rules'
 
 export interface IFunctionParams {
   value: any
@@ -25,7 +25,10 @@ export interface IValidateResult {
 }
 
 export const validate = ({ rootForm, validator }: IValidateParams): IValidateResult => {
-  const params = validator[privateKey][schemaKey].$params
+  const params = {
+    [rulesResultKey]: {},
+    ...validator[privateKey][schemaKey].$params,
+  }
   const normalizer = validator[privateKey][schemaKey].$normalizer
   const rules = validator[privateKey][schemaKey].$rules
   const errors = validator[privateKey][schemaKey].$errors
@@ -48,6 +51,7 @@ export const validate = ({ rootForm, validator }: IValidateParams): IValidateRes
     const functionParams: IFunctionParams = { value, key, parent, path, root, params }
     const validationResult = rules[ruleKey](functionParams)
     result[rulesResultKey][ruleKey] = validationResult
+    functionParams.params[rulesResultKey][ruleKey] = validationResult
     result[ruleKey] = undefined
     if (isPromise(validationResult)) {
       validationResult.finally(async () => {
