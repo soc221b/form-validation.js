@@ -24,3 +24,7 @@
   + [ ] sort
   + [ ] reverse
   + [ ] length
+
+# Need help?
+
+Please open [GitHub issues](/iendeavor/form-validation.js/issues). Please search previous issues before creating a new issue.
