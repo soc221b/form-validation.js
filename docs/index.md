@@ -50,7 +50,11 @@ const proxiedForm = FormValidation.proxy({ form, schema, validator })
 
 // in order to track form's data sctructure,
 // you should always update your fields from the proxiedForm instead of the original form
-proxiedForm.account = 'something...'
+// for example, add new property to object, or push new element to array
+proxiedForm.emails = []
+// validator.emails can be lookup now.
+proxiedForm.emails.push('')
+// validator.emails[0] can be lookup now.
 
 // validate the entire form
 valdiator.$v.validate(form)
