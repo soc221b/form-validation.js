@@ -77,6 +77,9 @@ function isFunction(object) {
 function isPromise(object) {
     return object !== null && typeof object === 'object' && isFunction(object.then);
 }
+function hasKey(object, key) {
+    return object.hasOwnProperty(key);
+}
 function getByPath(object, path) {
     if (path.length === 0)
         return object;
@@ -150,6 +153,9 @@ var proxyStructure = function (_a) {
             return Reflect.deleteProperty(target, key);
         },
         set: function (target, key, value) {
+            var result = Reflect.set(target, key, value);
+            if (hasKey(target, key) === false)
+                return result;
             Reflect.set(clone, key, clone[key] || (isArray(value) ? [] : {}));
             return Reflect.set(target, key, proxyStructure({
                 object: value,
