@@ -388,13 +388,13 @@ define(['exports'], function (exports) { 'use strict';
     };
     var wrapMethods = function (rootForm, validator) {
         var schema = validator[privateKey][schemaKey];
-        var previousResult = null;
+        var previousResult = {};
         var $validate = function () {
             validator[privateKey].setValidated(true);
             validator[privateKey].setInvalid(false);
             validator[privateKey].resetPending();
             validator[publicKey].errors = {};
-            previousResult = null;
+            previousResult = {};
             var result = validate({ rootForm: rootForm, validator: validator });
             var _loop_1 = function (ruleKey) {
                 if (isPromise(result[rulesResultKey][ruleKey])) {
@@ -437,10 +437,14 @@ define(['exports'], function (exports) { 'use strict';
                 _loop_1(ruleKey);
             }
             previousResult = result[rulesResultKey];
+            var nestedResult = {};
             for (var _b = 0, _c = Object.keys(validator).filter(function (key) { return key !== publicKey && key !== privateKey; }); _b < _c.length; _b++) {
                 var key = _c[_b];
-                validator[key][publicKey].validate();
+                nestedResult[key] = validator[key][publicKey].validate();
             }
+            return Promise.all(Object.values(previousResult))
+                .then(function () { return Promise.all(Object.values(nestedResult)); })
+                .then(function () { return undefined; });
         };
         var $reset = function () {
             validator[privateKey].setValidated(false);
@@ -448,7 +452,7 @@ define(['exports'], function (exports) { 'use strict';
             validator[privateKey].setDirty(false);
             validator[privateKey].resetPending();
             validator[publicKey].errors = {};
-            previousResult = null;
+            previousResult = {};
             for (var _i = 0, _a = Object.keys(validator).filter(function (key) { return key !== publicKey && key !== privateKey; }); _i < _a.length; _i++) {
                 var key = _a[_i];
                 validator[key][publicKey].reset();
