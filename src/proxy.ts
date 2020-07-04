@@ -1,4 +1,4 @@
-import { isPlainObject, isArray } from './util'
+import { isPlainObject, isArray, hasKey } from './util'
 
 export const privateKey = '__form_validation__'
 export const publicKey = '$v'
@@ -88,6 +88,9 @@ export const proxyStructure = ({
     },
 
     set(target: any, key: string, value: any) {
+      const result = Reflect.set(target, key, value)
+      if (hasKey(target, key) === false) return result
+
       Reflect.set(clone, key, clone[key] || (isArray(value) ? [] : {}))
       return Reflect.set(
         target,
