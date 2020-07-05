@@ -185,7 +185,6 @@ define(['exports'], function (exports) { 'use strict';
     var wrapSchema = function (_a) {
         var rootSchema = _a.rootSchema, validator = _a.validator;
         var path = validator[privateKey][pathKey];
-        var schema;
         // init
         var defaultSchema = createDefaultSchema();
         validator[privateKey][schemaKey] = (validator[privateKey][schemaKey] || {});
@@ -193,44 +192,57 @@ define(['exports'], function (exports) { 'use strict';
         validator[privateKey][schemaKey].$normalizer = defaultSchema.$normalizer;
         validator[privateKey][schemaKey].$rules = defaultSchema.$rules;
         validator[privateKey][schemaKey].$errors = defaultSchema.$errors;
-        // iter
-        if (path.length !== 0) {
-            try {
-                schema = getByPath(rootSchema, path.slice(0, -1).concat('$iter'));
-            }
-            catch (error) { }
-            if (schema) {
-                if (isPlainObject(schema.$params))
-                    validator[privateKey][schemaKey].$params = schema.$params;
-                if (isFunction(schema.$normalizer))
-                    validator[privateKey][schemaKey].$normalizer = schema.$normalizer;
-                if (isPlainObject(schema.$rules))
-                    validator[privateKey][schemaKey].$rules = schema.$rules;
-                if (isPlainObject(schema.$errors))
-                    validator[privateKey][schemaKey].$errors = schema.$errors;
-            }
-        }
-        // dedicate
-        try {
-            schema = getByPath(rootSchema, path);
-        }
-        catch (error) { }
-        if (schema) {
-            if (isPlainObject(schema.$params))
-                validator[privateKey][schemaKey].$params = schema.$params;
-            if (isFunction(schema.$normalizer))
-                validator[privateKey][schemaKey].$normalizer = schema.$normalizer;
-            if (isPlainObject(schema.$rules))
-                validator[privateKey][schemaKey].$rules = schema.$rules;
-            if (isPlainObject(schema.$errors))
-                validator[privateKey][schemaKey].$errors = schema.$errors;
-        }
+        applyMostAppropriateSchema({ rootSchema: rootSchema, validator: validator, path: path.slice(), startIndex: 0 });
         // normalize errors
         for (var key in validator[privateKey][schemaKey].$rules) {
             if (validator[privateKey][schemaKey].$errors[key] === undefined) {
                 validator[privateKey][schemaKey].$errors[key] = noop;
             }
         }
+    };
+    var applyMostAppropriateSchema = function (_a) {
+        var rootSchema = _a.rootSchema, validator = _a.validator, path = _a.path, startIndex = _a.startIndex;
+        if (startIndex === path.length) {
+            try {
+                var schema = getByPath(rootSchema, path);
+                if (shouldUseSchema(schema)) {
+                    if (isPlainObject(schema.$params))
+                        validator[privateKey][schemaKey].$params = schema.$params;
+                    if (isFunction(schema.$normalizer))
+                        validator[privateKey][schemaKey].$normalizer = schema.$normalizer;
+                    if (isPlainObject(schema.$rules))
+                        validator[privateKey][schemaKey].$rules = schema.$rules;
+                    if (isPlainObject(schema.$errors))
+                        validator[privateKey][schemaKey].$errors = schema.$errors;
+                    return true;
+                }
+            }
+            catch (error) { }
+            return false;
+        }
+        // dedicate
+        if (applyMostAppropriateSchema({ rootSchema: rootSchema, validator: validator, path: path, startIndex: startIndex + 1 }))
+            return true;
+        // iter
+        var oldKey = path[startIndex];
+        path[startIndex] = '$iter';
+        if (applyMostAppropriateSchema({ rootSchema: rootSchema, validator: validator, path: path, startIndex: startIndex + 1 }))
+            return true;
+        path[startIndex] = oldKey;
+        return false;
+    };
+    var shouldUseSchema = function (schema) {
+        if (schema === undefined)
+            return false;
+        if (schema.$params !== undefined)
+            return true;
+        if (schema.$normalizer !== undefined)
+            return true;
+        if (schema.$rules !== undefined)
+            return true;
+        if (schema.$errors !== undefined)
+            return true;
+        return false;
     };
 
     var rulesResultKey = '$rules';
