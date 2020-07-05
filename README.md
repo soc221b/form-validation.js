@@ -28,4 +28,4 @@
 
 # Need help?
 
-Please open [GitHub issues](/iendeavor/form-validation.js/issues). Please search previous issues before creating a new issue.
+Please open [GitHub issues](https://github.com/iendeavor/form-validation.js/issues). Please search previous issues before creating a new issue.
