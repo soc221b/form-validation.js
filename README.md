@@ -1,6 +1,6 @@
 # form-validation.js
 
-# Status: WIP
+# Status: Beta
 
 [![npm version](https://badge.fury.io/js/form-validation.js.svg)](https://badge.fury.io/js/form-validation.js)
 ![CI](https://github.com/iendeavor/form-validation.js/workflows/CI/badge.svg)
