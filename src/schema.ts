@@ -63,7 +63,6 @@ export const wrapSchema = ({
   validator: IStatableValidator
 }): void => {
   const path = validator[privateKey][pathKey]
-  let schema
 
   // init
   const defaultSchema = createDefaultSchema()
@@ -73,29 +72,7 @@ export const wrapSchema = ({
   validator[privateKey][schemaKey].$rules = defaultSchema.$rules
   validator[privateKey][schemaKey].$errors = defaultSchema.$errors
 
-  // iter
-  if (path.length !== 0) {
-    try {
-      schema = getByPath(rootSchema, path.slice(0, -1).concat('$iter'))
-    } catch (error) {}
-    if (schema) {
-      if (isPlainObject(schema.$params)) validator[privateKey][schemaKey].$params = schema.$params
-      if (isFunction(schema.$normalizer)) validator[privateKey][schemaKey].$normalizer = schema.$normalizer
-      if (isPlainObject(schema.$rules)) validator[privateKey][schemaKey].$rules = schema.$rules
-      if (isPlainObject(schema.$errors)) validator[privateKey][schemaKey].$errors = schema.$errors
-    }
-  }
-
-  // dedicate
-  try {
-    schema = getByPath(rootSchema, path)
-  } catch (error) {}
-  if (schema) {
-    if (isPlainObject(schema.$params)) validator[privateKey][schemaKey].$params = schema.$params
-    if (isFunction(schema.$normalizer)) validator[privateKey][schemaKey].$normalizer = schema.$normalizer
-    if (isPlainObject(schema.$rules)) validator[privateKey][schemaKey].$rules = schema.$rules
-    if (isPlainObject(schema.$errors)) validator[privateKey][schemaKey].$errors = schema.$errors
-  }
+  applyMostAppropriateSchema({ rootSchema, validator, path: path.slice(), startIndex: 0 })
 
   // normalize errors
   for (const key in validator[privateKey][schemaKey].$rules) {
@@ -103,4 +80,53 @@ export const wrapSchema = ({
       validator[privateKey][schemaKey].$errors[key] = noop
     }
   }
+}
+
+const applyMostAppropriateSchema = ({
+  rootSchema,
+  validator,
+  path,
+  startIndex,
+}: {
+  rootSchema: Partial<ISchema>
+  validator: IStatableValidator
+  path: string[]
+  startIndex: number
+}) => {
+  if (startIndex === path.length) {
+    try {
+      const schema = getByPath(rootSchema, path)
+      if (shouldUseSchema(schema)) {
+        if (isPlainObject(schema.$params)) validator[privateKey][schemaKey].$params = schema.$params
+        if (isFunction(schema.$normalizer)) validator[privateKey][schemaKey].$normalizer = schema.$normalizer
+        if (isPlainObject(schema.$rules)) validator[privateKey][schemaKey].$rules = schema.$rules
+        if (isPlainObject(schema.$errors)) validator[privateKey][schemaKey].$errors = schema.$errors
+        return true
+      }
+    } catch (error) {}
+
+    return false
+  }
+
+  // dedicate
+  if (applyMostAppropriateSchema({ rootSchema, validator, path, startIndex: startIndex + 1 })) return true
+
+  // iter
+  const oldKey = path[startIndex]
+  path[startIndex] = '$iter'
+  if (applyMostAppropriateSchema({ rootSchema, validator, path, startIndex: startIndex + 1 })) return true
+  path[startIndex] = oldKey
+
+  return false
+}
+
+const shouldUseSchema = (schema?: Partial<ISchema>) => {
+  if (schema === undefined) return false
+
+  if (schema.$params !== undefined) return true
+  if (schema.$normalizer !== undefined) return true
+  if (schema.$rules !== undefined) return true
+  if (schema.$errors !== undefined) return true
+
+  return false
 }
