@@ -1,6 +1,6 @@
 {
   "name": "form-validation.js",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "description": "The most customizable validation framework for JavaScript.",
   "main": "dist/form-validation.cjs.prod.js",
   "umd:main": "dist/form-validation.umd.prod.js",
