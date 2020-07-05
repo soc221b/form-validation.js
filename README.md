@@ -86,15 +86,16 @@ console.log(valdiator.$v.errors.alreadyBeenUsed)
 
 - Supports for dynamic schema structure
 - Supports for array built-in operations
-  + [x] push
-  + [x] pop
-  + [ ] shift
-  + [ ] unshift
-  + [ ] splice
-  + [ ] sort
-  + [ ] reverse
-  + [ ] length
+  - [x] push
+  - [x] pop
+  - [ ] shift
+  - [ ] unshift
+  - [ ] splice
+  - [ ] sort
+  - [ ] reverse
+  - [ ] length
 
 # Need help?
 
-Please open [GitHub issues](https://github.com/iendeavor/form-validation.js/issues). Please search previous issues before creating a new issue.
+Please open [GitHub issues](https://github.com/iendeavor/form-validation.js/issues). Please search previous issues
+before creating a new issue.
