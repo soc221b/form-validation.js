@@ -80,6 +80,11 @@ export const proxyStructure = ({
       }),
     )
   }
+  for (const key in clone) {
+    if (hasKey(object, key) === false) {
+      delete clone[key]
+    }
+  }
 
   return new Proxy(object, {
     deleteProperty(target, key) {

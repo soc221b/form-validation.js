@@ -1,22 +1,248 @@
 import { proxyStructure, publicKey, privateKey, pathKey } from '../../src/proxy'
 
-test('proxyStructure', () => {
-  const validator: { [key: string]: any } = {}
-  const form: { [key: string]: any } = {}
+test('proxyStructure (primitive types in object)', () => {
+  const object: any = {
+    undefined: undefined,
+    null: null,
+    boolean: false,
+    number: 0,
+    string: '',
+  }
+  const clone: any = {}
   const wrap = jest.fn()
-  const proxiedForm = proxyStructure({ object: form, clone: validator, wrap })
+  const proxiedObject = proxyStructure({ object, clone, wrap })
 
-  expect(validator).toStrictEqual({})
-  form.account = undefined
-  expect(validator).toStrictEqual({
-    account: {},
+  expect(object).toStrictEqual(proxiedObject)
+  expect(clone).toStrictEqual({
+    undefined: {},
+    null: {},
+    boolean: {},
+    number: {},
+    string: {},
   })
-  form.account = ''
-  expect(validator).toStrictEqual({
-    account: {},
+  expect(wrap.mock.calls.length).toBe(6)
+  expect(JSON.stringify(wrap.mock.calls.sort())).toStrictEqual(
+    JSON.stringify(
+      [
+        [object, clone, []],
+        [object.undefined, clone.undefined, ['undefined']],
+        [object.null, clone.null, ['null']],
+        [object.boolean, clone.boolean, ['boolean']],
+        [object.number, clone.number, ['number']],
+        [object.string, clone.string, ['string']],
+      ].sort(),
+    ),
+  )
+})
+
+test('proxyStructure (primitive types in array)', () => {
+  const object: any = [undefined, null, false, 0, '']
+  const clone: any = []
+  const wrap = jest.fn()
+  const proxiedObject = proxyStructure({ object, clone, wrap })
+
+  expect(object).toStrictEqual(proxiedObject)
+  expect(clone).toStrictEqual([{}, {}, {}, {}, {}])
+  expect(wrap.mock.calls.length).toBe(6)
+  expect(JSON.stringify(wrap.mock.calls.sort())).toStrictEqual(
+    JSON.stringify(
+      [
+        [object, clone, []],
+        [object[0], clone[0], ['0']],
+        [object[1], clone[1], ['1']],
+        [object[2], clone[2], ['2']],
+        [object[3], clone[3], ['3']],
+        [object[4], clone[4], ['4']],
+      ].sort(),
+    ),
+  )
+})
+
+test('proxyStructure (object: init)', () => {
+  const object: any = {
+    key: {
+      nestedKey: {
+        deepNestedKey: null,
+      },
+    },
+  }
+  const clone: any = {}
+  const wrap = jest.fn()
+  const proxiedObject = proxyStructure({ object, clone, wrap })
+
+  expect(object).toStrictEqual(proxiedObject)
+  expect(clone).toStrictEqual({
+    key: {
+      nestedKey: {
+        deepNestedKey: {},
+      },
+    },
   })
-  delete form.account
-  expect(validator).toStrictEqual({})
+  expect(wrap.mock.calls.length).toBe(4)
+  expect(JSON.stringify(wrap.mock.calls.sort())).toStrictEqual(
+    JSON.stringify(
+      [
+        [object, clone, []],
+        [object.key, clone.key, ['key']],
+        [object.key.nestedKey, clone.key.nestedKey, ['key', 'nestedKey']],
+        [object.key.nestedKey.deepNestedKey, clone.key.nestedKey.deepNestedKey, ['key', 'nestedKey', 'deepNestedKey']],
+      ].sort(),
+    ),
+  )
+})
+
+test('proxyStructure (object: add key)', () => {
+  const object: any = {}
+  const clone: any = {}
+  const wrap = jest.fn()
+  const proxiedObject = proxyStructure({ object, clone, wrap })
+
+  wrap.mockClear()
+  proxiedObject.key = {}
+  expect(clone).toStrictEqual({
+    key: {},
+  })
+  expect(wrap.mock.calls.length).toBe(1)
+  expect(JSON.stringify(wrap.mock.calls[0])).toStrictEqual(JSON.stringify([object.key, clone.key, ['key']]))
+
+  wrap.mockClear()
+  proxiedObject.key.nestedKey = {}
+  expect(clone).toStrictEqual({
+    key: {
+      nestedKey: {},
+    },
+  })
+  expect(wrap.mock.calls.length).toBe(1)
+  expect(JSON.stringify(wrap.mock.calls[0])).toStrictEqual(
+    JSON.stringify([object.key.nestedKey, clone.key.nestedKey, ['key', 'nestedKey']]),
+  )
+
+  wrap.mockClear()
+  proxiedObject.key.nestedKey.deepNestedKey = {}
+  expect(clone).toStrictEqual({
+    key: {
+      nestedKey: {
+        deepNestedKey: {},
+      },
+    },
+  })
+  expect(wrap.mock.calls.length).toBe(1)
+  expect(JSON.stringify(wrap.mock.calls[0])).toStrictEqual(
+    JSON.stringify([
+      object.key.nestedKey.deepNestedKey,
+      clone.key.nestedKey.deepNestedKey,
+      ['key', 'nestedKey', 'deepNestedKey'],
+    ]),
+  )
+})
+
+test('proxyStructure (object: delete key)', () => {
+  const object: any = {
+    key: {
+      nestedKey: {
+        deepNestedKey: {},
+      },
+    },
+  }
+  const clone: any = {}
+  const wrap = jest.fn()
+  const proxiedObject = proxyStructure({ object, clone, wrap })
+
+  wrap.mockClear()
+  delete proxiedObject.key.nestedKey.deepNestedKey
+  expect(clone).toStrictEqual({
+    key: {
+      nestedKey: {},
+    },
+  })
+  expect(wrap.mock.calls.length).toBe(0)
+
+  wrap.mockClear()
+  delete proxiedObject.key
+  expect(clone).toStrictEqual({})
+  expect(wrap.mock.calls.length).toBe(0)
+})
+
+test('proxyStructure (object: reassign)', () => {
+  const object: any = {
+    key: {
+      nestedKey: {
+        deepNestedKey: {},
+      },
+    },
+  }
+  const clone: any = {}
+  const wrap = jest.fn()
+  const proxiedObject = proxyStructure({ object, clone, wrap })
+
+  wrap.mockClear()
+  proxiedObject.key.nestedKey = {}
+  expect(clone).toStrictEqual({
+    key: {
+      nestedKey: {},
+    },
+  })
+  expect(wrap.mock.calls.length).toBe(1)
+  expect(JSON.stringify(wrap.mock.calls[0])).toStrictEqual(
+    JSON.stringify([object.key.nestedKey, clone.key.nestedKey, ['key', 'nestedKey']]),
+  )
+
+  wrap.mockClear()
+  proxiedObject.key = {
+    nestedKey2: {
+      deepNestedKey: {},
+    },
+  }
+  expect(clone).toStrictEqual({
+    key: {
+      nestedKey2: {
+        deepNestedKey: {},
+      },
+    },
+  })
+  expect(wrap.mock.calls.length).toBe(3)
+  expect(JSON.stringify(wrap.mock.calls.sort())).toStrictEqual(
+    JSON.stringify(
+      [
+        [object.key, clone.key, ['key']],
+        [object.key.nestedKey2, clone.key.nestedKey2, ['key', 'nestedKey2']],
+        [
+          object.key.nestedKey2.deepNestedKey,
+          clone.key.nestedKey2.deepNestedKey,
+          ['key', 'nestedKey2', 'deepNestedKey'],
+        ],
+      ].sort(),
+    ),
+  )
+
+  wrap.mockClear()
+  proxiedObject.key = {}
+  expect(clone).toStrictEqual({
+    key: {},
+  })
+  expect(wrap.mock.calls.length).toBe(1)
+  expect(JSON.stringify(wrap.mock.calls[0])).toStrictEqual(JSON.stringify([object.key, clone.key, ['key']]))
+})
+
+test('proxyStructure (array: init)', () => {
+  const object: any = [[[null]]]
+  const clone: any = []
+  const wrap = jest.fn()
+  const proxiedObject = proxyStructure({ object, clone, wrap })
+
+  expect(object).toStrictEqual(proxiedObject)
+  expect(clone).toStrictEqual([[[{}]]])
+  expect(wrap.mock.calls.length).toBe(4)
+  expect(JSON.stringify(wrap.mock.calls.sort())).toStrictEqual(
+    JSON.stringify(
+      [
+        [object, clone, []],
+        [object[0], clone[0], ['0']],
+        [object[0][0], clone[0][0], ['0', '0']],
+        [object[0][0][0], clone[0][0][0], ['0', '0', '0']],
+      ].sort(),
+    ),
+  )
 })
 
 test('proxyStructure (object)', () => {
