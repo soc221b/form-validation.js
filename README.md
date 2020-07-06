@@ -66,14 +66,12 @@ const valdiator = {}
 const proxiedForm = FormValidation.proxy({ form, schema, validator })
 
 // validate the entire form
-valdiator.$v.validate()
+await valdiator.$v.validate()
 
 console.log(valdiator.$v.invalid)
 // > true
 console.log(valdiator.$v.errors.weak)
 // > 'Too short.'
-console.log(valdiator.$v.errors.alreadyBeenUsed)
-// > 'This account has already been used.'
 ```
 
 ## Docs
