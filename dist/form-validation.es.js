@@ -147,6 +147,11 @@ var proxyStructure = function (_a) {
             callback: callback,
         }));
     }
+    for (var key in clone) {
+        if (hasKey(object, key) === false) {
+            delete clone[key];
+        }
+    }
     return new Proxy(object, {
         deleteProperty: function (target, key) {
             Reflect.deleteProperty(clone, key);
