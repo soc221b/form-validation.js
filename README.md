@@ -80,7 +80,7 @@ console.log(valdiator.$v.errors.weak)
 - [Instance](/docs/instance.md)
 - [Common Use Case](/docs/common-use-case.md)
 
-# Need help?
+## Need help?
 
 Please open [GitHub issues](https://github.com/iendeavor/form-validation.js/issues). Please search previous issues
 before creating a new issue.
