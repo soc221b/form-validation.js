@@ -95,6 +95,10 @@ export const proxyStructure = ({
     set(target: any, key: string, value: any) {
       const result = Reflect.set(target, key, value)
       if (hasKey(target, key) === false) return result
+      if (isArray(target) && key === 'length') {
+        Reflect.set(clone, key, value)
+        return result
+      }
 
       Reflect.set(clone, key, clone[key] || (isArray(value) ? [] : {}))
       return Reflect.set(
