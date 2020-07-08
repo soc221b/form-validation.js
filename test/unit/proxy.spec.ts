@@ -406,10 +406,10 @@ test('array: splice (one arg)', () => {
   object.ipAddresses = ['', '', '']
   oldClone = clone.ipAddresses.slice()
   object.ipAddresses.splice()
-  expect(clone.ipAddresses.length).toBe(0)
-  expect(clone.ipAddresses[0]).not.toBeDefined()
-  expect(clone.ipAddresses[1]).not.toBeDefined()
-  expect(clone.ipAddresses[2]).not.toBeDefined()
+  expect(clone.ipAddresses.length).toBe(3)
+  expect(clone.ipAddresses[0]).toBe(oldClone[0])
+  expect(clone.ipAddresses[1]).toBe(oldClone[1])
+  expect(clone.ipAddresses[2]).toBe(oldClone[2])
 
   object.ipAddresses = ['', '', '']
   oldClone = clone.ipAddresses.slice()
