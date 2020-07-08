@@ -135,6 +135,7 @@
             });
         }
     };
+    var operations = new Set(['shift', 'unshift']);
     var proxyStructure = function (_a) {
         var object = _a.object, clone = _a.clone, _b = _a.path, path = _b === void 0 ? [] : _b, _c = _a.wrap, wrap = _c === void 0 ? validationWrap : _c, _d = _a.callback, callback = _d === void 0 ? function () { } : _d;
         wrap(object, clone, path);
@@ -158,6 +159,10 @@
                 delete clone[key];
             }
         }
+        var operation = null;
+        var operationCount = 0;
+        var gettingValues = [];
+        var settingKeys = [];
         return new Proxy(object, {
             deleteProperty: function (target, key) {
                 Reflect.deleteProperty(clone, key);
@@ -167,7 +172,45 @@
                 var result = Reflect.set(target, key, value);
                 if (hasKey(target, key) === false)
                     return result;
-                Reflect.set(clone, key, clone[key] || (isArray(value) ? [] : {}));
+                if (isArray(target)) {
+                    if (key === 'length') {
+                        if (operation === 'shift') {
+                            gettingValues.shift();
+                            gettingValues.reverse();
+                            clone.length = 0;
+                            for (var _i = 0, settingKeys_1 = settingKeys; _i < settingKeys_1.length; _i++) {
+                                var key_1 = settingKeys_1[_i];
+                                var value_1 = gettingValues.pop();
+                                value_1[privateKey][pathKey] = value_1[privateKey][pathKey].slice(0, -1).concat(key_1);
+                                clone[key_1] = value_1;
+                            }
+                        }
+                        else if (operation === 'unshift') {
+                            gettingValues.shift();
+                            gettingValues.push(clone[0]);
+                            gettingValues.reverse();
+                            clone.length = 0;
+                            for (var _a = 0, settingKeys_2 = settingKeys; _a < settingKeys_2.length; _a++) {
+                                var key_2 = settingKeys_2[_a];
+                                var value_2 = gettingValues.pop();
+                                value_2[privateKey][pathKey] = value_2[privateKey][pathKey].slice(0, -1).concat(key_2);
+                                clone[key_2] = value_2;
+                            }
+                        }
+                        clone[key] = value;
+                        operation = null;
+                        for (var key_3 in clone) {
+                            callback(clone[key_3]);
+                        }
+                        return result;
+                    }
+                    else if (operations.has(operation) && /^\d+$/.test(key)) {
+                        settingKeys.push(key);
+                        ++operationCount;
+                        clone[key] = isArray(value) ? [] : {};
+                    }
+                }
+                clone[key] = clone[key] || (isArray(value) ? [] : {});
                 return Reflect.set(target, key, proxyStructure({
                     object: value,
                     clone: clone[key],
@@ -175,6 +218,26 @@
                     wrap: wrap,
                     callback: callback,
                 }));
+            },
+            get: function (target, key) {
+                var result = Reflect.get(target, key);
+                if (isArray(target)) {
+                    if (operations.has(key)) {
+                        operation = key;
+                        operationCount = 0;
+                        gettingValues.length = 0;
+                        settingKeys.length = 0;
+                    }
+                    else if (operations.has(operation)) {
+                        if (key === 'length') {
+                            operationCount = 0;
+                        }
+                        else if (/^\d+$/.test(key)) {
+                            gettingValues[operationCount] = clone[key];
+                        }
+                    }
+                }
+                return result;
             },
         });
     };
