@@ -48,6 +48,8 @@ const validationWrap: (object: any, clone: any, path: string[]) => void = (objec
   }
 }
 
+const operations: Set<string | null> = new Set(['shift', 'unshift'])
+
 export const proxyStructure = ({
   object,
   clone,
@@ -86,6 +88,12 @@ export const proxyStructure = ({
     }
   }
 
+  let operation: string | null = null
+  let totalOperationCount: number = 0
+  let operationCount: number = 0
+  const gettingValues: any = []
+  const settingKeys: any = []
+
   return new Proxy(object, {
     deleteProperty(target, key) {
       Reflect.deleteProperty(clone, key)
@@ -95,12 +103,45 @@ export const proxyStructure = ({
     set(target: any, key: string, value: any) {
       const result = Reflect.set(target, key, value)
       if (hasKey(target, key) === false) return result
-      if (isArray(target) && key === 'length') {
-        Reflect.set(clone, key, value)
-        return result
-      }
 
-      Reflect.set(clone, key, clone[key] || (isArray(value) ? [] : {}))
+      if (isArray(target)) {
+        if (key === 'length') {
+          if (operation === 'shift') {
+            gettingValues.shift()
+            gettingValues.reverse()
+            clone.length = 0
+            for (const key of settingKeys) {
+              const value = gettingValues.pop()
+              value[privateKey][pathKey] = value[privateKey][pathKey].slice(0, -1).concat(key)
+              clone[key] = value
+            }
+          } else if (operation === 'unshift') {
+            gettingValues.shift()
+            gettingValues.push(clone[0])
+            gettingValues.reverse()
+            clone.length = 0
+            for (const key of settingKeys) {
+              const value = gettingValues.pop()
+              value[privateKey][pathKey] = value[privateKey][pathKey].slice(0, -1).concat(key)
+              clone[key] = value
+            }
+          }
+
+          clone[key] = value
+          operation = null
+
+          for (const key in clone) {
+            callback(clone[key] as IBaseValidator)
+          }
+          return result
+        } else if (operations.has(operation) && /^\d+$/.test(key)) {
+          settingKeys.push(key)
+          ++operationCount
+          clone[key] = isArray(value) ? [] : {}
+        }
+      }
+      clone[key] = clone[key] || (isArray(value) ? [] : {})
+
       return Reflect.set(
         target,
         key,
@@ -112,6 +153,28 @@ export const proxyStructure = ({
           callback,
         }),
       )
+    },
+
+    get(target: any, key: string) {
+      const result = Reflect.get(target, key)
+
+      if (isArray(target)) {
+        if (operations.has(key)) {
+          operation = key
+          operationCount = 0
+          gettingValues.length = 0
+          settingKeys.length = 0
+        } else if (operations.has(operation)) {
+          if (key === 'length') {
+            operationCount = 0
+            totalOperationCount = result
+          } else if (/^\d+$/.test(key)) {
+            gettingValues[operationCount] = clone[key]
+          }
+        }
+      }
+
+      return result
     },
   })
 }
