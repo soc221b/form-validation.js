@@ -405,6 +405,14 @@ test('array: splice (one arg)', () => {
 
   object.ipAddresses = ['', '', '']
   oldClone = clone.ipAddresses.slice()
+  object.ipAddresses.splice(0)
+  expect(clone.ipAddresses.length).toBe(0)
+  expect(clone.ipAddresses[0]).not.toBeDefined()
+  expect(clone.ipAddresses[1]).not.toBeDefined()
+  expect(clone.ipAddresses[2]).not.toBeDefined()
+
+  object.ipAddresses = ['', '', '']
+  oldClone = clone.ipAddresses.slice()
   object.ipAddresses.splice()
   expect(clone.ipAddresses.length).toBe(3)
   expect(clone.ipAddresses[0]).toBe(oldClone[0])
@@ -450,7 +458,119 @@ test('array: splice (two args)', () => {
   object = proxyStructure({ object, clone })
   let oldClone = []
 
-  throw Error('not yet be implemented.')
+  object.ipAddresses = ['', '', '', '', '']
+  oldClone = clone.ipAddresses.slice()
+  object.ipAddresses.splice(10, 0)
+  expect(clone.ipAddresses.length).toBe(5)
+  expect(clone.ipAddresses[0]).toBe(oldClone[0])
+  expect(clone.ipAddresses[1]).toBe(oldClone[1])
+  expect(clone.ipAddresses[2]).toBe(oldClone[2])
+  expect(clone.ipAddresses[3]).toBe(oldClone[3])
+  expect(clone.ipAddresses[4]).toBe(oldClone[4])
+
+  object.ipAddresses = ['', '', '', '', '']
+  oldClone = clone.ipAddresses.slice()
+  object.ipAddresses.splice(10, -10)
+  expect(clone.ipAddresses.length).toBe(5)
+  expect(clone.ipAddresses[0]).toBe(oldClone[0])
+  expect(clone.ipAddresses[1]).toBe(oldClone[1])
+  expect(clone.ipAddresses[2]).toBe(oldClone[2])
+  expect(clone.ipAddresses[3]).toBe(oldClone[3])
+  expect(clone.ipAddresses[4]).toBe(oldClone[4])
+
+  object.ipAddresses = ['', '', '', '', '']
+  oldClone = clone.ipAddresses.slice()
+  object.ipAddresses.splice(10, 10)
+  expect(clone.ipAddresses.length).toBe(5)
+  expect(clone.ipAddresses[0]).toBe(oldClone[0])
+  expect(clone.ipAddresses[1]).toBe(oldClone[1])
+  expect(clone.ipAddresses[2]).toBe(oldClone[2])
+  expect(clone.ipAddresses[3]).toBe(oldClone[3])
+  expect(clone.ipAddresses[4]).toBe(oldClone[4])
+
+  object.ipAddresses = ['', '', '', '', '']
+  oldClone = clone.ipAddresses.slice()
+  object.ipAddresses.splice(2, 3)
+  expect(clone.ipAddresses.length).toBe(2)
+  expect(clone.ipAddresses[0]).toBe(oldClone[0])
+  expect(clone.ipAddresses[1]).toBe(oldClone[1])
+  expect(clone.ipAddresses[2]).not.toBeDefined()
+  expect(clone.ipAddresses[3]).not.toBeDefined()
+  expect(clone.ipAddresses[4]).not.toBeDefined()
+
+  object.ipAddresses = ['', '', '', '', '']
+  oldClone = clone.ipAddresses.slice()
+  object.ipAddresses.splice(1, 3)
+  expect(clone.ipAddresses.length).toBe(2)
+  expect(clone.ipAddresses[0]).toBe(oldClone[0])
+  expect(clone.ipAddresses[1]).toBe(oldClone[4])
+  expect(clone.ipAddresses[2]).not.toBeDefined()
+  expect(clone.ipAddresses[3]).not.toBeDefined()
+  expect(clone.ipAddresses[4]).not.toBeDefined()
+
+  object.ipAddresses = ['', '', '', '', '']
+  oldClone = clone.ipAddresses.slice()
+  object.ipAddresses.splice(0, 3)
+  expect(clone.ipAddresses.length).toBe(2)
+  expect(clone.ipAddresses[0]).toBe(oldClone[3])
+  expect(clone.ipAddresses[1]).toBe(oldClone[4])
+  expect(clone.ipAddresses[2]).not.toBeDefined()
+  expect(clone.ipAddresses[3]).not.toBeDefined()
+  expect(clone.ipAddresses[4]).not.toBeDefined()
+
+  object.ipAddresses = ['', '', '', '', '']
+  oldClone = clone.ipAddresses.slice()
+  object.ipAddresses.splice(2, 2)
+  expect(clone.ipAddresses.length).toBe(3)
+  expect(clone.ipAddresses[0]).toBe(oldClone[0])
+  expect(clone.ipAddresses[1]).toBe(oldClone[1])
+  expect(clone.ipAddresses[2]).toBe(oldClone[4])
+  expect(clone.ipAddresses[3]).not.toBeDefined()
+  expect(clone.ipAddresses[4]).not.toBeDefined()
+
+  object.ipAddresses = ['', '', '', '', '']
+  oldClone = clone.ipAddresses.slice()
+  object.ipAddresses.splice(1, 2)
+  expect(clone.ipAddresses.length).toBe(3)
+  expect(clone.ipAddresses[0]).toBe(oldClone[0])
+  expect(clone.ipAddresses[1]).toBe(oldClone[3])
+  expect(clone.ipAddresses[2]).toBe(oldClone[4])
+  expect(clone.ipAddresses[3]).not.toBeDefined()
+  expect(clone.ipAddresses[4]).not.toBeDefined()
+
+  object.ipAddresses = ['', '', '', '', '']
+  oldClone = clone.ipAddresses.slice()
+  object.ipAddresses.splice(0, 2)
+  expect(clone.ipAddresses.length).toBe(3)
+  expect(clone.ipAddresses[0]).toBe(oldClone[2])
+  expect(clone.ipAddresses[1]).toBe(oldClone[3])
+  expect(clone.ipAddresses[2]).toBe(oldClone[4])
+  expect(clone.ipAddresses[3]).not.toBeDefined()
+  expect(clone.ipAddresses[4]).not.toBeDefined()
+
+  object.ipAddresses = ['', '', '']
+  oldClone = clone.ipAddresses.slice()
+  object.ipAddresses.splice(2, 1)
+  expect(clone.ipAddresses.length).toBe(2)
+  expect(clone.ipAddresses[0]).toBe(oldClone[0])
+  expect(clone.ipAddresses[1]).toBe(oldClone[1])
+  expect(clone.ipAddresses[2]).not.toBeDefined()
+
+  object.ipAddresses = ['', '', '']
+  oldClone = clone.ipAddresses.slice()
+  object.ipAddresses.splice(1, 1)
+  expect(clone.ipAddresses.length).toBe(2)
+  expect(clone.ipAddresses[0]).toBe(oldClone[0])
+  expect(clone.ipAddresses[1]).toBe(oldClone[2])
+  expect(clone.ipAddresses[2]).not.toBeDefined()
+
+  object.ipAddresses = ['', '', '']
+  oldClone = clone.ipAddresses.slice()
+  object.ipAddresses.splice(0, 1)
+  expect(clone.ipAddresses.length).toBe(2)
+  expect(clone.ipAddresses[0]).toBe(oldClone[1])
+  expect(clone.ipAddresses[1]).toBe(oldClone[2])
+  expect(clone.ipAddresses[2]).not.toBeDefined()
 })
 
 test('array: splice (three args)', () => {
@@ -459,7 +579,121 @@ test('array: splice (three args)', () => {
   object = proxyStructure({ object, clone })
   let oldClone = []
 
-  throw Error('not yet be implemented.')
+  object.ipAddresses = ['', '', '', '', '']
+  oldClone = clone.ipAddresses.slice()
+  object.ipAddresses.splice(0, 0, '', '')
+  expect(clone.ipAddresses.length).toBe(7)
+  expect(clone.ipAddresses[0]).toBeDefined()
+  expect(clone.ipAddresses[1]).toBeDefined()
+  expect(clone.ipAddresses[2]).toBe(oldClone[0])
+  expect(clone.ipAddresses[3]).toBe(oldClone[1])
+  expect(clone.ipAddresses[4]).toBe(oldClone[2])
+  expect(clone.ipAddresses[5]).toBe(oldClone[3])
+  expect(clone.ipAddresses[6]).toBe(oldClone[4])
+
+  object.ipAddresses = ['', '', '', '', '']
+  oldClone = clone.ipAddresses.slice()
+  object.ipAddresses.splice(2, 0, '', '')
+  expect(clone.ipAddresses.length).toBe(7)
+  expect(clone.ipAddresses[0]).toBe(oldClone[0])
+  expect(clone.ipAddresses[1]).toBe(oldClone[1])
+  expect(clone.ipAddresses[2]).toBeDefined()
+  expect(clone.ipAddresses[3]).toBeDefined()
+  expect(clone.ipAddresses[4]).toBe(oldClone[2])
+  expect(clone.ipAddresses[5]).toBe(oldClone[3])
+  expect(clone.ipAddresses[6]).toBe(oldClone[4])
+
+  object.ipAddresses = ['', '', '', '', '']
+  oldClone = clone.ipAddresses.slice()
+  object.ipAddresses.splice(4, 0, '', '')
+  expect(clone.ipAddresses.length).toBe(7)
+  expect(clone.ipAddresses[0]).toBe(oldClone[0])
+  expect(clone.ipAddresses[1]).toBe(oldClone[1])
+  expect(clone.ipAddresses[2]).toBe(oldClone[2])
+  expect(clone.ipAddresses[3]).toBe(oldClone[3])
+  expect(clone.ipAddresses[4]).not.toBe(oldClone[4])
+  expect(clone.ipAddresses[4]).toBeDefined()
+  expect(clone.ipAddresses[5]).toBeDefined()
+  expect(clone.ipAddresses[6]).toBe(oldClone[4])
+
+  object.ipAddresses = ['', '', '', '', '']
+  oldClone = clone.ipAddresses.slice()
+  object.ipAddresses.splice(0, 2, '', '')
+  expect(clone.ipAddresses.length).toBe(5)
+  expect(clone.ipAddresses[0]).not.toBe(oldClone[0])
+  expect(clone.ipAddresses[0]).toBeDefined()
+  expect(clone.ipAddresses[1]).not.toBe(oldClone[1])
+  expect(clone.ipAddresses[1]).toBeDefined()
+  expect(clone.ipAddresses[2]).toBe(oldClone[2])
+  expect(clone.ipAddresses[3]).toBe(oldClone[3])
+  expect(clone.ipAddresses[4]).toBe(oldClone[4])
+
+  object.ipAddresses = ['', '', '', '', '']
+  oldClone = clone.ipAddresses.slice()
+  object.ipAddresses.splice(2, 2, '', '')
+  expect(clone.ipAddresses.length).toBe(5)
+  expect(clone.ipAddresses[0]).toBe(oldClone[0])
+  expect(clone.ipAddresses[1]).toBe(oldClone[1])
+  expect(clone.ipAddresses[2]).not.toBe(oldClone[2])
+  expect(clone.ipAddresses[2]).toBeDefined()
+  expect(clone.ipAddresses[3]).not.toBe(oldClone[3])
+  expect(clone.ipAddresses[3]).toBeDefined()
+  expect(clone.ipAddresses[4]).toBe(oldClone[4])
+
+  object.ipAddresses = ['', '', '', '', '']
+  oldClone = clone.ipAddresses.slice()
+  object.ipAddresses.splice(4, 2, '', '')
+  expect(clone.ipAddresses.length).toBe(6)
+  expect(clone.ipAddresses[0]).toBe(oldClone[0])
+  expect(clone.ipAddresses[1]).toBe(oldClone[1])
+  expect(clone.ipAddresses[2]).toBe(oldClone[2])
+  expect(clone.ipAddresses[3]).toBe(oldClone[3])
+  expect(clone.ipAddresses[4]).toBe(oldClone[4])
+  expect(clone.ipAddresses[5]).toBeDefined()
+
+  object.ipAddresses = ['', '', '']
+  oldClone = clone.ipAddresses.slice()
+  object.ipAddresses.splice(0, 0, '', '')
+  expect(clone.ipAddresses.length).toBe(5)
+  expect(clone.ipAddresses[0]).not.toBe(oldClone[0])
+  expect(clone.ipAddresses[0]).toBeDefined()
+  expect(clone.ipAddresses[1]).not.toBe(oldClone[1])
+  expect(clone.ipAddresses[1]).toBeDefined()
+  expect(clone.ipAddresses[2]).toBe(oldClone[0])
+  expect(clone.ipAddresses[3]).toBe(oldClone[1])
+  expect(clone.ipAddresses[4]).toBe(oldClone[2])
+
+  object.ipAddresses = ['', '', '']
+  oldClone = clone.ipAddresses.slice()
+  object.ipAddresses.splice(2, 0, '')
+  expect(clone.ipAddresses.length).toBe(4)
+  expect(clone.ipAddresses[0]).toBe(oldClone[0])
+  expect(clone.ipAddresses[1]).toBe(oldClone[1])
+  expect(clone.ipAddresses[2]).not.toBe(oldClone[2])
+  expect(clone.ipAddresses[2]).toBeDefined()
+  expect(clone.ipAddresses[3]).toBe(oldClone[2])
+
+  object.ipAddresses = ['', '', '']
+  oldClone = clone.ipAddresses.slice()
+  object.ipAddresses.splice(0, 0, '', '')
+  expect(clone.ipAddresses.length).toBe(5)
+  expect(clone.ipAddresses[0]).toBeDefined()
+  expect(clone.ipAddresses[0]).not.toBe(oldClone[0])
+  expect(clone.ipAddresses[1]).toBeDefined()
+  expect(clone.ipAddresses[1]).not.toBe(oldClone[1])
+  expect(clone.ipAddresses[2]).toBe(oldClone[0])
+  expect(clone.ipAddresses[3]).toBe(oldClone[1])
+  expect(clone.ipAddresses[4]).toBe(oldClone[2])
+
+  object.ipAddresses = ['', '', '']
+  oldClone = clone.ipAddresses.slice()
+  object.ipAddresses.splice(0, 2, '', '')
+  expect(clone.ipAddresses.length).toBe(3)
+  expect(clone.ipAddresses[0]).not.toBe(oldClone[0])
+  expect(clone.ipAddresses[1]).not.toBe(oldClone[1])
+  expect(clone.ipAddresses[0]).toBeDefined()
+  expect(clone.ipAddresses[1]).toBeDefined()
+  expect(clone.ipAddresses[2]).toBe(oldClone[2])
 })
 
 test('array: reverse', () => {
