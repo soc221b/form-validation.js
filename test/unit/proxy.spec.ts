@@ -361,8 +361,8 @@ test('array: unshift', () => {
   object.ipAddresses.unshift('')
   expect(clone.ipAddresses.length).toBe(3)
   expect(clone.ipAddresses[0]).toBeDefined()
-  expect(clone.ipAddresses[1]).toBe(oldClone[1])
-  expect(clone.ipAddresses[2]).toBe(oldClone[0])
+  expect(clone.ipAddresses[1]).toBe(oldClone[0])
+  expect(clone.ipAddresses[2]).toBe(oldClone[1])
 })
 
 test('array: splice (one arg)', () => {
