@@ -104,7 +104,7 @@ var privateKey = '__form_validation__';
 var publicKey = '$v';
 var pathKey = 'path';
 var proxyKey = '__form_validation_reactive';
-var collectedKey = '__form_validation_collecting';
+var collectedKey = '__form_validation_collected';
 var validationWrap = function (object, clone, path) {
     var _a;
     if (isPlainObject(object) || isArray(object)) {
@@ -173,36 +173,52 @@ var proxyStructure = function (_a) {
             if (hasKey(target, key) === false)
                 return result;
             if (isArray(target)) {
-                if (key === 'length') {
-                    if (operation === 'shift') {
-                        gettingValues.shift();
+                if (operation === 'shift') {
+                    if (key === 'length') {
                         gettingValues.reverse();
+                        gettingValues.pop();
                         clone.length = 0;
-                        for (var _i = 0, settingKeys_1 = settingKeys; _i < settingKeys_1.length; _i++) {
-                            var key_1 = settingKeys_1[_i];
-                            var value_1 = gettingValues.pop();
-                            value_1[privateKey][pathKey] = value_1[privateKey][pathKey].slice(0, -1).concat(key_1);
-                            clone[key_1] = value_1;
+                        var key_1 = 0;
+                        while (key_1 < gettingValues.length) {
+                            var value_1 = gettingValues[key_1];
+                            value_1[privateKey][pathKey] = value_1[privateKey][pathKey].slice(0, -1).concat(gettingValues.length - key_1 - 1 + '');
+                            clone.push(value_1);
+                            ++key_1;
+                        }
+                        clone.reverse();
+                        operation = null;
+                        for (var key_2 in clone) {
+                            callback(clone[key_2]);
+                        }
+                        return result;
+                    }
+                    else if (/^\d+$/.test(key)) {
+                        clone[key] = isArray(value) ? [] : {};
+                    }
+                }
+                else if (operation === 'unshift') {
+                    if (key === 'length') {
+                        clone.length = 0;
+                        var key_3 = 0;
+                        while (key_3 < gettingValues.length) {
+                            var value_2 = gettingValues[key_3];
+                            value_2[privateKey][pathKey] = value_2[privateKey][pathKey].slice(0, -1).concat(gettingValues.length - key_3 - 1 + '');
+                            clone.push(value_2);
+                            ++key_3;
+                        }
+                        clone.reverse();
+                        operation = null;
+                        for (var key_4 in clone) {
+                            callback(clone[key_4]);
+                        }
+                        return result;
+                    }
+                    else if (/^\d+$/.test(key)) {
+                        clone[key] = isArray(value) ? [] : {};
+                        if (key === '0') {
+                            gettingValues.push(clone[0]);
                         }
                     }
-                    else if (operation === 'unshift') {
-                        gettingValues.shift();
-                        gettingValues.push(clone[0]);
-                        gettingValues.reverse();
-                        clone.length = 0;
-                        for (var _a = 0, settingKeys_2 = settingKeys; _a < settingKeys_2.length; _a++) {
-                            var key_2 = settingKeys_2[_a];
-                            var value_2 = gettingValues.pop();
-                            value_2[privateKey][pathKey] = value_2[privateKey][pathKey].slice(0, -1).concat(key_2);
-                            clone[key_2] = value_2;
-                        }
-                    }
-                    clone[key] = value;
-                    operation = null;
-                    for (var key_3 in clone) {
-                        callback(clone[key_3]);
-                    }
-                    return result;
                 }
                 else if (operation === 'reverse') {
                     if (/^\d+$/.test(key)) {
@@ -211,19 +227,18 @@ var proxyStructure = function (_a) {
                         clone[key] = value_3;
                         ++operationCount;
                         if (operationCount === totalOperationCount) {
-                            for (var key_4 in clone) {
-                                callback(clone[key_4]);
+                            for (var key_5 in clone) {
+                                callback(clone[key_5]);
                             }
                             operation = null;
                         }
                         return result;
                     }
                 }
-                else if (operations.has(operation) && /^\d+$/.test(key)) {
-                    settingKeys.push(key);
-                    ++operationCount;
-                    clone[key] = isArray(value) ? [] : {};
-                }
+            }
+            if (key === 'length') {
+                clone.length = value;
+                return result;
             }
             clone[key] = clone[key] || (isArray(value) ? [] : {});
             return Reflect.set(target, key, proxyStructure({
@@ -242,38 +257,55 @@ var proxyStructure = function (_a) {
                     operationCount = 0;
                     gettingValues.length = 0;
                     settingKeys.length = 0;
-                    for (var key_5 in clone) {
-                        delete clone[key_5][collectedKey];
+                    for (var key_6 in clone) {
+                        delete clone[key_6][collectedKey];
                     }
                 }
-                else if (operation === 'reverse') {
-                    if (key === 'length') {
-                        if (clone[key] <= 1) {
-                            operation = null;
-                            totalOperationCount = 0;
-                        }
-                        else {
-                            totalOperationCount = result % 2 === 0 ? result : result - 1;
-                        }
-                    }
-                    else if (/^\d+$/.test(key)) {
-                        if (clone[key][collectedKey] === undefined) {
-                            gettingValues.push(clone[key]);
-                            Object.defineProperty(clone[key], collectedKey, {
-                                enumerable: false,
-                                configurable: true,
-                                value: clone[key]
-                            });
+                else if (operation !== null) {
+                    if (operation === 'shift') {
+                        if (/^\d+$/.test(key)) {
+                            if (clone[key] && clone[key][collectedKey] === undefined) {
+                                Object.defineProperty(clone[key], collectedKey, {
+                                    enumerable: false,
+                                    configurable: true,
+                                    value: clone[key],
+                                });
+                                gettingValues.push(clone[key]);
+                            }
                         }
                     }
-                }
-                else if (operations.has(operation)) {
-                    if (key === 'length') {
-                        operationCount = 0;
-                        totalOperationCount = result;
+                    else if (operation === 'unshift') {
+                        if (/^\d+$/.test(key)) {
+                            if (clone[key] && clone[key][collectedKey] === undefined) {
+                                Object.defineProperty(clone[key], collectedKey, {
+                                    enumerable: false,
+                                    configurable: true,
+                                    value: clone[key],
+                                });
+                                gettingValues.push(clone[key]);
+                            }
+                        }
                     }
-                    else if (/^\d+$/.test(key)) {
-                        gettingValues[operationCount] = clone[key];
+                    else if (operation === 'reverse') {
+                        if (key === 'length') {
+                            if (target[key] <= 1) {
+                                operation = null;
+                                totalOperationCount = 0;
+                            }
+                            else {
+                                totalOperationCount = result % 2 === 0 ? result : result - 1;
+                            }
+                        }
+                        else if (/^\d+$/.test(key)) {
+                            if (clone[key] && clone[key][collectedKey] === undefined) {
+                                Object.defineProperty(clone[key], collectedKey, {
+                                    enumerable: false,
+                                    configurable: true,
+                                    value: clone[key],
+                                });
+                                gettingValues.push(clone[key]);
+                            }
+                        }
                     }
                 }
             }
