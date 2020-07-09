@@ -4,6 +4,7 @@ export const privateKey = '__form_validation__'
 export const publicKey = '$v'
 export const pathKey = 'path'
 export const proxyKey = '__form_validation_reactive'
+export const collectedKey = '__form_validation_collecting'
 
 export interface IBaseValidator {
   [key: string]: any
@@ -48,7 +49,7 @@ const validationWrap: (object: any, clone: any, path: string[]) => void = (objec
   }
 }
 
-const operations: Set<string | null> = new Set(['shift', 'unshift'])
+const operations: Set<string | null> = new Set(['shift', 'unshift', 'reverse'])
 
 export const proxyStructure = ({
   object,
@@ -134,6 +135,20 @@ export const proxyStructure = ({
             callback(clone[key] as IBaseValidator)
           }
           return result
+        } else if (operation === 'reverse') {
+          if (/^\d+$/.test(key)) {
+            const value = gettingValues.pop()
+            value[privateKey][pathKey] = value[privateKey][pathKey].slice(0, -1).concat(key)
+            clone[key] = value
+            ++operationCount
+            if (operationCount === totalOperationCount) {
+              for (const key in clone) {
+                callback(clone[key] as IBaseValidator)
+              }
+              operation = null
+            }
+            return result
+          }
         } else if (operations.has(operation) && /^\d+$/.test(key)) {
           settingKeys.push(key)
           ++operationCount
@@ -164,6 +179,28 @@ export const proxyStructure = ({
           operationCount = 0
           gettingValues.length = 0
           settingKeys.length = 0
+
+          for (const key in clone) {
+            delete clone[key][collectedKey]
+          }
+        } else if (operation === 'reverse') {
+          if (key === 'length') {
+            if (clone[key] <= 1) {
+              operation = null
+              totalOperationCount = 0
+            } else {
+              totalOperationCount = result % 2 === 0 ? result : result - 1
+            }
+          } else if (/^\d+$/.test(key)) {
+            if (clone[key][collectedKey] === undefined) {
+              gettingValues.push(clone[key])
+              Object.defineProperty(clone[key], collectedKey, {
+                enumerable: false,
+                configurable: true,
+                value: clone[key],
+              })
+            }
+          }
         } else if (operations.has(operation)) {
           if (key === 'length') {
             operationCount = 0
