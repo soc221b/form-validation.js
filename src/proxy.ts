@@ -49,6 +49,16 @@ const validationWrap: (object: any, clone: any, path: string[]) => void = (objec
   }
 }
 
+const updateNestedPath = (clone: any, path: string[]): void => {
+  if (isPlainObject(clone) === false && isArray(clone) === false) return
+
+  clone[privateKey][pathKey].splice(0, path.length, ...path)
+
+  for (const key in clone) {
+    updateNestedPath(clone[key], path.concat(key))
+  }
+}
+
 const operations: Set<string | null> = new Set(['shift', 'unshift', 'reverse', 'splice'])
 
 export const proxyStructure = ({
@@ -125,6 +135,7 @@ export const proxyStructure = ({
 
             operation = null
 
+            updateNestedPath(clone, clone[privateKey][pathKey])
             for (const key in clone) {
               callback(clone[key] as IBaseValidator)
             }
@@ -148,6 +159,7 @@ export const proxyStructure = ({
 
             operation = null
 
+            updateNestedPath(clone, clone[privateKey][pathKey])
             for (const key in clone) {
               callback(clone[key] as IBaseValidator)
             }
@@ -165,6 +177,7 @@ export const proxyStructure = ({
             clone[key] = value
             ++operationCount
             if (operationCount === totalOperationCount) {
+              updateNestedPath(clone, clone[privateKey][pathKey])
               for (const key in clone) {
                 callback(clone[key] as IBaseValidator)
               }
@@ -189,6 +202,7 @@ export const proxyStructure = ({
               }
             }
 
+            updateNestedPath(clone, clone[privateKey][pathKey])
             for (const key in clone) {
               clone[key][privateKey][pathKey] = clone[key][privateKey][pathKey].slice(0, -1).concat(key + '')
               callback(clone[key] as IBaseValidator)
