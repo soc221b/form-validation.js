@@ -4,7 +4,7 @@ export const privateKey = '__form_validation__'
 export const publicKey = '$v'
 export const pathKey = 'path'
 export const proxyKey = '__form_validation_reactive'
-export const collectedKey = '__form_validation_collecting'
+export const collectedKey = '__form_validation_collected'
 
 export interface IBaseValidator {
   [key: string]: any
@@ -106,35 +106,53 @@ export const proxyStructure = ({
       if (hasKey(target, key) === false) return result
 
       if (isArray(target)) {
-        if (key === 'length') {
-          if (operation === 'shift') {
-            gettingValues.shift()
+        if (operation === 'shift') {
+          if (key === 'length') {
             gettingValues.reverse()
+            gettingValues.pop()
             clone.length = 0
-            for (const key of settingKeys) {
-              const value = gettingValues.pop()
-              value[privateKey][pathKey] = value[privateKey][pathKey].slice(0, -1).concat(key)
-              clone[key] = value
+            let key = 0
+            while (key < gettingValues.length) {
+              const value = gettingValues[key]
+              value[privateKey][pathKey] = value[privateKey][pathKey].slice(0, -1).concat(gettingValues.length - key - 1 + '')
+              clone.push(value)
+              ++key
             }
-          } else if (operation === 'unshift') {
-            gettingValues.shift()
-            gettingValues.push(clone[0])
-            gettingValues.reverse()
+            clone.reverse()
+
+            operation = null
+
+            for (const key in clone) {
+              callback(clone[key] as IBaseValidator)
+            }
+            return result
+          } else if (/^\d+$/.test(key)) {
+            clone[key] = isArray(value) ? [] : {}
+          }
+        } else if (operation === 'unshift') {
+          if (key === 'length') {
             clone.length = 0
-            for (const key of settingKeys) {
-              const value = gettingValues.pop()
-              value[privateKey][pathKey] = value[privateKey][pathKey].slice(0, -1).concat(key)
-              clone[key] = value
+            let key = 0
+            while (key < gettingValues.length) {
+              const value = gettingValues[key]
+              value[privateKey][pathKey] = value[privateKey][pathKey].slice(0, -1).concat(gettingValues.length - key - 1 + '')
+              clone.push(value)
+              ++key
+            }
+            clone.reverse()
+
+            operation = null
+
+            for (const key in clone) {
+              callback(clone[key] as IBaseValidator)
+            }
+            return result
+          } else if (/^\d+$/.test(key)) {
+            clone[key] = isArray(value) ? [] : {}
+            if (key === '0') {
+              gettingValues.push(clone[0])
             }
           }
-
-          clone[key] = value
-          operation = null
-
-          for (const key in clone) {
-            callback(clone[key] as IBaseValidator)
-          }
-          return result
         } else if (operation === 'reverse') {
           if (/^\d+$/.test(key)) {
             const value = gettingValues.pop()
@@ -149,12 +167,14 @@ export const proxyStructure = ({
             }
             return result
           }
-        } else if (operations.has(operation) && /^\d+$/.test(key)) {
-          settingKeys.push(key)
-          ++operationCount
-          clone[key] = isArray(value) ? [] : {}
         }
       }
+
+      if (key === 'length') {
+        clone.length = value
+        return result
+      }
+
       clone[key] = clone[key] || (isArray(value) ? [] : {})
 
       return Reflect.set(
@@ -183,30 +203,47 @@ export const proxyStructure = ({
           for (const key in clone) {
             delete clone[key][collectedKey]
           }
-        } else if (operation === 'reverse') {
-          if (key === 'length') {
-            if (clone[key] <= 1) {
-              operation = null
-              totalOperationCount = 0
-            } else {
-              totalOperationCount = result % 2 === 0 ? result : result - 1
+        } else if (operation !== null) {
+          if (operation === 'shift') {
+            if (/^\d+$/.test(key)) {
+              if (clone[key] && clone[key][collectedKey] === undefined) {
+                Object.defineProperty(clone[key], collectedKey, {
+                  enumerable: false,
+                  configurable: true,
+                  value: clone[key],
+                })
+                gettingValues.push(clone[key])
+              }
             }
-          } else if (/^\d+$/.test(key)) {
-            if (clone[key][collectedKey] === undefined) {
-              gettingValues.push(clone[key])
-              Object.defineProperty(clone[key], collectedKey, {
-                enumerable: false,
-                configurable: true,
-                value: clone[key],
-              })
+          } else if (operation === 'unshift') {
+            if (/^\d+$/.test(key)) {
+              if (clone[key] && clone[key][collectedKey] === undefined) {
+                Object.defineProperty(clone[key], collectedKey, {
+                  enumerable: false,
+                  configurable: true,
+                  value: clone[key],
+                })
+                gettingValues.push(clone[key])
+              }
             }
-          }
-        } else if (operations.has(operation)) {
-          if (key === 'length') {
-            operationCount = 0
-            totalOperationCount = result
-          } else if (/^\d+$/.test(key)) {
-            gettingValues[operationCount] = clone[key]
+          } else if (operation === 'reverse') {
+            if (key === 'length') {
+              if (target[key] <= 1) {
+                operation = null
+                totalOperationCount = 0
+              } else {
+                totalOperationCount = result % 2 === 0 ? result : result - 1
+              }
+            } else if (/^\d+$/.test(key)) {
+              if (clone[key] && clone[key][collectedKey] === undefined) {
+                Object.defineProperty(clone[key], collectedKey, {
+                  enumerable: false,
+                  configurable: true,
+                  value: clone[key],
+                })
+                gettingValues.push(clone[key])
+              }
+            }
           }
         }
       }
