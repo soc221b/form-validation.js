@@ -114,7 +114,9 @@ export const proxyStructure = ({
             let key = 0
             while (key < gettingValues.length) {
               const value = gettingValues[key]
-              value[privateKey][pathKey] = value[privateKey][pathKey].slice(0, -1).concat(gettingValues.length - key - 1 + '')
+              value[privateKey][pathKey] = value[privateKey][pathKey]
+                .slice(0, -1)
+                .concat(gettingValues.length - key - 1 + '')
               clone.push(value)
               ++key
             }
@@ -135,7 +137,9 @@ export const proxyStructure = ({
             let key = 0
             while (key < gettingValues.length) {
               const value = gettingValues[key]
-              value[privateKey][pathKey] = value[privateKey][pathKey].slice(0, -1).concat(gettingValues.length - key - 1 + '')
+              value[privateKey][pathKey] = value[privateKey][pathKey]
+                .slice(0, -1)
+                .concat(gettingValues.length - key - 1 + '')
               clone.push(value)
               ++key
             }
