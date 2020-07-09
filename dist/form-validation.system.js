@@ -135,7 +135,7 @@ System.register('FormValidation', [], function (exports) {
                     });
                 }
             };
-            var operations = new Set(['shift', 'unshift', 'reverse']);
+            var operations = new Set(['shift', 'unshift', 'reverse', 'splice']);
             var proxyStructure = function (_a) {
                 var object = _a.object, clone = _a.clone, _b = _a.path, path = _b === void 0 ? [] : _b, _c = _a.wrap, wrap = _c === void 0 ? validationWrap : _c, _d = _a.callback, callback = _d === void 0 ? function () { } : _d;
                 wrap(object, clone, path);
@@ -163,6 +163,7 @@ System.register('FormValidation', [], function (exports) {
                 var totalOperationCount = 0;
                 var operationCount = 0;
                 var gettingValues = [];
+                var accessOrder = [];
                 var settingKeys = [];
                 return new Proxy(object, {
                     deleteProperty: function (target, key) {
@@ -182,7 +183,9 @@ System.register('FormValidation', [], function (exports) {
                                     var key_1 = 0;
                                     while (key_1 < gettingValues.length) {
                                         var value_1 = gettingValues[key_1];
-                                        value_1[privateKey][pathKey] = value_1[privateKey][pathKey].slice(0, -1).concat(gettingValues.length - key_1 - 1 + '');
+                                        value_1[privateKey][pathKey] = value_1[privateKey][pathKey]
+                                            .slice(0, -1)
+                                            .concat(gettingValues.length - key_1 - 1 + '');
                                         clone.push(value_1);
                                         ++key_1;
                                     }
@@ -203,7 +206,9 @@ System.register('FormValidation', [], function (exports) {
                                     var key_3 = 0;
                                     while (key_3 < gettingValues.length) {
                                         var value_2 = gettingValues[key_3];
-                                        value_2[privateKey][pathKey] = value_2[privateKey][pathKey].slice(0, -1).concat(gettingValues.length - key_3 - 1 + '');
+                                        value_2[privateKey][pathKey] = value_2[privateKey][pathKey]
+                                            .slice(0, -1)
+                                            .concat(gettingValues.length - key_3 - 1 + '');
                                         clone.push(value_2);
                                         ++key_3;
                                     }
@@ -236,6 +241,33 @@ System.register('FormValidation', [], function (exports) {
                                     return result;
                                 }
                             }
+                            else if (operation === 'splice') {
+                                if (key === 'length') {
+                                    operation = null;
+                                    clone[key] = value;
+                                    for (var index in accessOrder) {
+                                        var _a = accessOrder[index], method = _a.method, key_6 = _a.key, value_4 = _a.value;
+                                        var prevIndex = parseInt(index, 10) - 1;
+                                        if (method === 'set') {
+                                            if (prevIndex >= 0 && accessOrder[prevIndex].method === 'get') {
+                                                clone[key_6] = accessOrder[prevIndex].value;
+                                            }
+                                            else {
+                                                clone[key_6] = value_4;
+                                            }
+                                        }
+                                    }
+                                    for (var key_7 in clone) {
+                                        clone[key_7][privateKey][pathKey] = clone[key_7][privateKey][pathKey].slice(0, -1).concat(key_7 + '');
+                                        callback(clone[key_7]);
+                                    }
+                                    return result;
+                                }
+                                else if (/^\d+$/.test(key)) {
+                                    clone[key] = isArray(value) ? [] : {};
+                                    accessOrder.push({ method: 'set', key: key, value: clone[key] });
+                                }
+                            }
                         }
                         if (key === 'length') {
                             clone.length = value;
@@ -257,9 +289,10 @@ System.register('FormValidation', [], function (exports) {
                                 operation = key;
                                 operationCount = 0;
                                 gettingValues.length = 0;
+                                accessOrder.length = 0;
                                 settingKeys.length = 0;
-                                for (var key_6 in clone) {
-                                    delete clone[key_6][collectedKey];
+                                for (var key_8 in clone) {
+                                    delete clone[key_8][collectedKey];
                                 }
                             }
                             else if (operation !== null) {
@@ -305,6 +338,18 @@ System.register('FormValidation', [], function (exports) {
                                                 value: clone[key],
                                             });
                                             gettingValues.push(clone[key]);
+                                        }
+                                    }
+                                }
+                                else if (operation === 'splice') {
+                                    if (/^\d+$/.test(key)) {
+                                        if (clone[key] && clone[key][collectedKey] === undefined) {
+                                            Object.defineProperty(clone[key], collectedKey, {
+                                                enumerable: false,
+                                                configurable: true,
+                                                value: clone[key],
+                                            });
+                                            accessOrder.push({ method: 'get', key: key, value: clone[key] });
                                         }
                                     }
                                 }
