@@ -49,7 +49,7 @@ const validationWrap: (object: any, clone: any, path: string[]) => void = (objec
   }
 }
 
-const operations: Set<string | null> = new Set(['shift', 'unshift', 'reverse'])
+const operations: Set<string | null> = new Set(['shift', 'unshift', 'reverse', 'splice'])
 
 export const proxyStructure = ({
   object,
@@ -93,6 +93,7 @@ export const proxyStructure = ({
   let totalOperationCount: number = 0
   let operationCount: number = 0
   const gettingValues: any = []
+  const accessOrder: any = []
   const settingKeys: any = []
 
   return new Proxy(object, {
@@ -171,6 +172,33 @@ export const proxyStructure = ({
             }
             return result
           }
+        } else if (operation === 'splice') {
+          if (key === 'length') {
+            operation = null
+            clone[key] = value
+
+            for (let index in accessOrder) {
+              const { method, key, value } = accessOrder[index]
+              const prevIndex = parseInt(index, 10) - 1
+              if (method === 'set') {
+                if (prevIndex >= 0 && accessOrder[prevIndex].method === 'get') {
+                  clone[key] = accessOrder[prevIndex].value
+                } else {
+                  clone[key] = value
+                }
+              }
+            }
+
+            for (const key in clone) {
+              clone[key][privateKey][pathKey] = clone[key][privateKey][pathKey].slice(0, -1).concat(key + '')
+              callback(clone[key] as IBaseValidator)
+            }
+
+            return result
+          } else if (/^\d+$/.test(key)) {
+            clone[key] = isArray(value) ? [] : {}
+            accessOrder.push({ method: 'set', key, value: clone[key] })
+          }
         }
       }
 
@@ -202,6 +230,7 @@ export const proxyStructure = ({
           operation = key
           operationCount = 0
           gettingValues.length = 0
+          accessOrder.length = 0
           settingKeys.length = 0
 
           for (const key in clone) {
@@ -246,6 +275,17 @@ export const proxyStructure = ({
                   value: clone[key],
                 })
                 gettingValues.push(clone[key])
+              }
+            }
+          } else if (operation === 'splice') {
+            if (/^\d+$/.test(key)) {
+              if (clone[key] && clone[key][collectedKey] === undefined) {
+                Object.defineProperty(clone[key], collectedKey, {
+                  enumerable: false,
+                  configurable: true,
+                  value: clone[key],
+                })
+                accessOrder.push({ method: 'get', key, value: clone[key] })
               }
             }
           }
