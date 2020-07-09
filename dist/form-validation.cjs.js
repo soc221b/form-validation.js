@@ -104,6 +104,7 @@ var privateKey = '__form_validation__';
 var publicKey = '$v';
 var pathKey = 'path';
 var proxyKey = '__form_validation_reactive';
+var collectedKey = '__form_validation_collecting';
 var validationWrap = function (object, clone, path) {
     var _a;
     if (isPlainObject(object) || isArray(object)) {
@@ -133,7 +134,7 @@ var validationWrap = function (object, clone, path) {
         });
     }
 };
-var operations = new Set(['shift', 'unshift']);
+var operations = new Set(['shift', 'unshift', 'reverse']);
 var proxyStructure = function (_a) {
     var object = _a.object, clone = _a.clone, _b = _a.path, path = _b === void 0 ? [] : _b, _c = _a.wrap, wrap = _c === void 0 ? validationWrap : _c, _d = _a.callback, callback = _d === void 0 ? function () { } : _d;
     wrap(object, clone, path);
@@ -158,6 +159,7 @@ var proxyStructure = function (_a) {
         }
     }
     var operation = null;
+    var totalOperationCount = 0;
     var operationCount = 0;
     var gettingValues = [];
     var settingKeys = [];
@@ -202,6 +204,21 @@ var proxyStructure = function (_a) {
                     }
                     return result;
                 }
+                else if (operation === 'reverse') {
+                    if (/^\d+$/.test(key)) {
+                        var value_3 = gettingValues.pop();
+                        value_3[privateKey][pathKey] = value_3[privateKey][pathKey].slice(0, -1).concat(key);
+                        clone[key] = value_3;
+                        ++operationCount;
+                        if (operationCount === totalOperationCount) {
+                            for (var key_4 in clone) {
+                                callback(clone[key_4]);
+                            }
+                            operation = null;
+                        }
+                        return result;
+                    }
+                }
                 else if (operations.has(operation) && /^\d+$/.test(key)) {
                     settingKeys.push(key);
                     ++operationCount;
@@ -225,10 +242,35 @@ var proxyStructure = function (_a) {
                     operationCount = 0;
                     gettingValues.length = 0;
                     settingKeys.length = 0;
+                    for (var key_5 in clone) {
+                        delete clone[key_5][collectedKey];
+                    }
+                }
+                else if (operation === 'reverse') {
+                    if (key === 'length') {
+                        if (clone[key] <= 1) {
+                            operation = null;
+                            totalOperationCount = 0;
+                        }
+                        else {
+                            totalOperationCount = result % 2 === 0 ? result : result - 1;
+                        }
+                    }
+                    else if (/^\d+$/.test(key)) {
+                        if (clone[key][collectedKey] === undefined) {
+                            gettingValues.push(clone[key]);
+                            Object.defineProperty(clone[key], collectedKey, {
+                                enumerable: false,
+                                configurable: true,
+                                value: clone[key]
+                            });
+                        }
+                    }
                 }
                 else if (operations.has(operation)) {
                     if (key === 'length') {
                         operationCount = 0;
+                        totalOperationCount = result;
                     }
                     else if (/^\d+$/.test(key)) {
                         gettingValues[operationCount] = clone[key];

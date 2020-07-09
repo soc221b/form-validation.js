@@ -2,6 +2,7 @@ export declare const privateKey = "__form_validation__";
 export declare const publicKey = "$v";
 export declare const pathKey = "path";
 export declare const proxyKey = "__form_validation_reactive";
+export declare const collectedKey = "__form_validation_collecting";
 export interface IBaseValidator {
     [key: string]: any;
     [privateKey]: {
