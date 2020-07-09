@@ -62,6 +62,14 @@ function __generator(thisArg, body) {
     }
 }
 
+function __spreadArrays() {
+    for (var s = 0, i = 0, il = arguments.length; i < il; i++) s += arguments[i].length;
+    for (var r = Array(s), k = 0, i = 0; i < il; i++)
+        for (var a = arguments[i], j = 0, jl = a.length; j < jl; j++, k++)
+            r[k] = a[j];
+    return r;
+}
+
 function toString(object) {
     return Object.prototype.toString.call(object);
 }
@@ -130,6 +138,15 @@ var validationWrap = function (object, clone, path) {
         });
     }
 };
+var updateNestedPath = function (clone, path) {
+    var _a;
+    if (isPlainObject(clone) === false && isArray(clone) === false)
+        return;
+    (_a = clone[privateKey][pathKey]).splice.apply(_a, __spreadArrays([0, path.length], path));
+    for (var key in clone) {
+        updateNestedPath(clone[key], path.concat(key));
+    }
+};
 var operations = new Set(['shift', 'unshift', 'reverse', 'splice']);
 var proxyStructure = function (_a) {
     var object = _a.object, clone = _a.clone, _b = _a.path, path = _b === void 0 ? [] : _b, _c = _a.wrap, wrap = _c === void 0 ? validationWrap : _c, _d = _a.callback, callback = _d === void 0 ? function () { } : _d;
@@ -186,6 +203,7 @@ var proxyStructure = function (_a) {
                         }
                         clone.reverse();
                         operation = null;
+                        updateNestedPath(clone, clone[privateKey][pathKey]);
                         for (var key_2 in clone) {
                             callback(clone[key_2]);
                         }
@@ -209,6 +227,7 @@ var proxyStructure = function (_a) {
                         }
                         clone.reverse();
                         operation = null;
+                        updateNestedPath(clone, clone[privateKey][pathKey]);
                         for (var key_4 in clone) {
                             callback(clone[key_4]);
                         }
@@ -228,6 +247,7 @@ var proxyStructure = function (_a) {
                         clone[key] = value_3;
                         ++operationCount;
                         if (operationCount === totalOperationCount) {
+                            updateNestedPath(clone, clone[privateKey][pathKey]);
                             for (var key_5 in clone) {
                                 callback(clone[key_5]);
                             }
@@ -252,6 +272,7 @@ var proxyStructure = function (_a) {
                                 }
                             }
                         }
+                        updateNestedPath(clone, clone[privateKey][pathKey]);
                         for (var key_7 in clone) {
                             clone[key_7][privateKey][pathKey] = clone[key_7][privateKey][pathKey].slice(0, -1).concat(key_7 + '');
                             callback(clone[key_7]);
