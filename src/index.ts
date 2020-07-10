@@ -47,7 +47,7 @@ const wrapMethods = (rootForm: any, validator: any) => {
     validator[privateKey].setInvalid(false)
     validator[privateKey].resetPending()
     validator[publicKey].errors = {}
-    previousResult = {}
+    validator[privateKey].previousResult = {}
 
     const result = validate({ rootForm, validator })
     for (const ruleKey of Object.keys(schema.$rules)) {
@@ -56,8 +56,7 @@ const wrapMethods = (rootForm: any, validator: any) => {
 
         result[rulesResultKey][ruleKey].finally(async () => {
           // ignore previous promise
-          if (previousResult !== result[rulesResultKey]) return
-
+          if (validator[privateKey].previousResult !== result[rulesResultKey]) return
           const ruleResult = await result[rulesResultKey][ruleKey]
           if (ruleResult !== undefined) {
             validator[privateKey].setInvalid(true)
@@ -72,7 +71,7 @@ const wrapMethods = (rootForm: any, validator: any) => {
         }
       }
     }
-    previousResult = result[rulesResultKey]
+    validator[privateKey].previousResult = result[rulesResultKey]
 
     let nestedResult: any = {}
     for (const key of Object.keys(validator).filter(key => key !== publicKey && key !== privateKey)) {
