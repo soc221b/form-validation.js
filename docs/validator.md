@@ -11,7 +11,6 @@ Getters
 - `validator.$v.dirty: boolean`
 - `validator.$v.anyDirty: boolean`
 - `validator.$v.errors: { [key: string]: any }`
-- `validator.$v.params: { $rules: { [key: string]: any }, [key: string]: any }`
 
 Methods:
 
@@ -62,12 +61,6 @@ validator.account.$v === {
   errors: {
       alreadyBeenUsed: undefined
   },
-  params: {
-    languageCode: 'en',
-    $rules: {
-      alreadyBeenUsed: undefined
-    }
-  }
 }
 */
 
@@ -83,12 +76,6 @@ validator.account.$v === {
   errors: {
       alreadyBeenUsed: undefined
   },
-  params: {
-    languageCode: 'en',
-    $rules: {
-      alreadyBeenUsed: undefined
-    }
-  }
 }
 */
 
@@ -104,12 +91,6 @@ validator.account.$v === {
   errors: {
     * alreadyBeenUsed: 'This account has already been used.'
   },
-  params: {
-    languageCode: 'en',
-    $rules: {
-    * alreadyBeenUsed: false
-    }
-  }
 }
 */
 
@@ -125,12 +106,6 @@ validator.account.$v === {
   errors: {
     alreadyBeenUsed: 'This account has already been used.'
   },
-  params: {
-    languageCode: 'en',
-    $rules: {
-      alreadyBeenUsed: false
-    }
-  }
 }
 */
 
@@ -146,12 +121,6 @@ validator.account.$v === {
   errors: {
     * alreadyBeenUsed: undefined
   },
-  params: {
-    languageCode: 'en',
-    $rules: {
-    * alreadyBeenUsed: undefined
-    }
-  }
 }
 */
 ```
