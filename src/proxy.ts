@@ -221,7 +221,12 @@ export const proxyStructure = ({
         return result
       }
 
-      clone[key] = clone[key] || (isArray(value) ? [] : {})
+      if (isArray(value)) {
+        clone[key] = clone[key] || []
+        clone[key].length = value.length
+      } else {
+        clone[key] = clone[key] || {}
+      }
 
       return Reflect.set(
         target,
