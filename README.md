@@ -16,9 +16,11 @@ Intuitive APIs. 🎯
 
 Asynchronous Rules Support.
 
-Nested object/array Support.
+Nested Object/Aray Support.
 
-Zero dependencies.
+Array Manipulations (push, pop, shift, unshift, splice, reverse) Support.
+
+Zero Dependencies, Native Javascript only.
 
 # Overview
 
