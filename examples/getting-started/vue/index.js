@@ -1,6 +1,16 @@
+const observeValidator = validator => {
+  if (typeof validator !== "object") return;
+  Vue.observable(validator.$v);
+  for (const key in validator) {
+    observeValidator(validator[key]);
+  }
+};
+
+
 new Vue({
   data() {
     const proxiedForm = FormValidation.proxy({ form, schema, validator })
+    observeValidator(validator)
     return {
       state: proxiedForm,
       validator,
