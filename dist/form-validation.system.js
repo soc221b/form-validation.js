@@ -289,12 +289,18 @@ System.register('FormValidation', [], function (exports) {
                                     accessOrder.push({ method: 'set', key: key, value: clone[key] });
                                 }
                             }
+                            else if (key === 'length') {
+                                clone.length = value;
+                                return result;
+                            }
                         }
-                        if (key === 'length') {
-                            clone.length = value;
-                            return result;
+                        if (isArray(value)) {
+                            clone[key] = clone[key] || [];
+                            clone[key].length = value.length;
                         }
-                        clone[key] = clone[key] || (isArray(value) ? [] : {});
+                        else {
+                            clone[key] = clone[key] || {};
+                        }
                         return Reflect.set(target, key, proxyStructure({
                             object: value,
                             clone: clone[key],
@@ -617,7 +623,7 @@ System.register('FormValidation', [], function (exports) {
                     validator[privateKey].setInvalid(false);
                     validator[privateKey].resetPending();
                     validator[publicKey].errors = {};
-                    previousResult = {};
+                    validator[privateKey].previousResult = {};
                     var result = validate({ rootForm: rootForm, validator: validator });
                     var _loop_1 = function (ruleKey) {
                         if (isPromise(result[rulesResultKey][ruleKey])) {
@@ -628,7 +634,7 @@ System.register('FormValidation', [], function (exports) {
                                     switch (_c.label) {
                                         case 0:
                                             // ignore previous promise
-                                            if (previousResult !== result[rulesResultKey])
+                                            if (validator[privateKey].previousResult !== result[rulesResultKey])
                                                 return [2 /*return*/];
                                             return [4 /*yield*/, result[rulesResultKey][ruleKey]];
                                         case 1:
@@ -659,7 +665,7 @@ System.register('FormValidation', [], function (exports) {
                         var ruleKey = _a[_i];
                         _loop_1(ruleKey);
                     }
-                    previousResult = result[rulesResultKey];
+                    validator[privateKey].previousResult = result[rulesResultKey];
                     var nestedResult = {};
                     for (var _b = 0, _c = Object.keys(validator).filter(function (key) { return key !== publicKey && key !== privateKey; }); _b < _c.length; _b++) {
                         var key = _c[_b];
