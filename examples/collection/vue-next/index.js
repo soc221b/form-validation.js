@@ -45,7 +45,6 @@ createApp({
     const unshift = () => state.accountList.unshift('')
     const splice = () => console.log('use this value to splice', state.accountList)
     const reverse = () => state.accountList.reverse()
-    const sort = () => state.accountList.sort()
 
     const blur = key => {
       reactiveValidator.accountList[key].$v.touch()
@@ -86,7 +85,6 @@ createApp({
       unshift,
       splice,
       reverse,
-      sort,
       reset,
       blur,
       refs,
