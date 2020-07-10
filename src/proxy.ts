@@ -213,12 +213,10 @@ export const proxyStructure = ({
             clone[key] = isArray(value) ? [] : {}
             accessOrder.push({ method: 'set', key, value: clone[key] })
           }
+        } else if (key === 'length') {
+          clone.length = value
+          return result
         }
-      }
-
-      if (key === 'length') {
-        clone.length = value
-        return result
       }
 
       if (isArray(value)) {
