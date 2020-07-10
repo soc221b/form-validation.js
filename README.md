@@ -56,7 +56,7 @@ const schema = {
         return params.$rules.weak
       },
 
-      alreadyBeenUsed() {
+      alreadyBeenUsed({ value, key, parent, path, root, params }) {
         const languageCode = params.languageCode || 'en-US'
         return translate(`This account has already been used.`, { languageCode })
       },
