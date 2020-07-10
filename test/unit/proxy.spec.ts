@@ -843,87 +843,25 @@ test('proxyStructure (nested)', () => {
 
   form.nested = {}
   expect(validator).toStrictEqual({
-    [publicKey]: {},
-    [privateKey]: {
-      [pathKey]: [],
-    },
-    nested: {
-      [publicKey]: {},
-      [privateKey]: {
-        [pathKey]: ['nested'],
-      },
-    },
+    nested: {},
   })
 
   form.nested.ipAddresses = undefined
   expect(validator).toStrictEqual({
-    [publicKey]: {},
-    [privateKey]: {
-      [pathKey]: [],
-    },
     nested: {
-      [publicKey]: {},
-      [privateKey]: {
-        [pathKey]: ['nested'],
-      },
-      ipAddresses: {
-        [publicKey]: {},
-        [privateKey]: {
-          [pathKey]: ['nested', 'ipAddresses'],
-        },
-      },
+      ipAddresses: {},
     },
   })
 
   delete form.nested.ipAddresses
   expect(validator).toStrictEqual({
-    [publicKey]: {},
-    [privateKey]: {
-      [pathKey]: [],
-    },
-    nested: {
-      [publicKey]: {},
-      [privateKey]: {
-        [pathKey]: ['nested'],
-      },
-    },
+    nested: {},
   })
 
   form.nested.ipAddresses = ['1.1.1.1', '2.2.2.2', '3.3.3.3']
   expect(validator).toStrictEqual({
-    [publicKey]: {},
-    [privateKey]: {
-      [pathKey]: [],
-    },
     nested: {
-      [publicKey]: {},
-      [privateKey]: {
-        [pathKey]: ['nested'],
-      },
-      ipAddresses: {
-        [publicKey]: {},
-        [privateKey]: {
-          [pathKey]: ['nested', 'ipAddresses'],
-        },
-        0: {
-          [publicKey]: {},
-          [privateKey]: {
-            [pathKey]: ['nested', 'ipAddresses', '0'],
-          },
-        },
-        1: {
-          [publicKey]: {},
-          [privateKey]: {
-            [pathKey]: ['nested', 'ipAddresses', '1'],
-          },
-        },
-        2: {
-          [publicKey]: {},
-          [privateKey]: {
-            [pathKey]: ['nested', 'ipAddresses', '2'],
-          },
-        },
-      },
+      ipAddresses: [{}, {}, {}],
     },
   })
 
@@ -933,32 +871,10 @@ test('proxyStructure (nested)', () => {
     key2: 2,
   }
   expect(validator).toStrictEqual({
-    [publicKey]: {},
-    [privateKey]: {
-      [pathKey]: [],
-    },
     nested: {
-      [publicKey]: {},
-      [privateKey]: {
-        [pathKey]: ['nested'],
-      },
       mapping: {
-        [publicKey]: {},
-        [privateKey]: {
-          [pathKey]: ['nested', 'mapping'],
-        },
-        key1: {
-          [publicKey]: {},
-          [privateKey]: {
-            [pathKey]: ['nested', 'mapping', 'key1'],
-          },
-        },
-        key2: {
-          [publicKey]: {},
-          [privateKey]: {
-            [pathKey]: ['nested', 'mapping', 'key2'],
-          },
-        },
+        key1: {},
+        key2: {},
       },
     },
   })
@@ -974,12 +890,7 @@ test('callback', () => {
   form = proxyStructure({ object: form, clone: validator, callback })
 
   expect(fn.mock.calls.length).toBe(1)
-  expect(fn.mock.calls[0][0]).toStrictEqual({
-    [publicKey]: {},
-    [privateKey]: {
-      [pathKey]: [],
-    },
-  })
+  expect(fn.mock.calls[0][0]).toStrictEqual({})
 })
 
 test('callback (nested)', () => {
@@ -994,22 +905,6 @@ test('callback (nested)', () => {
   form = proxyStructure({ object: form, clone: validator, callback })
 
   expect(fn.mock.calls.length).toBe(2)
-  expect(fn.mock.calls[0][0]).toStrictEqual({
-    [publicKey]: {},
-    [privateKey]: {
-      [pathKey]: [],
-    },
-    nested: {
-      [publicKey]: {},
-      [privateKey]: {
-        [pathKey]: ['nested'],
-      },
-    },
-  })
-  expect(fn.mock.calls[1][0]).toStrictEqual({
-    [publicKey]: {},
-    [privateKey]: {
-      [pathKey]: ['nested'],
-    },
-  })
+  expect(fn.mock.calls[0][0]).toStrictEqual({ nested: {} })
+  expect(fn.mock.calls[1][0]).toStrictEqual({})
 })
