@@ -40,8 +40,6 @@ export const proxy = ({ form, schema, validator }: any) => {
 const wrapMethods = (rootForm: any, validator: any) => {
   const schema = validator[privateKey][schemaKey]
 
-  let previousResult: any = {}
-
   const $validate = () => {
     validator[privateKey].setValidated(true)
     validator[privateKey].setInvalid(false)
@@ -50,6 +48,8 @@ const wrapMethods = (rootForm: any, validator: any) => {
     validator[privateKey].previousResult = {}
 
     const result = validate({ rootForm, validator })
+    validator[privateKey].previousResult = result[rulesResultKey]
+    result[rulesResultKey] = validator[privateKey].previousResult
     for (const ruleKey of Object.keys(schema.$rules)) {
       if (isPromise(result[rulesResultKey][ruleKey])) {
         validator[privateKey].setPending(true)
@@ -57,6 +57,7 @@ const wrapMethods = (rootForm: any, validator: any) => {
         result[rulesResultKey][ruleKey].finally(async () => {
           // ignore previous promise
           if (validator[privateKey].previousResult !== result[rulesResultKey]) return
+
           const ruleResult = await result[rulesResultKey][ruleKey]
           if (ruleResult !== undefined) {
             validator[privateKey].setInvalid(true)
@@ -71,14 +72,13 @@ const wrapMethods = (rootForm: any, validator: any) => {
         }
       }
     }
-    validator[privateKey].previousResult = result[rulesResultKey]
 
     let nestedResult: any = {}
     for (const key of Object.keys(validator).filter(key => key !== publicKey && key !== privateKey)) {
       nestedResult[key] = validator[key][publicKey].validate()
     }
 
-    return Promise.all(Object.values(previousResult))
+    return Promise.all(Object.values(result[rulesResultKey]))
       .then(() => Promise.all(Object.values(nestedResult)))
       .then(() => undefined)
   }
@@ -87,8 +87,8 @@ const wrapMethods = (rootForm: any, validator: any) => {
     validator[privateKey].setInvalid(false)
     validator[privateKey].setDirty(false)
     validator[privateKey].resetPending()
+    validator[privateKey].previousResult = {}
     validator[publicKey].errors = {}
-    previousResult = {}
 
     for (const key of Object.keys(validator).filter(key => key !== publicKey && key !== privateKey)) {
       validator[key][publicKey].reset()
