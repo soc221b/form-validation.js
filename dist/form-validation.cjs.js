@@ -526,12 +526,42 @@ function wrapState(validator) {
     theValidator[privateKey].setDirty = setPrivateDirty(theValidator);
     theValidator[privateKey].setPending = setPrivatePending(theValidator);
     theValidator[privateKey].resetPending = resetPrivatePending(theValidator);
-    theValidator[publicKey].pending = false;
-    theValidator[publicKey].invalid = false;
-    theValidator[publicKey].dirty = false;
-    theValidator[publicKey].anyDirty = false;
-    theValidator[publicKey].error = false;
-    theValidator[publicKey].anyError = false;
+    Object.defineProperty(theValidator[publicKey], 'pending', {
+        enumerable: true,
+        get: function () {
+            return getPending(theValidator);
+        },
+    });
+    Object.defineProperty(theValidator[publicKey], 'invalid', {
+        enumerable: true,
+        get: function () {
+            return getInvalid(theValidator);
+        },
+    });
+    Object.defineProperty(theValidator[publicKey], 'dirty', {
+        enumerable: true,
+        get: function () {
+            return getDirty(theValidator);
+        },
+    });
+    Object.defineProperty(theValidator[publicKey], 'anyDirty', {
+        enumerable: true,
+        get: function () {
+            return getAnyDirty(theValidator);
+        },
+    });
+    Object.defineProperty(theValidator[publicKey], 'error', {
+        enumerable: true,
+        get: function () {
+            return getError(theValidator);
+        },
+    });
+    Object.defineProperty(theValidator[publicKey], 'anyError', {
+        enumerable: true,
+        get: function () {
+            return getAnyError(theValidator);
+        },
+    });
     theValidator[publicKey].errors = {};
 }
 var setPrivateValidated = function (validator) { return function (value) {
@@ -539,59 +569,38 @@ var setPrivateValidated = function (validator) { return function (value) {
 }; };
 var setPrivateInvalid = function (validator) { return function (value) {
     validator[privateKey].invalid = value;
-    updateInvalid(validator);
-    updateError(validator);
-    updateAnyError(validator);
 }; };
 var setPrivateDirty = function (validator) { return function (value) {
     validator[privateKey].dirty = value;
-    updateDirty(validator);
-    updateAnyDirty(validator);
-    updateError(validator);
-    updateAnyError(validator);
 }; };
 var setPrivatePending = function (validator) { return function (value) {
     validator[privateKey].pending += value === true ? 1 : -1;
-    updatePending(validator);
-    updateInvalid(validator);
-    updateError(validator);
-    updateAnyError(validator);
 }; };
 var resetPrivatePending = function (validator) { return function () {
     validator[privateKey].pending = 0;
-    updatePending(validator);
-    updateInvalid(validator);
-    updateError(validator);
-    updateAnyError(validator);
 }; };
-var updatePending = function (validator) {
-    validator[publicKey].pending =
-        validator[privateKey].pending !== 0 ||
-            getNested(validator).some(function (nestedValidator) { return nestedValidator[publicKey].pending; });
+var getPending = function (validator) {
+    return (validator[privateKey].pending !== 0 ||
+        getNested(validator).some(function (nestedValidator) { return nestedValidator[publicKey].pending; }));
 };
-var updateInvalid = function (validator) {
-    validator[publicKey].invalid =
-        (validator[privateKey].invalid && validator[privateKey].pending === 0) ||
-            getNested(validator).some(function (nestedValidator) { return nestedValidator[publicKey].invalid; });
+var getInvalid = function (validator) {
+    return ((validator[privateKey].invalid && validator[privateKey].pending === 0) ||
+        getNested(validator).some(function (nestedValidator) { return nestedValidator[publicKey].invalid; }));
 };
-var updateDirty = function (validator) {
-    validator[publicKey].dirty =
-        validator[privateKey].dirty ||
-            (getNested(validator).length !== 0 &&
-                getNested(validator).every(function (nestedValidator) { return nestedValidator[publicKey].dirty; }));
+var getDirty = function (validator) {
+    return (validator[privateKey].dirty ||
+        (getNested(validator).length !== 0 &&
+            getNested(validator).every(function (nestedValidator) { return nestedValidator[publicKey].dirty; })));
 };
-var updateAnyDirty = function (validator) {
-    validator[publicKey].anyDirty =
-        validator[privateKey].dirty || getNested(validator).some(function (nestedValidator) { return nestedValidator[publicKey].anyDirty; });
+var getAnyDirty = function (validator) {
+    return (validator[privateKey].dirty || getNested(validator).some(function (nestedValidator) { return nestedValidator[publicKey].anyDirty; }));
 };
-var updateError = function (validator) {
-    validator[publicKey].error =
-        validator[privateKey].dirty && validator[privateKey].invalid && validator[privateKey].pending === 0;
+var getError = function (validator) {
+    return validator[privateKey].dirty && validator[privateKey].invalid && validator[privateKey].pending === 0;
 };
-var updateAnyError = function (validator) {
-    validator[publicKey].anyError =
-        (validator[privateKey].dirty && validator[privateKey].invalid && validator[privateKey].pending === 0) ||
-            getNested(validator).some(function (nestedValidator) { return nestedValidator[publicKey].anyError; });
+var getAnyError = function (validator) {
+    return ((validator[privateKey].dirty && validator[privateKey].invalid && validator[privateKey].pending === 0) ||
+        getNested(validator).some(function (nestedValidator) { return nestedValidator[publicKey].anyError; }));
 };
 var getNested = function (validator) {
     return Object.keys(validator)
@@ -616,7 +625,6 @@ var proxy = function (_a) {
 };
 var wrapMethods = function (rootForm, validator) {
     var schema = validator[privateKey][schemaKey];
-    var previousResult = {};
     var $validate = function () {
         validator[privateKey].setValidated(true);
         validator[privateKey].setInvalid(false);
@@ -624,6 +632,8 @@ var wrapMethods = function (rootForm, validator) {
         validator[publicKey].errors = {};
         validator[privateKey].previousResult = {};
         var result = validate({ rootForm: rootForm, validator: validator });
+        validator[privateKey].previousResult = result[rulesResultKey];
+        result[rulesResultKey] = validator[privateKey].previousResult;
         var _loop_1 = function (ruleKey) {
             if (isPromise(result[rulesResultKey][ruleKey])) {
                 validator[privateKey].setPending(true);
@@ -664,13 +674,12 @@ var wrapMethods = function (rootForm, validator) {
             var ruleKey = _a[_i];
             _loop_1(ruleKey);
         }
-        validator[privateKey].previousResult = result[rulesResultKey];
         var nestedResult = {};
         for (var _b = 0, _c = Object.keys(validator).filter(function (key) { return key !== publicKey && key !== privateKey; }); _b < _c.length; _b++) {
             var key = _c[_b];
             nestedResult[key] = validator[key][publicKey].validate();
         }
-        return Promise.all(Object.values(previousResult))
+        return Promise.all(Object.values(result[rulesResultKey]))
             .then(function () { return Promise.all(Object.values(nestedResult)); })
             .then(function () { return undefined; });
     };
@@ -679,8 +688,8 @@ var wrapMethods = function (rootForm, validator) {
         validator[privateKey].setInvalid(false);
         validator[privateKey].setDirty(false);
         validator[privateKey].resetPending();
+        validator[privateKey].previousResult = {};
         validator[publicKey].errors = {};
-        previousResult = {};
         for (var _i = 0, _a = Object.keys(validator).filter(function (key) { return key !== publicKey && key !== privateKey; }); _i < _a.length; _i++) {
             var key = _a[_i];
             validator[key][publicKey].reset();
