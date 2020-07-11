@@ -1,5 +1,12 @@
 # form-validation.js
 
+# ToC
+
+- [Live Examples](#live-examples)
+- [Feature](#feature)
+- [Overview](#overview)
+- [Docs](#docs)
+
 # Status: Beta
 
 [![npm version](https://badge.fury.io/js/form-validation.js.svg)](https://badge.fury.io/js/form-validation.js)
@@ -9,6 +16,8 @@
 # Live Examples
 
 [vue@2 + element-ui](https://codesandbox.io/s/form-validationjs-x-element-ui-2boj7)
+
+[back to top](#)
 
 # Feature
 
@@ -21,6 +30,8 @@ Nested Object/Aray Support.
 Array Manipulations (push, pop, shift, unshift, splice, reverse) Support.
 
 Zero Dependencies, Native Javascript only.
+
+[back to top](#)
 
 # Overview
 
@@ -80,13 +91,30 @@ console.log(valdiator.$v.errors.weak)
 // > 'Too short.'
 ```
 
-## Docs
+[back to top](#)
+
+# Docs
 
 - [Schema](/docs/schema.md)
-- [Instance](/docs/instance.md)
-- [Common Use Case](/docs/common-use-case.md)
 
-## Need help?
+  - [Rules](/docs/schema.md#rules)
+  - [Errors](/docs/schema.md#errors)
+  - [Normalizer](/docs/schema.md#normalizer)
+  - [Params](/docs/schema.md#params)
+  - [Deep Structure](/docs/schema.md#deep-structure)
+
+- [Validator](/docs/validator.md)
+
+- [Common Use Case](/docs/common-use-case.md)
+  - [Custom Error](/docs/common-use-case.md#custom-error)
+  - [Same As](/docs/common-use-case.md#same-as)
+  - [Unique](/docs/common-use-case.md#unique)
+
+[back to top](#)
+
+# Need help?
 
 Please open [GitHub issues](https://github.com/iendeavor/form-validation.js/issues). Please search previous issues
 before creating a new issue.
+
+[back to top](#)

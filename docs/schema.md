@@ -4,7 +4,7 @@
 - [Errors](#errors)
 - [Normalizer](#normalizer)
 - [Params](#params)
-- [Structure](#structure)
+- [Deep Structure](#deep-structure)
 
 # Rules
 
@@ -149,30 +149,114 @@ const schema = {
 }
 ```
 
-# Structure
+# Deep Structure
 
-Everything is pretty intuitive and reasonable, validation schema is as same as the structure of data which you wanted to
-validate for.
+Validation schema is as same as the structure of the form you passed.
 
-## Classic Example
+## Full Example
 
 ```javascript
 const form = {
-  account: '123',
-  password: '123',
+  specifiedFiled1: '',
+  specifiedFiled2: '',
+  notSpecifiedFiled1: '',
+  notSpecifiedFiled2: '',
+
+  nestedArray: ['', '', '', ''],
+
+  nestedObject: {
+    specifiedFiled1: '',
+    specifiedFiled2: '',
+    notSpecifiedFiled1: '',
+    notSpecifiedFiled2: '',
+  },
+
+  // very deep example
+  accounts: {
+    Jeffrey: {
+      emails: ['', ''],
+    },
+    Denial: {
+      emails: ['', ''],
+    },
+  },
 }
 
+// for entire form
 const schema = {
-  // rules for the entire form
   $rules: {},
-  $iter: {
-    // ruels for non-specified nested keys
-    // i.e. the form.account in here.
+
+  // for form.specifiedFiled1
+  specifiedFiled1: {
     $rules: {},
   },
-  password: {
-    // rules for the form.password
+  // for form.specifiedFiled2
+  specifiedFiled2: {
     $rules: {},
+  },
+
+  // for form.notSpecifiedFiled1 and form.notSpecifiedFiled2
+  $iter: {
+    $rules: {},
+  },
+
+  // for form.nestedArray
+  nestedArray: {
+    $rules: {},
+
+    // for form.nestedArray[0]
+    0: {
+      $rules: {},
+    },
+    // for form.nestedArray[1]
+    1: {
+      $rules: {},
+    },
+
+    // for form.nestedArray[2] and form.nestedArray[3]
+    $iter: {
+      $rules: {},
+    },
+  },
+
+  // for form.nestedObject
+  nestedObject: {
+    $rules: {},
+
+    // for form.nestedObject.specifiedField1
+    specifiedField1: {
+      $rules: {},
+    },
+    // for form.nestedObject.specifiedField2
+    specifiedField2: {
+      $rules: {},
+    },
+
+    // for form.nestedObject.notSpecifiedField1 and form.nestedObject.notSpecifiedField2
+    $iter: {
+      $rules: {},
+    },
+  },
+
+  // very deep example
+  accounts: {
+    // for form.accounts.Jeffrey and
+    // for form.accounts.Denial
+    $iter: {
+      // for form.accounts.Jeffrey.emails and
+      // for form.accounts.Denial.emails
+      emails: {
+        // for form.accounts.Jeffrey.emails[0] and
+        // for form.accounts.Jeffrey.emails[1] and
+        // for form.accounts.Denial.emails[0] and
+        // for form.accounts.Denial.emails[1]
+        $iter: {
+          $rules: {},
+        },
+      },
+    },
   },
 }
+
+const validator = {}
 ```
