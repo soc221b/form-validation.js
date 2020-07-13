@@ -27,10 +27,11 @@
     "proxy"
   ],
   "scripts": {
-    "build": "rollup --config",
+    "build": "yarn test && rollup --config",
     "dev": "rollup --config --watch",
     "test": "jest --clearCache && jest --testTimeout 30 --all",
-    "prettify": "prettier --check *.md *.js *.json **/*.js **/*.ts **/*.spec.ts **/*.json **/*.md"
+    "lint": "prettier --check *.md *.js *.json **/*.js **/*.ts **/*.spec.ts **/*.json **/*.md",
+    "lint:fix": "yarn lint --write"
   },
   "devDependencies": {
     "@rollup/plugin-node-resolve": "^8.0.1",
@@ -49,7 +50,7 @@
   },
   "husky": {
     "hooks": {
-      "pre-push": "git diff --exit-code && git diff --staged --exit-code && yarn prettify"
+      "pre-push": "git diff --exit-code && git diff --staged --exit-code && yarn lint"
     }
   }
 }
