@@ -1,12 +1,5 @@
 # form-validation.js
 
-# ToC
-
-- [Live Examples](#live-examples)
-- [Feature](#feature)
-- [Overview](#overview)
-- [Docs](#docs)
-
 # Status: Beta
 
 [![npm version](https://badge.fury.io/js/form-validation.js.svg)](https://badge.fury.io/js/form-validation.js)
@@ -94,7 +87,7 @@ console.log(valdiator.$v.errors.weak)
 
 [back to top](#)
 
-# Docs
+# Documentation
 
 - [Schema](/docs/schema.md)
 
@@ -113,9 +106,21 @@ console.log(valdiator.$v.errors.weak)
 
 [back to top](#)
 
-# Need help?
+# Contributing
 
-Please open [GitHub issues](https://github.com/iendeavor/form-validation.js/issues). Please search previous issues
-before creating a new issue.
+Please read [CONTRIBUTING.md](/CONTRIBUTING.md) for details on our code of conduct, and the process for submitting pull
+requests to us.
+
+[back to top](#)
+
+# Versioning
+
+We use [SemVer](https://semver.org/) for versioning. For the versions available, see the tags on this repository.
+
+[back to top](#)
+
+# License
+
+This project is licensed under the MIT License - see the [LICENSE](/LICENSE) file for details
 
 [back to top](#)
