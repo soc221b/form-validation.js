@@ -9,7 +9,11 @@
 
 # Live Examples
 
-[vue@2 + element-ui](https://codesandbox.io/s/form-validationjs-x-element-ui-2boj7)
+## vue@2 + element-ui
+
+- [Classic Form](https://codesandbox.io/s/form-validationjs-x-element-ui-2boj7)
+
+- [Delete or add form items dynamically](https://codesandbox.io/s/delete-or-add-form-items-dynamically-kxfp0)
 
 [back to top](#)
 
