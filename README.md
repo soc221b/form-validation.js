@@ -5,7 +5,7 @@
 [![npm version](https://badge.fury.io/js/form-validation.js.svg)](https://badge.fury.io/js/form-validation.js)
 [![CI](https://github.com/iendeavor/form-validation.js/workflows/CI/badge.svg)](https://github.com/iendeavor/form-validation.js/actions)
 [![Coverage Status](https://coveralls.io/repos/github/iendeavor/form-validation.js/badge.svg?branch=develop)](https://coveralls.io/github/iendeavor/form-validation.js?branch=develop)
-[![size](https://img.shields.io/bundlephobia/min/form-validation.js?label=gzip)](https://bundlephobia.com/result?p=form-validation.js)
+[![gzip](https://badgen.net/bundlephobia/minzip/form-validation.js)](https://bundlephobia.com/result?p=form-validation.js)
 
 # Live Examples
 
