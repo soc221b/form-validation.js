@@ -75,17 +75,17 @@ const schema = {
   },
 }
 
-const valdiator = {}
+const validator = {}
 
 // in order to track form's data sctructure (e.g., add new property to object, or push new element to array), you should always update your fields from the proxiedForm instead of the original form
 const proxiedForm = FormValidation.proxy({ form, schema, validator })
 
 // validate the entire form
-await valdiator.$v.validate()
+await validator.$v.validate()
 
-console.log(valdiator.$v.invalid)
+console.log(validator.$v.invalid)
 // > true
-console.log(valdiator.$v.errors.weak)
+console.log(validator.$v.errors.weak)
 // > 'Too short.'
 ```
 
