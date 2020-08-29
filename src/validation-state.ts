@@ -47,42 +47,12 @@ export function wrapState(validator: IBaseValidator) {
   theValidator[privateKey].setPending = setPrivatePending(theValidator)
   theValidator[privateKey].resetPending = resetPrivatePending(theValidator)
 
-  Object.defineProperty(theValidator[publicKey], 'pending', {
-    enumerable: true,
-    get() {
-      return getPending(theValidator)
-    },
-  })
-  Object.defineProperty(theValidator[publicKey], 'invalid', {
-    enumerable: true,
-    get() {
-      return getInvalid(theValidator)
-    },
-  })
-  Object.defineProperty(theValidator[publicKey], 'dirty', {
-    enumerable: true,
-    get() {
-      return getDirty(theValidator)
-    },
-  })
-  Object.defineProperty(theValidator[publicKey], 'anyDirty', {
-    enumerable: true,
-    get() {
-      return getAnyDirty(theValidator)
-    },
-  })
-  Object.defineProperty(theValidator[publicKey], 'error', {
-    enumerable: true,
-    get() {
-      return getError(theValidator)
-    },
-  })
-  Object.defineProperty(theValidator[publicKey], 'anyError', {
-    enumerable: true,
-    get() {
-      return getAnyError(theValidator)
-    },
-  })
+  theValidator[publicKey].pending = getPending(theValidator)
+  theValidator[publicKey].invalid = getInvalid(theValidator)
+  theValidator[publicKey].dirty = getDirty(theValidator)
+  theValidator[publicKey].anyDirty = getAnyDirty(theValidator)
+  theValidator[publicKey].error = getError(theValidator)
+  theValidator[publicKey].anyError = getAnyError(theValidator)
   theValidator[publicKey].errors = {}
 }
 
@@ -92,18 +62,33 @@ const setPrivateValidated = (validator: IStatableValidator) => (value: boolean) 
 
 const setPrivateInvalid = (validator: IStatableValidator) => (value: boolean) => {
   validator[privateKey].invalid = value
+  validator[publicKey].invalid = getInvalid(validator)
+  validator[publicKey].error = getError(validator)
+  validator[publicKey].anyError = getAnyError(validator)
 }
 
 const setPrivateDirty = (validator: IStatableValidator) => (value: boolean) => {
   validator[privateKey].dirty = value
+  validator[publicKey].dirty = getDirty(validator)
+  validator[publicKey].anyDirty = getAnyDirty(validator)
+  validator[publicKey].error = getError(validator)
+  validator[publicKey].anyError = getAnyError(validator)
 }
 
 const setPrivatePending = (validator: IStatableValidator) => (value: boolean) => {
   validator[privateKey].pending += value === true ? 1 : -1
+  validator[publicKey].pending = getPending(validator)
+  validator[publicKey].invalid = getInvalid(validator)
+  validator[publicKey].error = getError(validator)
+  validator[publicKey].anyError = getAnyError(validator)
 }
 
 const resetPrivatePending = (validator: IStatableValidator) => () => {
   validator[privateKey].pending = 0
+  validator[publicKey].pending = getPending(validator)
+  validator[publicKey].invalid = getInvalid(validator)
+  validator[publicKey].error = getError(validator)
+  validator[publicKey].anyError = getAnyError(validator)
 }
 
 const getPending = (validator: IStatableValidator) => {
