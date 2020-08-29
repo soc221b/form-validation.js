@@ -527,42 +527,12 @@ System.register('FormValidation', [], function (exports) {
                 theValidator[privateKey].setDirty = setPrivateDirty(theValidator);
                 theValidator[privateKey].setPending = setPrivatePending(theValidator);
                 theValidator[privateKey].resetPending = resetPrivatePending(theValidator);
-                Object.defineProperty(theValidator[publicKey], 'pending', {
-                    enumerable: true,
-                    get: function () {
-                        return getPending(theValidator);
-                    },
-                });
-                Object.defineProperty(theValidator[publicKey], 'invalid', {
-                    enumerable: true,
-                    get: function () {
-                        return getInvalid(theValidator);
-                    },
-                });
-                Object.defineProperty(theValidator[publicKey], 'dirty', {
-                    enumerable: true,
-                    get: function () {
-                        return getDirty(theValidator);
-                    },
-                });
-                Object.defineProperty(theValidator[publicKey], 'anyDirty', {
-                    enumerable: true,
-                    get: function () {
-                        return getAnyDirty(theValidator);
-                    },
-                });
-                Object.defineProperty(theValidator[publicKey], 'error', {
-                    enumerable: true,
-                    get: function () {
-                        return getError(theValidator);
-                    },
-                });
-                Object.defineProperty(theValidator[publicKey], 'anyError', {
-                    enumerable: true,
-                    get: function () {
-                        return getAnyError(theValidator);
-                    },
-                });
+                theValidator[publicKey].pending = getPending(theValidator);
+                theValidator[publicKey].invalid = getInvalid(theValidator);
+                theValidator[publicKey].dirty = getDirty(theValidator);
+                theValidator[publicKey].anyDirty = getAnyDirty(theValidator);
+                theValidator[publicKey].error = getError(theValidator);
+                theValidator[publicKey].anyError = getAnyError(theValidator);
                 theValidator[publicKey].errors = {};
             }
             var setPrivateValidated = function (validator) { return function (value) {
@@ -570,15 +540,30 @@ System.register('FormValidation', [], function (exports) {
             }; };
             var setPrivateInvalid = function (validator) { return function (value) {
                 validator[privateKey].invalid = value;
+                validator[publicKey].invalid = getInvalid(validator);
+                validator[publicKey].error = getError(validator);
+                validator[publicKey].anyError = getAnyError(validator);
             }; };
             var setPrivateDirty = function (validator) { return function (value) {
                 validator[privateKey].dirty = value;
+                validator[publicKey].dirty = getDirty(validator);
+                validator[publicKey].anyDirty = getAnyDirty(validator);
+                validator[publicKey].error = getError(validator);
+                validator[publicKey].anyError = getAnyError(validator);
             }; };
             var setPrivatePending = function (validator) { return function (value) {
                 validator[privateKey].pending += value === true ? 1 : -1;
+                validator[publicKey].pending = getPending(validator);
+                validator[publicKey].invalid = getInvalid(validator);
+                validator[publicKey].error = getError(validator);
+                validator[publicKey].anyError = getAnyError(validator);
             }; };
             var resetPrivatePending = function (validator) { return function () {
                 validator[privateKey].pending = 0;
+                validator[publicKey].pending = getPending(validator);
+                validator[publicKey].invalid = getInvalid(validator);
+                validator[publicKey].error = getError(validator);
+                validator[publicKey].anyError = getAnyError(validator);
             }; };
             var getPending = function (validator) {
                 return (validator[privateKey].pending !== 0 ||
@@ -610,7 +595,7 @@ System.register('FormValidation', [], function (exports) {
             };
 
             var proxy = exports('proxy', function (_a) {
-                var form = _a.form, schema = _a.schema, validator = _a.validator;
+                var form = _a.form, schema = _a.schema, validator = _a.validator, hooks = _a.hooks;
                 return proxyStructure({
                     object: form,
                     clone: validator,
@@ -621,6 +606,7 @@ System.register('FormValidation', [], function (exports) {
                         if (baseValidator[privateKey].validated) {
                             baseValidator[publicKey].validate();
                         }
+                        hooks && hooks.onChanged && hooks.onChanged(baseValidator);
                     },
                 });
             });
