@@ -22,7 +22,7 @@ export interface IValidator extends IStatableValidator {
   }
 }
 
-export const proxy = ({ form, schema, validator }: any) => {
+export const proxy = ({ form, schema, validator, hooks }: any) => {
   return proxyStructure({
     object: form,
     clone: validator,
@@ -33,6 +33,8 @@ export const proxy = ({ form, schema, validator }: any) => {
       if (baseValidator[privateKey].validated) {
         baseValidator[publicKey].validate()
       }
+
+      hooks && hooks.onChanged && hooks.onChanged(baseValidator)
     },
   })
 }
