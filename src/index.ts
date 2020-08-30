@@ -3,6 +3,7 @@ import { validate, rulesResultKey } from './validate'
 import { wrapState, IStatableValidator } from './validation-state'
 import { isPromise } from './util'
 import { wrapSchema, ISchemaValidator, schemaKey } from './schema'
+import { wrapIter } from './iter'
 
 export interface IValidator extends IStatableValidator {
   [publicKey]: {
@@ -30,6 +31,7 @@ export const proxy = ({ form, schema, validator, hooks }: any) => {
       wrapState(validator, path)
       wrapSchema({ rootSchema: schema, validator: baseValidator as ISchemaValidator })
       wrapMethods(form, baseValidator)
+      wrapIter(baseValidator)
       if (baseValidator[privateKey].validated) {
         baseValidator[publicKey].validate()
       }
