@@ -842,42 +842,31 @@ test('proxyStructure (nested)', () => {
   form = proxyStructure({ object: form, clone: validator })
 
   form.nested = {}
-  expect(validator).toStrictEqual({
-    nested: {},
-  })
+  expect(validator).toHaveProperty('nested')
 
   form.nested.ipAddresses = undefined
-  expect(validator).toStrictEqual({
-    nested: {
-      ipAddresses: {},
-    },
-  })
+  expect(validator).toHaveProperty('nested')
+  expect(validator.nested).toHaveProperty('ipAddresses')
 
   delete form.nested.ipAddresses
-  expect(validator).toStrictEqual({
-    nested: {},
-  })
+  expect(validator).toHaveProperty('nested')
+  expect(validator.nested).not.toHaveProperty('ipAddresses')
 
   form.nested.ipAddresses = ['1.1.1.1', '2.2.2.2', '3.3.3.3']
-  expect(validator).toStrictEqual({
-    nested: {
-      ipAddresses: [{}, {}, {}],
-    },
-  })
+  expect(validator).toHaveProperty('nested')
+  expect(validator.nested.ipAddresses).toHaveProperty('0')
+  expect(validator.nested.ipAddresses).toHaveProperty('1')
+  expect(validator.nested.ipAddresses).toHaveProperty('2')
 
   form.nested = {}
   form.nested.mapping = {
     key1: 1,
     key2: 2,
   }
-  expect(validator).toStrictEqual({
-    nested: {
-      mapping: {
-        key1: {},
-        key2: {},
-      },
-    },
-  })
+  expect(validator).toHaveProperty('nested')
+  expect(validator.nested).toHaveProperty('mapping')
+  expect(validator.nested.mapping).toHaveProperty('key1')
+  expect(validator.nested.mapping).toHaveProperty('key2')
 })
 
 test('callback', () => {
@@ -890,7 +879,7 @@ test('callback', () => {
   form = proxyStructure({ object: form, clone: validator, callback })
 
   expect(fn.mock.calls.length).toBe(1)
-  expect(fn.mock.calls[0][0]).toStrictEqual({})
+  expect(fn.mock.calls[0][0]).toBeInstanceOf(Object)
 })
 
 test('callback (nested)', () => {
@@ -905,6 +894,7 @@ test('callback (nested)', () => {
   form = proxyStructure({ object: form, clone: validator, callback })
 
   expect(fn.mock.calls.length).toBe(2)
-  expect(fn.mock.calls[0][0]).toStrictEqual({ nested: {} })
-  expect(fn.mock.calls[1][0]).toStrictEqual({})
+  expect(fn.mock.calls[0][0]).toBeInstanceOf(Object)
+  expect(fn.mock.calls[0][0]).toHaveProperty('nested')
+  expect(fn.mock.calls[1][0]).not.toHaveProperty('nested')
 })

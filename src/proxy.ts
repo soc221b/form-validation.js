@@ -42,7 +42,7 @@ const validationWrap: (object: any, clone: any, path: string[]) => void = (objec
       },
     })
     Object.defineProperty(clone, publicKey, {
-      enumerable: false,
+      enumerable: true,
       configurable: true,
       value: clone[publicKey] || {},
     })
@@ -55,6 +55,7 @@ const updateNestedPath = (clone: any, path: string[]): void => {
   clone[privateKey][pathKey].splice(0, path.length, ...path)
 
   for (const key in clone) {
+    if (key === publicKey) continue
     updateNestedPath(clone[key], path.concat(key))
   }
 }
@@ -94,6 +95,7 @@ export const proxyStructure = ({
     )
   }
   for (const key in clone) {
+    if (key === publicKey) continue
     if (hasKey(object, key) === false) {
       delete clone[key]
     }
@@ -137,6 +139,7 @@ export const proxyStructure = ({
 
             updateNestedPath(clone, clone[privateKey][pathKey])
             for (const key in clone) {
+              if (key === publicKey) continue
               callback(clone[key] as IBaseValidator, path.concat(key))
             }
             return result
@@ -161,6 +164,7 @@ export const proxyStructure = ({
 
             updateNestedPath(clone, clone[privateKey][pathKey])
             for (const key in clone) {
+              if (key === publicKey) continue
               callback(clone[key] as IBaseValidator, path.concat(key))
             }
             return result
@@ -179,6 +183,7 @@ export const proxyStructure = ({
             if (operationCount === totalOperationCount) {
               updateNestedPath(clone, clone[privateKey][pathKey])
               for (const key in clone) {
+                if (key === publicKey) continue
                 callback(clone[key] as IBaseValidator, path.concat(key))
               }
               operation = null
@@ -204,6 +209,7 @@ export const proxyStructure = ({
 
             updateNestedPath(clone, clone[privateKey][pathKey])
             for (const key in clone) {
+              if (key === publicKey) continue
               clone[key][privateKey][pathKey] = clone[key][privateKey][pathKey].slice(0, -1).concat(key + '')
               callback(clone[key] as IBaseValidator, path.concat(key))
             }
@@ -251,6 +257,7 @@ export const proxyStructure = ({
           settingKeys.length = 0
 
           for (const key in clone) {
+            if (key === publicKey) continue
             delete clone[key][collectedKey]
           }
         } else if (operation !== null) {
