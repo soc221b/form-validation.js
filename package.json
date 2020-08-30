@@ -27,7 +27,7 @@
     "proxy"
   ],
   "scripts": {
-    "build": "yarn test && rollup --config",
+    "build": "rollup --config",
     "dev": "rollup --config --watch",
     "test": "jest --clearCache && jest --testTimeout 30 --all",
     "lint": "prettier --check *.md *.js *.json **/*.js **/*.ts **/*.spec.ts **/*.json **/*.md",
