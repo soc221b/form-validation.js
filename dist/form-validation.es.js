@@ -132,7 +132,7 @@ var validationWrap = function (object, clone, path) {
                 _a),
         });
         Object.defineProperty(clone, publicKey, {
-            enumerable: false,
+            enumerable: true,
             configurable: true,
             value: clone[publicKey] || {},
         });
@@ -144,6 +144,8 @@ var updateNestedPath = function (clone, path) {
         return;
     (_a = clone[privateKey][pathKey]).splice.apply(_a, __spreadArrays([0, path.length], path));
     for (var key in clone) {
+        if (key === publicKey)
+            continue;
         updateNestedPath(clone[key], path.concat(key));
     }
 };
@@ -167,6 +169,8 @@ var proxyStructure = function (_a) {
         }));
     }
     for (var key in clone) {
+        if (key === publicKey)
+            continue;
         if (hasKey(object, key) === false) {
             delete clone[key];
         }
@@ -205,6 +209,8 @@ var proxyStructure = function (_a) {
                         operation = null;
                         updateNestedPath(clone, clone[privateKey][pathKey]);
                         for (var key_2 in clone) {
+                            if (key_2 === publicKey)
+                                continue;
                             callback(clone[key_2], path.concat(key_2));
                         }
                         return result;
@@ -229,6 +235,8 @@ var proxyStructure = function (_a) {
                         operation = null;
                         updateNestedPath(clone, clone[privateKey][pathKey]);
                         for (var key_4 in clone) {
+                            if (key_4 === publicKey)
+                                continue;
                             callback(clone[key_4], path.concat(key_4));
                         }
                         return result;
@@ -249,6 +257,8 @@ var proxyStructure = function (_a) {
                         if (operationCount === totalOperationCount) {
                             updateNestedPath(clone, clone[privateKey][pathKey]);
                             for (var key_5 in clone) {
+                                if (key_5 === publicKey)
+                                    continue;
                                 callback(clone[key_5], path.concat(key_5));
                             }
                             operation = null;
@@ -274,6 +284,8 @@ var proxyStructure = function (_a) {
                         }
                         updateNestedPath(clone, clone[privateKey][pathKey]);
                         for (var key_7 in clone) {
+                            if (key_7 === publicKey)
+                                continue;
                             clone[key_7][privateKey][pathKey] = clone[key_7][privateKey][pathKey].slice(0, -1).concat(key_7 + '');
                             callback(clone[key_7], path.concat(key_7));
                         }
@@ -314,6 +326,8 @@ var proxyStructure = function (_a) {
                     accessOrder.length = 0;
                     settingKeys.length = 0;
                     for (var key_8 in clone) {
+                        if (key_8 === publicKey)
+                            continue;
                         delete clone[key_8][collectedKey];
                     }
                 }
@@ -613,6 +627,21 @@ var getNested = function (validator) {
         .map(function (key) { return validator[key]; });
 };
 
+function wrapIter(validator) {
+    Object.defineProperty(validator, '$iter', {
+        enumerable: false,
+        configurable: true,
+        get: function () {
+            return Object.keys(validator)
+                .filter(function (key) { return key !== publicKey; })
+                .reduce(function (iter, key) {
+                iter[key] = validator[key];
+                return iter;
+            }, {});
+        },
+    });
+}
+
 var proxy = function (_a) {
     var form = _a.form, schema = _a.schema, validator = _a.validator, hooks = _a.hooks;
     return proxyStructure({
@@ -622,6 +651,7 @@ var proxy = function (_a) {
             wrapState(validator, path);
             wrapSchema({ rootSchema: schema, validator: baseValidator });
             wrapMethods(form, baseValidator);
+            wrapIter(baseValidator);
             if (baseValidator[privateKey].validated) {
                 baseValidator[publicKey].validate();
             }
