@@ -154,7 +154,7 @@ define(['exports'], function (exports) { 'use strict';
         var object = _a.object, clone = _a.clone, _b = _a.path, path = _b === void 0 ? [] : _b, _c = _a.wrap, wrap = _c === void 0 ? validationWrap : _c, _d = _a.callback, callback = _d === void 0 ? function () { } : _d;
         wrap(object, clone, path);
         if (isPlainObject(clone) || isArray(clone))
-            callback(clone);
+            callback(clone, path);
         if (isPlainObject(object) === false && isArray(object) === false)
             return object;
         for (var _i = 0, _e = Object.keys(object); _i < _e.length; _i++) {
@@ -207,7 +207,7 @@ define(['exports'], function (exports) { 'use strict';
                             operation = null;
                             updateNestedPath(clone, clone[privateKey][pathKey]);
                             for (var key_2 in clone) {
-                                callback(clone[key_2]);
+                                callback(clone[key_2], path.concat(key_2));
                             }
                             return result;
                         }
@@ -231,7 +231,7 @@ define(['exports'], function (exports) { 'use strict';
                             operation = null;
                             updateNestedPath(clone, clone[privateKey][pathKey]);
                             for (var key_4 in clone) {
-                                callback(clone[key_4]);
+                                callback(clone[key_4], path.concat(key_4));
                             }
                             return result;
                         }
@@ -251,7 +251,7 @@ define(['exports'], function (exports) { 'use strict';
                             if (operationCount === totalOperationCount) {
                                 updateNestedPath(clone, clone[privateKey][pathKey]);
                                 for (var key_5 in clone) {
-                                    callback(clone[key_5]);
+                                    callback(clone[key_5], path.concat(key_5));
                                 }
                                 operation = null;
                             }
@@ -277,7 +277,7 @@ define(['exports'], function (exports) { 'use strict';
                             updateNestedPath(clone, clone[privateKey][pathKey]);
                             for (var key_7 in clone) {
                                 clone[key_7][privateKey][pathKey] = clone[key_7][privateKey][pathKey].slice(0, -1).concat(key_7 + '');
-                                callback(clone[key_7]);
+                                callback(clone[key_7], path.concat(key_7));
                             }
                             return result;
                         }
@@ -511,79 +511,103 @@ define(['exports'], function (exports) { 'use strict';
         return result;
     };
 
-    function wrapState(validator) {
-        var theValidator = validator;
+    function wrapState(rootValidator, path) {
+        var theValidator = getByPath(rootValidator, path);
         if (theValidator[privateKey].invalid !== undefined)
             return;
         theValidator[privateKey].invalid = false;
         theValidator[privateKey].validated = false;
         theValidator[privateKey].pending = 0;
         theValidator[privateKey].dirty = false;
-        theValidator[privateKey].setValidated = setPrivateValidated(theValidator);
-        theValidator[privateKey].setInvalid = setPrivateInvalid(theValidator);
-        theValidator[privateKey].setDirty = setPrivateDirty(theValidator);
-        theValidator[privateKey].setPending = setPrivatePending(theValidator);
-        theValidator[privateKey].resetPending = resetPrivatePending(theValidator);
-        theValidator[publicKey].pending = getPending(theValidator);
-        theValidator[publicKey].invalid = getInvalid(theValidator);
-        theValidator[publicKey].dirty = getDirty(theValidator);
-        theValidator[publicKey].anyDirty = getAnyDirty(theValidator);
-        theValidator[publicKey].error = getError(theValidator);
-        theValidator[publicKey].anyError = getAnyError(theValidator);
+        theValidator[privateKey].setValidated = setPrivateValidated(rootValidator, path);
+        theValidator[privateKey].setInvalid = setPrivateInvalid(rootValidator, path);
+        theValidator[privateKey].setDirty = setPrivateDirty(rootValidator, path);
+        theValidator[privateKey].setPending = setPrivatePending(rootValidator, path);
+        theValidator[privateKey].resetPending = resetPrivatePending(rootValidator, path);
         theValidator[publicKey].errors = {};
+        theValidator[privateKey].setValidated(false);
+        theValidator[privateKey].setInvalid(false);
+        theValidator[privateKey].setDirty(false);
+        theValidator[privateKey].resetPending();
     }
-    var setPrivateValidated = function (validator) { return function (value) {
+    var setPrivateValidated = function (rootValidator, path) { return function (value) {
+        var validator = getByPath(rootValidator, path);
         validator[privateKey].validated = value;
     }; };
-    var setPrivateInvalid = function (validator) { return function (value) {
+    var setPrivateInvalid = function (rootValidator, path) { return function (value) {
+        var validator = getByPath(rootValidator, path);
         validator[privateKey].invalid = value;
-        validator[publicKey].invalid = getInvalid(validator);
-        validator[publicKey].error = getError(validator);
-        validator[publicKey].anyError = getAnyError(validator);
+        setPublicInvalid(rootValidator, path);
+        setPublicError(rootValidator, path);
+        setPublicAnyError(rootValidator, path);
     }; };
-    var setPrivateDirty = function (validator) { return function (value) {
+    var setPrivateDirty = function (rootValidator, path) { return function (value) {
+        var validator = getByPath(rootValidator, path);
         validator[privateKey].dirty = value;
-        validator[publicKey].dirty = getDirty(validator);
-        validator[publicKey].anyDirty = getAnyDirty(validator);
-        validator[publicKey].error = getError(validator);
-        validator[publicKey].anyError = getAnyError(validator);
+        setPublicDirty(rootValidator, path);
+        setPublicAnyDirty(rootValidator, path);
+        setPublicError(rootValidator, path);
+        setPublicAnyError(rootValidator, path);
     }; };
-    var setPrivatePending = function (validator) { return function (value) {
+    var setPrivatePending = function (rootValidator, path) { return function (value) {
+        var validator = getByPath(rootValidator, path);
         validator[privateKey].pending += value === true ? 1 : -1;
-        validator[publicKey].pending = getPending(validator);
-        validator[publicKey].invalid = getInvalid(validator);
-        validator[publicKey].error = getError(validator);
-        validator[publicKey].anyError = getAnyError(validator);
+        setPublicPending(rootValidator, path);
+        setPublicInvalid(rootValidator, path);
+        setPublicError(rootValidator, path);
+        setPublicAnyError(rootValidator, path);
     }; };
-    var resetPrivatePending = function (validator) { return function () {
+    var resetPrivatePending = function (rootValidator, path) { return function () {
+        var validator = getByPath(rootValidator, path);
         validator[privateKey].pending = 0;
-        validator[publicKey].pending = getPending(validator);
-        validator[publicKey].invalid = getInvalid(validator);
-        validator[publicKey].error = getError(validator);
-        validator[publicKey].anyError = getAnyError(validator);
+        setPublicPending(rootValidator, path);
+        setPublicInvalid(rootValidator, path);
+        setPublicError(rootValidator, path);
+        setPublicAnyError(rootValidator, path);
     }; };
-    var getPending = function (validator) {
-        return (validator[privateKey].pending !== 0 ||
-            getNested(validator).some(function (nestedValidator) { return nestedValidator[publicKey].pending; }));
+    var setPublicPending = function (rootValidator, path) {
+        var index = path.length + 1;
+        while (--index >= 0) {
+            var validator = getByPath(rootValidator, path.slice(0, index));
+            validator[publicKey].pending =
+                validator[privateKey].pending !== 0 ||
+                    getNested(validator).some(function (nestedValidator) { return nestedValidator[publicKey].pending; });
+        }
     };
-    var getInvalid = function (validator) {
-        return ((validator[privateKey].invalid && validator[privateKey].pending === 0) ||
-            getNested(validator).some(function (nestedValidator) { return nestedValidator[publicKey].invalid; }));
+    var setPublicInvalid = function (rootValidator, path) {
+        var index = path.length + 1;
+        while (--index >= 0) {
+            var validator = getByPath(rootValidator, path.slice(0, index));
+            validator[publicKey].invalid =
+                (validator[privateKey].invalid && validator[privateKey].pending === 0) ||
+                    getNested(validator).some(function (nestedValidator) { return nestedValidator[publicKey].invalid; });
+        }
     };
-    var getDirty = function (validator) {
-        return (validator[privateKey].dirty ||
-            (getNested(validator).length !== 0 &&
-                getNested(validator).every(function (nestedValidator) { return nestedValidator[publicKey].dirty; })));
+    var setPublicDirty = function (rootValidator, path) {
+        var validator = getByPath(rootValidator, path);
+        validator[publicKey].dirty = validator[privateKey].dirty;
     };
-    var getAnyDirty = function (validator) {
-        return (validator[privateKey].dirty || getNested(validator).some(function (nestedValidator) { return nestedValidator[publicKey].anyDirty; }));
+    var setPublicAnyDirty = function (rootValidator, path) {
+        var index = path.length + 1;
+        while (--index >= 0) {
+            var validator = getByPath(rootValidator, path.slice(0, index));
+            validator[publicKey].anyDirty =
+                validator[privateKey].dirty || getNested(validator).some(function (nestedValidator) { return nestedValidator[publicKey].anyDirty; });
+        }
     };
-    var getError = function (validator) {
-        return validator[privateKey].dirty && validator[privateKey].invalid && validator[privateKey].pending === 0;
+    var setPublicError = function (rootValidator, path) {
+        var validator = getByPath(rootValidator, path);
+        validator[publicKey].error =
+            validator[privateKey].dirty && validator[privateKey].invalid && validator[privateKey].pending === 0;
     };
-    var getAnyError = function (validator) {
-        return ((validator[privateKey].dirty && validator[privateKey].invalid && validator[privateKey].pending === 0) ||
-            getNested(validator).some(function (nestedValidator) { return nestedValidator[publicKey].anyError; }));
+    var setPublicAnyError = function (rootValidator, path) {
+        var index = path.length + 1;
+        while (--index >= 0) {
+            var validator = getByPath(rootValidator, path.slice(0, index));
+            validator[publicKey].anyError =
+                (validator[privateKey].dirty && validator[privateKey].invalid && validator[privateKey].pending === 0) ||
+                    getNested(validator).some(function (nestedValidator) { return nestedValidator[publicKey].anyError; });
+        }
     };
     var getNested = function (validator) {
         return Object.keys(validator)
@@ -596,8 +620,8 @@ define(['exports'], function (exports) { 'use strict';
         return proxyStructure({
             object: form,
             clone: validator,
-            callback: function (baseValidator) {
-                wrapState(baseValidator);
+            callback: function (baseValidator, path) {
+                wrapState(validator, path);
                 wrapSchema({ rootSchema: schema, validator: baseValidator });
                 wrapMethods(form, baseValidator);
                 if (baseValidator[privateKey].validated) {

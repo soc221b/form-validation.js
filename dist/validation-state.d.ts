@@ -27,5 +27,5 @@ export interface IStatableValidator extends IBaseValidator {
     };
     [key: string]: any;
 }
-export declare function wrapState(validator: IBaseValidator): void;
+export declare function wrapState(rootValidator: IBaseValidator, path: string[]): void;
 export declare const getNested: (validator: IStatableValidator) => IStatableValidator[];

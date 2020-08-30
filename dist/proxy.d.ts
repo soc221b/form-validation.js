@@ -22,5 +22,5 @@ export declare const proxyStructure: ({ object, clone, path, wrap, callback, }: 
     };
     path?: string[] | undefined;
     wrap?: ((object: any, clone: any, path: string[]) => void) | undefined;
-    callback?: ((wrapper: IBaseValidator) => void) | undefined;
+    callback?: ((wrapper: IBaseValidator, path: string[]) => void) | undefined;
 }) => any;
