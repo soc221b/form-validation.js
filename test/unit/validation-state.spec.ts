@@ -10,7 +10,7 @@ function reset() {
       [pathKey]: [],
     },
   } as IBaseValidator) as IStatableValidator
-  wrapState(validationState)
+  wrapState(validationState, [])
 }
 
 test('getNested', () => {

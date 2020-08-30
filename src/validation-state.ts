@@ -1,4 +1,5 @@
 import { privateKey, pathKey, IBaseValidator, publicKey } from './proxy'
+import { getByPath } from './util'
 
 export interface IStatableValidator extends IBaseValidator {
   [privateKey]: {
@@ -32,8 +33,8 @@ export interface IStatableValidator extends IBaseValidator {
   [key: string]: any
 }
 
-export function wrapState(validator: IBaseValidator) {
-  const theValidator = validator as IStatableValidator
+export function wrapState(rootValidator: IBaseValidator, path: string[]) {
+  const theValidator = getByPath(rootValidator, path) as IStatableValidator
 
   if (theValidator[privateKey].invalid !== undefined) return
 
@@ -41,93 +42,107 @@ export function wrapState(validator: IBaseValidator) {
   theValidator[privateKey].validated = false
   theValidator[privateKey].pending = 0
   theValidator[privateKey].dirty = false
-  theValidator[privateKey].setValidated = setPrivateValidated(theValidator)
-  theValidator[privateKey].setInvalid = setPrivateInvalid(theValidator)
-  theValidator[privateKey].setDirty = setPrivateDirty(theValidator)
-  theValidator[privateKey].setPending = setPrivatePending(theValidator)
-  theValidator[privateKey].resetPending = resetPrivatePending(theValidator)
-
-  theValidator[publicKey].pending = getPending(theValidator)
-  theValidator[publicKey].invalid = getInvalid(theValidator)
-  theValidator[publicKey].dirty = getDirty(theValidator)
-  theValidator[publicKey].anyDirty = getAnyDirty(theValidator)
-  theValidator[publicKey].error = getError(theValidator)
-  theValidator[publicKey].anyError = getAnyError(theValidator)
+  theValidator[privateKey].setValidated = setPrivateValidated(rootValidator as IStatableValidator, path)
+  theValidator[privateKey].setInvalid = setPrivateInvalid(rootValidator as IStatableValidator, path)
+  theValidator[privateKey].setDirty = setPrivateDirty(rootValidator as IStatableValidator, path)
+  theValidator[privateKey].setPending = setPrivatePending(rootValidator as IStatableValidator, path)
+  theValidator[privateKey].resetPending = resetPrivatePending(rootValidator as IStatableValidator, path)
   theValidator[publicKey].errors = {}
+
+  theValidator[privateKey].setValidated(false)
+  theValidator[privateKey].setInvalid(false)
+  theValidator[privateKey].setDirty(false)
+  theValidator[privateKey].resetPending()
 }
 
-const setPrivateValidated = (validator: IStatableValidator) => (value: boolean) => {
+const setPrivateValidated = (rootValidator: IStatableValidator, path: string[]) => (value: boolean) => {
+  const validator = getByPath(rootValidator, path)
   validator[privateKey].validated = value
 }
 
-const setPrivateInvalid = (validator: IStatableValidator) => (value: boolean) => {
+const setPrivateInvalid = (rootValidator: IStatableValidator, path: string[]) => (value: boolean) => {
+  const validator = getByPath(rootValidator, path)
   validator[privateKey].invalid = value
-  validator[publicKey].invalid = getInvalid(validator)
-  validator[publicKey].error = getError(validator)
-  validator[publicKey].anyError = getAnyError(validator)
+  setPublicInvalid(rootValidator, path)
+  setPublicError(rootValidator, path)
+  setPublicAnyError(rootValidator, path)
 }
 
-const setPrivateDirty = (validator: IStatableValidator) => (value: boolean) => {
+const setPrivateDirty = (rootValidator: IStatableValidator, path: string[]) => (value: boolean) => {
+  const validator = getByPath(rootValidator, path)
   validator[privateKey].dirty = value
-  validator[publicKey].dirty = getDirty(validator)
-  validator[publicKey].anyDirty = getAnyDirty(validator)
-  validator[publicKey].error = getError(validator)
-  validator[publicKey].anyError = getAnyError(validator)
+  setPublicDirty(rootValidator, path)
+  setPublicAnyDirty(rootValidator, path)
+  setPublicError(rootValidator, path)
+  setPublicAnyError(rootValidator, path)
 }
 
-const setPrivatePending = (validator: IStatableValidator) => (value: boolean) => {
+const setPrivatePending = (rootValidator: IStatableValidator, path: string[]) => (value: boolean) => {
+  const validator = getByPath(rootValidator, path)
   validator[privateKey].pending += value === true ? 1 : -1
-  validator[publicKey].pending = getPending(validator)
-  validator[publicKey].invalid = getInvalid(validator)
-  validator[publicKey].error = getError(validator)
-  validator[publicKey].anyError = getAnyError(validator)
+  setPublicPending(rootValidator, path)
+  setPublicInvalid(rootValidator, path)
+  setPublicError(rootValidator, path)
+  setPublicAnyError(rootValidator, path)
 }
 
-const resetPrivatePending = (validator: IStatableValidator) => () => {
+const resetPrivatePending = (rootValidator: IStatableValidator, path: string[]) => () => {
+  const validator = getByPath(rootValidator, path)
   validator[privateKey].pending = 0
-  validator[publicKey].pending = getPending(validator)
-  validator[publicKey].invalid = getInvalid(validator)
-  validator[publicKey].error = getError(validator)
-  validator[publicKey].anyError = getAnyError(validator)
+  setPublicPending(rootValidator, path)
+  setPublicInvalid(rootValidator, path)
+  setPublicError(rootValidator, path)
+  setPublicAnyError(rootValidator, path)
 }
 
-const getPending = (validator: IStatableValidator) => {
-  return (
-    validator[privateKey].pending !== 0 ||
-    getNested(validator).some(nestedValidator => nestedValidator[publicKey].pending)
-  )
+const setPublicPending = (rootValidator: IStatableValidator, path: string[]) => {
+  let index = path.length + 1
+  while (--index >= 0) {
+    const validator = getByPath(rootValidator, path.slice(0, index))
+    validator[publicKey].pending =
+      validator[privateKey].pending !== 0 ||
+      getNested(validator).some(nestedValidator => nestedValidator[publicKey].pending)
+  }
 }
 
-const getInvalid = (validator: IStatableValidator) => {
-  return (
-    (validator[privateKey].invalid && validator[privateKey].pending === 0) ||
-    getNested(validator).some(nestedValidator => nestedValidator[publicKey].invalid)
-  )
+const setPublicInvalid = (rootValidator: IStatableValidator, path: string[]) => {
+  let index = path.length + 1
+  while (--index >= 0) {
+    const validator = getByPath(rootValidator, path.slice(0, index))
+    validator[publicKey].invalid =
+      (validator[privateKey].invalid && validator[privateKey].pending === 0) ||
+      getNested(validator).some(nestedValidator => nestedValidator[publicKey].invalid)
+  }
 }
 
-const getDirty = (validator: IStatableValidator) => {
-  return (
-    validator[privateKey].dirty ||
-    (getNested(validator).length !== 0 &&
-      getNested(validator).every(nestedValidator => nestedValidator[publicKey].dirty))
-  )
+const setPublicDirty = (rootValidator: IStatableValidator, path: string[]) => {
+  const validator = getByPath(rootValidator, path)
+  validator[publicKey].dirty = validator[privateKey].dirty
 }
 
-const getAnyDirty = (validator: IStatableValidator) => {
-  return (
-    validator[privateKey].dirty || getNested(validator).some(nestedValidator => nestedValidator[publicKey].anyDirty)
-  )
+const setPublicAnyDirty = (rootValidator: IStatableValidator, path: string[]) => {
+  let index = path.length + 1
+  while (--index >= 0) {
+    const validator = getByPath(rootValidator, path.slice(0, index))
+    validator[publicKey].anyDirty =
+      validator[privateKey].dirty || getNested(validator).some(nestedValidator => nestedValidator[publicKey].anyDirty)
+  }
 }
 
-const getError = (validator: IStatableValidator) => {
-  return validator[privateKey].dirty && validator[privateKey].invalid && validator[privateKey].pending === 0
+const setPublicError = (rootValidator: IStatableValidator, path: string[]) => {
+  const validator = getByPath(rootValidator, path)
+  validator[publicKey].error =
+    validator[privateKey].dirty && validator[privateKey].invalid && validator[privateKey].pending === 0
 }
 
-const getAnyError = (validator: IStatableValidator) => {
-  return (
-    (validator[privateKey].dirty && validator[privateKey].invalid && validator[privateKey].pending === 0) ||
-    getNested(validator).some(nestedValidator => nestedValidator[publicKey].anyError)
-  )
+const setPublicAnyError = (rootValidator: IStatableValidator, path: string[]) => {
+  let index = path.length + 1
+  while (--index >= 0) {
+    const validator = getByPath(rootValidator, path.slice(0, index))
+    validator[publicKey].anyError =
+      (validator[privateKey].dirty && validator[privateKey].invalid && validator[privateKey].pending === 0) ||
+      getNested(validator).some(nestedValidator => nestedValidator[publicKey].anyError)
+  }
 }
 
 export const getNested = (validator: IStatableValidator): IStatableValidator[] => {

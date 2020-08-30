@@ -72,10 +72,10 @@ export const proxyStructure = ({
   clone: { [key: string]: any }
   path?: string[]
   wrap?: (object: any, clone: any, path: string[]) => void
-  callback?: (wrapper: IBaseValidator) => void
+  callback?: (wrapper: IBaseValidator, path: string[]) => void
 }): any => {
   wrap(object, clone, path)
-  if (isPlainObject(clone) || isArray(clone)) callback(clone as IBaseValidator)
+  if (isPlainObject(clone) || isArray(clone)) callback(clone as IBaseValidator, path)
 
   if (isPlainObject(object) === false && isArray(object) === false) return object
 
@@ -137,7 +137,7 @@ export const proxyStructure = ({
 
             updateNestedPath(clone, clone[privateKey][pathKey])
             for (const key in clone) {
-              callback(clone[key] as IBaseValidator)
+              callback(clone[key] as IBaseValidator, path.concat(key))
             }
             return result
           } else if (/^\d+$/.test(key)) {
@@ -161,7 +161,7 @@ export const proxyStructure = ({
 
             updateNestedPath(clone, clone[privateKey][pathKey])
             for (const key in clone) {
-              callback(clone[key] as IBaseValidator)
+              callback(clone[key] as IBaseValidator, path.concat(key))
             }
             return result
           } else if (/^\d+$/.test(key)) {
@@ -179,7 +179,7 @@ export const proxyStructure = ({
             if (operationCount === totalOperationCount) {
               updateNestedPath(clone, clone[privateKey][pathKey])
               for (const key in clone) {
-                callback(clone[key] as IBaseValidator)
+                callback(clone[key] as IBaseValidator, path.concat(key))
               }
               operation = null
             }
@@ -205,7 +205,7 @@ export const proxyStructure = ({
             updateNestedPath(clone, clone[privateKey][pathKey])
             for (const key in clone) {
               clone[key][privateKey][pathKey] = clone[key][privateKey][pathKey].slice(0, -1).concat(key + '')
-              callback(clone[key] as IBaseValidator)
+              callback(clone[key] as IBaseValidator, path.concat(key))
             }
 
             return result

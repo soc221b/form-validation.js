@@ -26,8 +26,8 @@ export const proxy = ({ form, schema, validator, hooks }: any) => {
   return proxyStructure({
     object: form,
     clone: validator,
-    callback: baseValidator => {
-      wrapState(baseValidator)
+    callback: (baseValidator, path) => {
+      wrapState(validator, path)
       wrapSchema({ rootSchema: schema, validator: baseValidator as ISchemaValidator })
       wrapMethods(form, baseValidator)
       if (baseValidator[privateKey].validated) {

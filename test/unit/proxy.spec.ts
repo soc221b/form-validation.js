@@ -883,7 +883,7 @@ test('proxyStructure (nested)', () => {
 test('callback', () => {
   const validator: { [key: string]: any } = {}
   const fn = jest.fn(wrapper => {})
-  const callback = (wrapper: any) => {
+  const callback = (wrapper: any, path: string[]) => {
     fn(wrapper)
   }
   let form: { [key: string]: any } = {}
@@ -896,7 +896,7 @@ test('callback', () => {
 test('callback (nested)', () => {
   const validator: { [key: string]: any } = {}
   const fn = jest.fn(wrapper => {})
-  const callback = (wrapper: any) => {
+  const callback = (wrapper: any, path: string[]) => {
     fn(wrapper)
   }
   let form: { [key: string]: any } = {
