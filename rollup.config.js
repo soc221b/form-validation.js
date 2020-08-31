@@ -12,7 +12,8 @@ const packageName = 'form-validation'
 const pascalCasePackageName = 'FormValidation'
 
 const input = 'src/index.ts'
-const formats = ['es', 'umd', 'amd', 'cjs', 'iife', 'system']
+const isProd = process.env.npm_lifecycle_script.indexOf('--watch') === -1
+const formats = isProd ? ['es', 'umd', 'amd', 'cjs', 'iife', 'system'] : ['es', 'umd', 'cjs']
 
 const configs = []
 formats.forEach(format => {
