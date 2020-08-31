@@ -1,12 +1,11 @@
 const observeValidator = validator => {
-  if (typeof validator !== "object") return;
-  Vue.observable(validator.$v);
-  Vue.observable(validator.__form_validation__);
+  if (typeof validator !== 'object') return
+  Vue.observable(validator.$v)
+  Vue.observable(validator.__form_validation__)
   for (const key in validator) {
-    observeValidator(validator[key]);
+    observeValidator(validator[key])
   }
-};
-
+}
 
 new Vue({
   data() {

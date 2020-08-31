@@ -4,9 +4,13 @@
     <title>Example: Vue</title>
     <script src="https://unpkg.com/dom-json-tree@1.0.7/dist/index.js"></script>
     <script src="https://unpkg.com/vue@next"></script>
-    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.css">
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.css"
+    />
     <script src="../../../dist/form-validation.umd.js"></script>
-    <link rel="stylesheet" type="text/css" href="../../index.css">
+    <link rel="stylesheet" type="text/css" href="../../index.css" />
   </head>
   <body>
     <h1>form-validation.js</h1>
@@ -23,15 +27,17 @@
       <form>
         <template v-for="(datum, index) of state.accountList">
           <label :for="index">Account {{ index }}:</label>
-          <input :id="index" v-model="state.accountList[index]" @blur="blur(index)">
+          <input :id="index" v-model="state.accountList[index]" @blur="blur(index)" />
           <button type="button" @click="reset(index)">Reset</button>
           <ol>
             <template v-for="ruleKey of Object.keys(validator.accountList[index].$v.errors)">
-              <li v-if="validator.accountList[index].$v.dirty" :key="ruleKey">{{ validator.accountList[index].$v.errors[ruleKey] }}</li>
+              <li v-if="validator.accountList[index].$v.dirty" :key="ruleKey">
+                {{ validator.accountList[index].$v.errors[ruleKey] }}
+              </li>
             </template>
           </ol>
           <pre :ref="refs[index]"></pre>
-          <br>
+          <br />
         </template>
 
         <button type="button" @click="validator.$v.reset">Reset</button>

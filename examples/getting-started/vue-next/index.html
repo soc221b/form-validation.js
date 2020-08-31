@@ -4,16 +4,20 @@
     <title>Example: Vue</title>
     <script src="https://unpkg.com/dom-json-tree@1.0.7/dist/index.js"></script>
     <script src="https://unpkg.com/vue@next"></script>
-    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.css">
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.css"
+    />
     <script src="../../../dist/form-validation.umd.js"></script>
-    <link rel="stylesheet" type="text/css" href="../../index.css">
+    <link rel="stylesheet" type="text/css" href="../../index.css" />
   </head>
   <body>
     <h1>form-validation.js</h1>
     <div id="app">
       <form>
         <label for="account1">basic validation:</label>
-        <input id="account1" v-model="state.account1" @blur="blur('account1')">
+        <input id="account1" v-model="state.account1" @blur="blur('account1')" />
         <button type="button" @click="reset('account1')">Reset</button>
         <ol>
           <template v-for="ruleKey of Object.keys(validator.account1.$v.errors)">
@@ -21,10 +25,10 @@
           </template>
         </ol>
         <pre ref="account1"></pre>
-        <br>
+        <br />
 
         <label for="account2">with normalizer:</label>
-        <input id="account2" v-model="state.account2" @blur="blur('account2')">
+        <input id="account2" v-model="state.account2" @blur="blur('account2')" />
         <button type="button" @click="reset('account2')">Reset</button>
         <ol>
           <template v-for="ruleKey of Object.keys(validator.account2.$v.errors)">
@@ -32,10 +36,10 @@
           </template>
         </ol>
         <pre ref="account2"></pre>
-        <br>
+        <br />
 
         <label for="account3">with params:</label>
-        <input id="account3" v-model="state.account3" @blur="blur('account3')">
+        <input id="account3" v-model="state.account3" @blur="blur('account3')" />
         <button type="button" @click="reset('account3')">Reset</button>
         <ol>
           <template v-for="ruleKey of Object.keys(validator.account3.$v.errors)">
@@ -43,10 +47,10 @@
           </template>
         </ol>
         <pre ref="account3"></pre>
-        <br>
+        <br />
 
         <label for="account4">with async:</label>
-        <input id="account4" v-model="state.account4" @blur="blur('account4')">
+        <input id="account4" v-model="state.account4" @blur="blur('account4')" />
         <button type="button" @click="reset('account4')">Reset</button>
         <ol>
           <li v-if="validator.account4.$v.pending" class="loading">loading...</li>
@@ -55,7 +59,7 @@
           </template>
         </ol>
         <pre ref="account4"></pre>
-        <br>
+        <br />
       </form>
     </div>
 
