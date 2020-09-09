@@ -10,7 +10,7 @@ import {
   identity,
   isPromise,
   curry,
-  hasKey,
+  hasOwnKey,
 } from '../../src/util'
 
 test('toString', () => {
@@ -37,8 +37,8 @@ test('isPromise', () => {
   expect(isPromise({})).toStrictEqual(false)
 })
 
-test('hasKey', () => {
-  expect(hasKey({ k: '' }, 'k')).toStrictEqual(true)
+test('hasOwnKey', () => {
+  expect(hasOwnKey({ k: '' }, 'k')).toStrictEqual(true)
 })
 
 test('deepCopy', () => {

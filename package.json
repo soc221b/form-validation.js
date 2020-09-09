@@ -2,10 +2,10 @@
   "name": "form-validation.js",
   "version": "1.0.0",
   "description": "The most customizable validation framework for JavaScript.",
-  "main": "dist/form-validation.cjs.prod.js",
+  "main": "dist/form-validation.cjs.js",
   "umd:main": "dist/form-validation.umd.prod.js",
   "unpkg": "dist/form-validation.umd.prod.js",
-  "module": "dist/form-validation.es.prod.js",
+  "module": "dist/form-validation.es.js",
   "source": "src/index.ts",
   "types": "dist/index.d.ts",
   "repository": {
@@ -30,18 +30,22 @@
     "build": "rollup --config",
     "dev": "rollup --config --watch",
     "test": "jest --clearCache && jest --testTimeout 30 --all",
-    "lint": "prettier --check *.md *.js *.json **/*.js **/*.ts **/*.spec.ts **/*.json **/*.md",
+    "lint": "prettier --check *.md *.js *.json **/*.js **/*.ts src/plugins/**/*.ts **/*.spec.ts **/*.json **/*.md",
     "lint:fix": "yarn lint --write"
   },
   "devDependencies": {
+    "@rollup/plugin-commonjs": "^15.0.0",
+    "@rollup/plugin-json": "^4.1.0",
     "@rollup/plugin-node-resolve": "^8.0.1",
     "@rollup/plugin-replace": "^2.3.2",
     "@types/jest": "^25.2.1",
+    "@types/tapable": "^1.0.6",
     "husky": "^4.2.5",
     "jest": "^25.5.4",
     "prettier": "2.0.5",
     "rimraf": "^3.0.2",
     "rollup": "^2.7.6",
+    "rollup-plugin-node-builtins": "^2.1.2",
     "rollup-plugin-node-globals": "^1.4.0",
     "rollup-plugin-terser": "^5.3.0",
     "rollup-plugin-typescript2": "^0.27.0",
@@ -52,5 +56,9 @@
     "hooks": {
       "pre-push": "git diff --exit-code && git diff --staged --exit-code && yarn lint && yarn test"
     }
+  },
+  "dependencies": {
+    "detto": "^1.0.2",
+    "tapable": "^1.1.3"
   }
 }

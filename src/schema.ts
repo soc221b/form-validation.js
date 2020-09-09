@@ -1,132 +1,80 @@
-import { Normalizer, Rule, Error } from '../type'
-import { IBaseValidator, publicKey, privateKey, pathKey } from './proxy'
-import { IStatableValidator } from './validation-state'
-import { getByPath, noop, isPlainObject, isFunction } from './util'
+import { Param, Schema } from '../type'
+import { getByPath, getOwnKeys, hasOwnKey, noop } from './util'
 
-export const schemaKey = 'schema'
+// TODO: performance impact
+export const normalizeSchema = (schema: Partial<Schema>): Schema => {
+  const defaultSchema = getDefaultSchema()
 
-interface ISchema {
-  $params: { [key: string]: any }
-  $normalizer: Normalizer
-  $rules: { [key: string]: Rule }
-  $errors: { [key: string]: Error }
-
-  [key: string]: any
-}
-
-export interface ISchemaValidator extends IBaseValidator, IStatableValidator {
-  [key: string]: any
-  [privateKey]: {
-    [pathKey]: string[]
-    invalid: boolean
-    validated: boolean
-    pending: number
-    dirty: boolean
-    setValidated: (value: boolean) => void
-    setInvalid: (value: boolean) => void
-    setDirty: (value: boolean) => void
-    setPending: (value: boolean) => void
-    resetPending: () => void
-    [key: string]: any
-
-    [schemaKey]: ISchema
-  }
-  [publicKey]: {
-    [key: string]: any
-
-    pending: boolean
-    invalid: boolean
-    dirty: boolean
-    anyDirty: boolean
-    error: boolean
-    anyError: boolean
-    errors: {
-      [key: string]: any
+  if (schema.$params === undefined) schema.$params = defaultSchema.$params
+  if (schema.$normalizer === undefined) schema.$normalizer = defaultSchema.$normalizer
+  if (schema.$rules === undefined) schema.$rules = defaultSchema.$rules
+  if (schema.$messages === undefined) schema.$messages = defaultSchema.$messages
+  for (const key of getOwnKeys(schema.$rules)) {
+    if (hasOwnKey(schema.$messages, key) === false) {
+      schema.$messages[key] = noop
     }
   }
-}
 
-const createDefaultSchema = (): ISchema => {
-  return {
-    $params: {},
-    $normalizer: ({ value }) => value,
-    $rules: {},
-    $errors: {},
+  for (const key of getOwnKeys(schema)) {
+    if (hasOwnKey(defaultSchema, key)) continue
+    schema[key] = normalizeSchema(schema[key])
   }
+
+  return schema as Schema
 }
 
-export const wrapSchema = ({
-  rootSchema,
-  validator,
-}: {
-  rootSchema: Partial<ISchema>
-  validator: IStatableValidator
-}): void => {
-  const path = validator[privateKey][pathKey]
-
-  // init
-  const defaultSchema = createDefaultSchema()
-  validator[privateKey][schemaKey] = (validator[privateKey][schemaKey] || {}) as ISchemaValidator
-  validator[privateKey][schemaKey].$params = defaultSchema.$params
-  validator[privateKey][schemaKey].$normalizer = defaultSchema.$normalizer
-  validator[privateKey][schemaKey].$rules = defaultSchema.$rules
-  validator[privateKey][schemaKey].$errors = defaultSchema.$errors
-
-  applyMostAppropriateSchema({ rootSchema, validator, path: path.slice(), startIndex: 0 })
-
-  // normalize errors
-  for (const key in validator[privateKey][schemaKey].$rules) {
-    if (validator[privateKey][schemaKey].$errors[key] === undefined) {
-      validator[privateKey][schemaKey].$errors[key] = noop
-    }
+export const getSchema = ({ rootSchema, path }: { rootSchema: Schema; path: string[] }): Schema => {
+  const schema = _getSchema({ rootSchema, path: path.slice(), startIndex: 0 })
+  if (schema) {
+    return schema
   }
+
+  const defaultSchema = getDefaultSchema()
+  defaultSchema.$noSchemaSpecified = true
+  return defaultSchema
 }
 
-const applyMostAppropriateSchema = ({
+const _getSchema = ({
   rootSchema,
-  validator,
   path,
   startIndex,
 }: {
-  rootSchema: Partial<ISchema>
-  validator: IStatableValidator
+  rootSchema: Schema
   path: string[]
   startIndex: number
-}) => {
+}): Schema | null => {
+  let schema: Schema | null = null
+
   if (startIndex === path.length) {
     try {
-      const schema = getByPath(rootSchema, path)
-      if (shouldUseSchema(schema)) {
-        if (isPlainObject(schema.$params)) validator[privateKey][schemaKey].$params = schema.$params
-        if (isFunction(schema.$normalizer)) validator[privateKey][schemaKey].$normalizer = schema.$normalizer
-        if (isPlainObject(schema.$rules)) validator[privateKey][schemaKey].$rules = schema.$rules
-        if (isPlainObject(schema.$errors)) validator[privateKey][schemaKey].$errors = schema.$errors
-        return true
-      }
+      schema = getByPath(rootSchema, path)
     } catch (error) {}
 
-    return false
+    if (schema && schema.$rules) return schema
+
+    return null
   }
 
   // dedicate
-  if (applyMostAppropriateSchema({ rootSchema, validator, path, startIndex: startIndex + 1 })) return true
+  schema = _getSchema({ rootSchema, path, startIndex: startIndex + 1 })
+  if (schema !== null) return schema
 
   // iter
   const oldKey = path[startIndex]
   path[startIndex] = '$iter'
-  if (applyMostAppropriateSchema({ rootSchema, validator, path, startIndex: startIndex + 1 })) return true
+  schema = _getSchema({ rootSchema, path, startIndex: startIndex + 1 })
+  if (schema !== null) return schema
   path[startIndex] = oldKey
 
-  return false
+  return null
 }
 
-const shouldUseSchema = (schema?: Partial<ISchema>) => {
-  if (schema === undefined) return false
-
-  if (schema.$params !== undefined) return true
-  if (schema.$normalizer !== undefined) return true
-  if (schema.$rules !== undefined) return true
-  if (schema.$errors !== undefined) return true
-
-  return false
+const getDefaultSchema = (): Schema => {
+  return {
+    $noSchemaSpecified: false,
+    $params: {},
+    $normalizer: ({ value }: Partial<Param>) => value,
+    $rules: {},
+    $messages: {},
+  }
 }

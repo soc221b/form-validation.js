@@ -1,5 +1,3 @@
-import { Path } from '../type/index'
-
 export function toString(object: any): string {
   return Object.prototype.toString.call(object)
 }
@@ -20,8 +18,13 @@ export function isPromise(object: any): boolean {
   return object !== null && typeof object === 'object' && isFunction(object.then)
 }
 
-export function hasKey(object: { [key: string]: any }, key: string): boolean {
+export function hasOwnKey(object: { [key: string]: any }, key: string): boolean {
   return object.hasOwnProperty(key)
+}
+
+export function getOwnKeys(object: any): string[] {
+  if (isPlainObject(object) === false && isArray(object) === false) return []
+  return Object.keys(object)
 }
 
 interface Cache<T> {
@@ -44,14 +47,14 @@ export function deepCopy<T>(object: T, cache: Cache<T>[] = []): T {
     copy,
   })
 
-  Object.keys(object).forEach(key => {
+  getOwnKeys(object).forEach(key => {
     ;(copy as any)[key] = deepCopy((object as any)[key], cache)
   })
 
   return copy as T
 }
 
-export function getByPath(object: object | any[], path: Path) {
+export function getByPath(object: object | any[], path: string[]) {
   if (path.length === 0) return object
 
   let deepestParent: any = object
@@ -62,7 +65,7 @@ export function getByPath(object: object | any[], path: Path) {
   return deepestParent[path[path.length - 1]]
 }
 
-export function setByPath(object: object | unknown[], path: Path, value: unknown) {
+export function setByPath(object: object | unknown[], path: string[], value: unknown) {
   if (path.length === 0) return value
 
   const deepestParent = getByPath(object, path.slice(0, -1))
@@ -70,7 +73,7 @@ export function setByPath(object: object | unknown[], path: Path, value: unknown
   return value
 }
 
-export function noop(...args: any): any {}
+export function noop(..._: any[]): any {}
 
 export function identity<T>(any: T): T {
   return any

@@ -1,112 +1,58 @@
-import { proxyStructure, publicKey, privateKey } from './proxy'
-import { validate, rulesResultKey } from './validate'
-import { wrapState, IStatableValidator } from './validation-state'
-import { isPromise } from './util'
-import { wrapSchema, ISchemaValidator, schemaKey } from './schema'
-import { wrapIter } from './iter'
+import { proxy as dettoProxy } from 'detto'
+import { ValidationWrapper, Validator as OriginalValidator, VALIDATOR_KEY, Plugin } from './validator'
+import { Schema } from '../type'
+import { normalizeSchema } from './schema'
 
-export interface IValidator extends IStatableValidator {
-  [publicKey]: {
-    pending: boolean
-    invalid: boolean
-    dirty: boolean
-    anyDirty: boolean
-    error: boolean
-    anyError: boolean
-    errors: {
-      [key: string]: any
-    }
+export function proxy<T>({
+  form,
+  schema,
+  plugins,
+}: {
+  form: T
+  schema: Partial<Schema>
+  plugins?: Plugin[]
+}): { proxiedForm: T; validationWrapper: any } {
+  // isolate prototype chain
+  class Validator extends OriginalValidator {}
 
-    validate: () => void
-    reset: () => void
-    touch: () => void
-  }
-}
+  const rootForm = form
+  const rootSchema = normalizeSchema(schema)
+  const rootWrapper: any = {}
+  rootWrapper[VALIDATOR_KEY] = new Validator(rootForm, rootWrapper, rootSchema, [], plugins)
+  rootWrapper[VALIDATOR_KEY].$hooks.onCreated.call(rootWrapper[VALIDATOR_KEY])
 
-export const proxy = ({ form, schema, validator, hooks }: any) => {
-  return proxyStructure({
-    object: form,
-    clone: validator,
-    callback: (baseValidator, path) => {
-      wrapState(validator, path)
-      wrapSchema({ rootSchema: schema, validator: baseValidator as ISchemaValidator })
-      wrapMethods(form, baseValidator)
-      wrapIter(baseValidator)
-      if (baseValidator[privateKey].validated) {
-        baseValidator[publicKey].validate()
-      }
-
-      hooks && hooks.onChanged && hooks.onChanged(baseValidator)
-    },
-  })
-}
-
-const wrapMethods = (rootForm: any, validator: any) => {
-  const schema = validator[privateKey][schemaKey]
-
-  const $validate = () => {
-    validator[privateKey].setValidated(true)
-    validator[privateKey].setInvalid(false)
-    validator[privateKey].resetPending()
-    validator[publicKey].errors = {}
-    validator[privateKey].previousResult = {}
-
-    const result = validate({ rootForm, validator })
-    validator[privateKey].previousResult = result[rulesResultKey]
-    result[rulesResultKey] = validator[privateKey].previousResult
-    for (const ruleKey of Object.keys(schema.$rules)) {
-      if (isPromise(result[rulesResultKey][ruleKey])) {
-        validator[privateKey].setPending(true)
-
-        result[rulesResultKey][ruleKey].finally(async () => {
-          // ignore previous promise
-          if (validator[privateKey].previousResult !== result[rulesResultKey]) return
-
-          const ruleResult = await result[rulesResultKey][ruleKey]
-          if (ruleResult !== undefined) {
-            validator[privateKey].setInvalid(true)
-            validator[publicKey].errors[ruleKey] = await result[ruleKey]
-          }
-          validator[privateKey].setPending(false)
-        })
-      } else {
-        if (result[rulesResultKey][ruleKey] !== undefined) {
-          validator[privateKey].setInvalid(true)
-          validator[publicKey].errors[ruleKey] = result[ruleKey]
+  return {
+    proxiedForm: dettoProxy({
+      object: form,
+      detto: rootWrapper as T,
+      callback: (wrapper: ValidationWrapper, path: string[]) => {
+        if (wrapper[VALIDATOR_KEY] === undefined) {
+          wrapper[VALIDATOR_KEY] = new Validator(rootForm, rootWrapper, rootSchema, path, plugins)
         }
-      }
-    }
 
-    let nestedResult: any = {}
-    for (const key of Object.keys(validator).filter(key => key !== publicKey && key !== privateKey)) {
-      nestedResult[key] = validator[key][publicKey].validate()
-    }
-
-    return Promise.all(Object.values(result[rulesResultKey]))
-      .then(() => Promise.all(Object.values(nestedResult)))
-      .then(() => undefined)
+        wrapper[VALIDATOR_KEY]!.$path = path
+        wrapper[VALIDATOR_KEY]!.$hooks.onCreated.call(wrapper[VALIDATOR_KEY])
+      },
+    }),
+    validationWrapper: rootWrapper,
   }
-  const $reset = () => {
-    validator[privateKey].setValidated(false)
-    validator[privateKey].setInvalid(false)
-    validator[privateKey].setDirty(false)
-    validator[privateKey].resetPending()
-    validator[privateKey].previousResult = {}
-    validator[publicKey].errors = {}
-
-    for (const key of Object.keys(validator).filter(key => key !== publicKey && key !== privateKey)) {
-      validator[key][publicKey].reset()
-    }
-  }
-  const $touch = () => {
-    validator[privateKey].setDirty(true)
-
-    for (const key of Object.keys(validator).filter(key => key !== publicKey && key !== privateKey)) {
-      validator[key][publicKey].touch()
-    }
-  }
-
-  validator[publicKey].validate = $validate
-  validator[publicKey].reset = $reset
-  validator[publicKey].touch = $touch
 }
+
+export { Validator, Plugin } from './validator'
+export { default as AnyDirtyPlugin } from './plugins/any-dirty-plugin'
+export { default as AnyErrorPlugin } from './plugins/any-error-plugin'
+export { default as AnyInvalidPlugin } from './plugins/any-invalid-plugin'
+export { default as AnyPendingPlugin } from './plugins/any-pending-plugin'
+export { default as CachePlugin } from './plugins/cache-plugin'
+export { default as DirtyPlugin } from './plugins/dirty-plugin'
+export { default as ErrorPlugin } from './plugins/error-plugin'
+export { default as InvalidPlugin } from './plugins/invalid-plugin'
+export { default as PendingPlugin } from './plugins/pending-plugin'
+export { default as IterPlugin } from './plugins/iter-plugin'
+export { default as RecursiveResetPlugin } from './plugins/recursive-reset-plugin'
+export { default as RecursiveTouchPlugin } from './plugins/recursive-touch-plugin'
+export { default as RecursiveValidatePlugin } from './plugins/recursive-validate-plugin'
+export { default as TouchPlugin } from './plugins/touch-plugin'
+export { default as ValidatedPlugin } from './plugins/validated-plugin'
+export { default as AliasPlugin } from './plugins/alias-plugin'
+export { recursiveCallChildren, recursiveCallParent } from './plugins/util'

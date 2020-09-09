@@ -1,4 +1,13 @@
-import { proxy } from '../../dist/form-validation.cjs'
+import {
+  AnyDirtyPlugin,
+  AnyErrorPlugin,
+  DirtyPlugin,
+  ErrorPlugin,
+  InvalidPlugin,
+  PendingPlugin,
+  Plugin,
+  proxy,
+} from '../../'
 
 function sameAs({ value, root, params }: any) {
   const anotherValue = params.anotherPath.reduce((anotherValue: any, key: string) => anotherValue[key], root)
@@ -25,8 +34,16 @@ test('same as', () => {
       },
     },
   }
-  const validator: any = {}
-  const proxiedForm: any = proxy({ form, schema, validator })
+  const plugins: Plugin[] = [
+    new InvalidPlugin(),
+    new PendingPlugin(),
+    new DirtyPlugin(),
+    new AnyDirtyPlugin(),
+    new ErrorPlugin(),
+    new AnyErrorPlugin(),
+  ]
+  const { proxiedForm, validationWrapper: validator } = proxy({ form, schema, plugins })
+  console.log(validator.$v.$states.invalid)
 
   validator.$v.validate()
   expect(validator.$v.invalid).toBe(false)
@@ -139,8 +156,7 @@ test('same as', () => {
       },
     },
   }
-  const validator: any = {}
-  const proxiedForm: any = proxy({ form, schema, validator })
+  const { proxiedForm, validationWrapper: validator } = proxy({ form, schema })
 
   validator.$v.validate()
   expect(validator.ipAddresses[0].$v.invalid).toBe(false)
@@ -182,8 +198,7 @@ test('async', async () => {
       },
     },
   }
-  const validator: any = {}
-  const proxiedForm: any = proxy({ form, schema, validator })
+  const { proxiedForm, validationWrapper: validator } = proxy({ form, schema })
 
   let promise = null
 

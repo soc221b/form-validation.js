@@ -1,46 +1,32 @@
-// schema
-export type Schema = {
-  $params?: { [key: string]: any }
-  $normalizer?: Normalizer
-  $rules?: { [key: string]: Rule }
-  $errors?: { [key: string]: Error }
-
-  // todo: nested values should still validate $params and else
-  [key: string]: any
-}
-
-export type Param = {
-  value?: any
-  key?: string | undefined
-  path?: Path
-  target?: any
-  params?: { [key: string]: any }
-}
-
-// rules
-export type Rule = ({ value, key, path, target, params }: Required<Param>) => any | Promise<any>
-
-// normlizer
-export type Normalizer = ({ value, key, path, target, params }: Required<Param>) => any
-
-// errors
-export type Error = ({ value, key, path, target, params }: Required<Param>) => any
-
-export type Instance = {
-  $validate: () => Promise<void>
-  $reset: () => void
-
-  $errors: { [key: string]: any }
-  $hasError: boolean
-  $hasValidated: boolean
-  $isPending: boolean
+export interface Schema {
+  $noSchemaSpecified: boolean
   $params: { [key: string]: any }
-  $iter: { [key: string]: Omit<Instance, '$bind'> }
+  $normalizer: Normalizer
+  $rules: { [key: string]: Rule }
+  $messages: { [key: string]: Error }
 
-  _schema: Required<Schema>
-  _target: any
-
-  [key: string]: any
+  [key: string]: Schema | any
 }
 
-export type Path = string[]
+export interface Param {
+  value: any
+  key: string | undefined
+  path: string[]
+  parent: any
+  root: any
+  params: { [key: string]: any }
+}
+
+export type Normalizer = ({ value, key, parent, path, root, params }: Param) => any
+
+export type Rule = ({ value, key, parent, path, root, params }: Param) => any | Promise<any>
+
+export interface ErrorParam extends Param {
+  params: {
+    [key: string]: any
+    $rules: {
+      [key: string]: any
+    }
+  }
+}
+export type Error = ({ value, key, parent, path, root, params }: ErrorParam) => any

@@ -1,5 +1,4 @@
-import { privateKey, pathKey } from '../../src/proxy'
-import { wrapSchema, schemaKey } from '../../src/schema'
+import { getSchema } from '../../src/schema'
 
 const abcd = () => {}
 const abci = () => {}
@@ -97,106 +96,112 @@ const rootSchema: any = {
   },
 }
 
-let validator: any
-beforeEach(() => {
-  validator = {
-    [privateKey]: {
-      [pathKey]: ['a', 'b', 'c', 'd'],
-    },
-  }
-})
+const path = ['a', 'b', 'c', 'd']
 
 test('schema a.b.c.d', () => {
-  wrapSchema({ rootSchema, validator })
-  expect(validator[privateKey][schemaKey].$rules.rule).toBe(abcd)
+  expect(getSchema({ rootSchema, path }).$rules.rule).toBe(abcd)
 })
 
 test('schema a.b.c.i', () => {
   delete rootSchema.a.b.c.d.$rules
-  wrapSchema({ rootSchema, validator })
-  expect(validator[privateKey][schemaKey].$rules.rule).toBe(abci)
+  expect(getSchema({ rootSchema, path }).$rules.rule).toBe(abci)
 })
 
 test('schema a.b.i.d', () => {
   delete rootSchema.a.b.c.$iter.$rules
-  wrapSchema({ rootSchema, validator })
-  expect(validator[privateKey][schemaKey].$rules.rule).toBe(abid)
+  expect(getSchema({ rootSchema, path }).$rules.rule).toBe(abid)
 })
 
 test('schema a.b.i.i', () => {
   delete rootSchema.a.b.$iter.d.$rules
-  wrapSchema({ rootSchema, validator })
-  expect(validator[privateKey][schemaKey].$rules.rule).toBe(abii)
+  expect(getSchema({ rootSchema, path }).$rules.rule).toBe(abii)
 })
 
 test('schema a.i.c.d', () => {
   delete rootSchema.a.b.$iter.$iter.$rules
-  wrapSchema({ rootSchema, validator })
-  expect(validator[privateKey][schemaKey].$rules.rule).toBe(aicd)
+  expect(getSchema({ rootSchema, path }).$rules.rule).toBe(aicd)
 })
 
 test('schema a.i.c.i', () => {
   delete rootSchema.a.$iter.c.d.$rules
-  wrapSchema({ rootSchema, validator })
-  expect(validator[privateKey][schemaKey].$rules.rule).toBe(aici)
+  expect(getSchema({ rootSchema, path }).$rules.rule).toBe(aici)
 })
 
 test('schema a.i.i.d', () => {
   delete rootSchema.a.$iter.c.$iter.$rules
-  wrapSchema({ rootSchema, validator })
-  expect(validator[privateKey][schemaKey].$rules.rule).toBe(aiid)
+  expect(getSchema({ rootSchema, path }).$rules.rule).toBe(aiid)
 })
 
 test('schema a.i.i.i', () => {
   delete rootSchema.a.$iter.$iter.d.$rules
-  wrapSchema({ rootSchema, validator })
-  expect(validator[privateKey][schemaKey].$rules.rule).toBe(aiii)
+  expect(getSchema({ rootSchema, path }).$rules.rule).toBe(aiii)
 })
 
 test('schema i.b.c.d', () => {
   delete rootSchema.a.$iter.$iter.$iter.$rules
-  wrapSchema({ rootSchema, validator })
-  expect(validator[privateKey][schemaKey].$rules.rule).toBe(ibcd)
+  expect(getSchema({ rootSchema, path }).$rules.rule).toBe(ibcd)
 })
 
 test('schema i.b.c.i', () => {
   delete rootSchema.$iter.b.c.d.$rules
-  wrapSchema({ rootSchema, validator })
-  expect(validator[privateKey][schemaKey].$rules.rule).toBe(ibci)
+  expect(getSchema({ rootSchema, path }).$rules.rule).toBe(ibci)
 })
 
 test('schema i.b.i.d', () => {
   delete rootSchema.$iter.b.c.$iter.$rules
-  wrapSchema({ rootSchema, validator })
-  expect(validator[privateKey][schemaKey].$rules.rule).toBe(ibid)
+  expect(getSchema({ rootSchema, path }).$rules.rule).toBe(ibid)
 })
 
 test('schema i.b.i.i', () => {
   delete rootSchema.$iter.b.$iter.d.$rules
-  wrapSchema({ rootSchema, validator })
-  expect(validator[privateKey][schemaKey].$rules.rule).toBe(ibii)
+  expect(getSchema({ rootSchema, path }).$rules.rule).toBe(ibii)
 })
 
 test('schema i.i.c.d', () => {
   delete rootSchema.$iter.b.$iter.$iter.$rules
-  wrapSchema({ rootSchema, validator })
-  expect(validator[privateKey][schemaKey].$rules.rule).toBe(iicd)
+  expect(getSchema({ rootSchema, path }).$rules.rule).toBe(iicd)
 })
 
 test('schema i.i.c.i', () => {
   delete rootSchema.$iter.$iter.c.d.$rules
-  wrapSchema({ rootSchema, validator })
-  expect(validator[privateKey][schemaKey].$rules.rule).toBe(iici)
+  expect(getSchema({ rootSchema, path }).$rules.rule).toBe(iici)
 })
 
 test('schema i.i.i.d', () => {
   delete rootSchema.$iter.$iter.c.$iter.$rules
-  wrapSchema({ rootSchema, validator })
-  expect(validator[privateKey][schemaKey].$rules.rule).toBe(iiid)
+  expect(getSchema({ rootSchema, path }).$rules.rule).toBe(iiid)
 })
 
 test('schema i.i.i.i', () => {
   delete rootSchema.$iter.$iter.$iter.d.$rules
-  wrapSchema({ rootSchema, validator })
-  expect(validator[privateKey][schemaKey].$rules.rule).toBe(iiii)
+  expect(getSchema({ rootSchema, path }).$rules.rule).toBe(iiii)
+})
+
+test('cache', () => {
+  const path = 'abcdefghij'.split('')
+  const rootSchema: any = {}
+  let schema = rootSchema
+  path.forEach(() => {
+    schema.$iter = {}
+    schema = schema.$iter
+  })
+  schema.$rules = { rule: iiii }
+
+  const cache = new WeakMap()
+  const times = 64
+  let i
+  const beforeWithCache = Date.now()
+  i = 0
+  while (++i < times) {
+    expect(getSchema({ rootSchema, path, cache }).$rules.rule).toBe(iiii)
+  }
+  const afterWithCache = Date.now()
+
+  const before = Date.now()
+  i = 0
+  while (++i < times) {
+    expect(getSchema({ rootSchema, path }).$rules.rule).toBe(iiii)
+  }
+  const after = Date.now()
+  expect((afterWithCache - beforeWithCache) * 8 < after - before).toBe(true)
 })

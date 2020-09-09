@@ -3,3 +3,4 @@ node_modules
 yarn-error.log
 .vscode
 .DS_Store
+*.icloud
