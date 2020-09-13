@@ -1,3 +1,4 @@
+import { isPromise } from '../util'
 import { Validator } from '../validator'
 
 declare module '../validator' {
@@ -8,7 +9,10 @@ declare module '../validator' {
 
 const update = (validator: Validator) => {
   validator.$states.error =
-    validator.$states.dirty === true && Object.values(validator.$states.messages).some(message => message !== undefined)
+    validator.$states.dirty === true &&
+    Object.values(validator.$lastRuleResults).some(
+      ruleResult => isPromise(ruleResult) === false && ruleResult !== undefined,
+    )
 }
 
 const inactive = (validator: Validator) => {
