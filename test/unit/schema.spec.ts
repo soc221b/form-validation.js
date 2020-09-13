@@ -176,32 +176,3 @@ test('schema i.i.i.i', () => {
   delete rootSchema.$iter.$iter.$iter.d.$rules
   expect(getSchema({ rootSchema, path }).$rules.rule).toBe(iiii)
 })
-
-test('cache', () => {
-  const path = 'abcdefghij'.split('')
-  const rootSchema: any = {}
-  let schema = rootSchema
-  path.forEach(() => {
-    schema.$iter = {}
-    schema = schema.$iter
-  })
-  schema.$rules = { rule: iiii }
-
-  const cache = new WeakMap()
-  const times = 64
-  let i
-  const beforeWithCache = Date.now()
-  i = 0
-  while (++i < times) {
-    expect(getSchema({ rootSchema, path, cache }).$rules.rule).toBe(iiii)
-  }
-  const afterWithCache = Date.now()
-
-  const before = Date.now()
-  i = 0
-  while (++i < times) {
-    expect(getSchema({ rootSchema, path }).$rules.rule).toBe(iiii)
-  }
-  const after = Date.now()
-  expect((afterWithCache - beforeWithCache) * 8 < after - before).toBe(true)
-})
