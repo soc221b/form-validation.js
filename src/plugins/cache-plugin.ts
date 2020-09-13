@@ -64,11 +64,6 @@ function clearCache(this: Validator) {
       cache.$rootWrapper.delete(existingPathKey)
     }
   }
-  for (const existingPathKey of Array.from(cache.$rootSchema.keys())) {
-    if (existingPathKey.startsWith(pathKey + '.') || existingPathKey === pathKey) {
-      cache.$rootSchema.delete(existingPathKey)
-    }
-  }
 }
 
 const Tap = {
