@@ -26,7 +26,12 @@ function getForm(this: Validator, path: string[]) {
     cache.$rootForm.set(pathKey, getByPath(this.$rootForm, path))
   }
 
-  return cache.$rootForm.get(pathKey)
+  const value = cache.$rootForm.get(pathKey)
+  if (typeof value !== 'object' || value === null) {
+    cache.$rootForm.delete(pathKey)
+  }
+
+  return value
 }
 
 function getWrapper(this: Validator, path: string[]) {
