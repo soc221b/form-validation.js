@@ -17,14 +17,15 @@ export default class AliasPlugin {
   }
 
   alias(this: AliasPlugin, validationWrapper: ValidationWrapper) {
+    const currentPath = validationWrapper[VALIDATOR_KEY]?.$path!
     for (const { path, aliasPath } of this.aliases) {
-      const parentWrapper = validationWrapper[VALIDATOR_KEY]?.getWrapper(aliasPath.slice(0, -1))
+      const parentWrapper = validationWrapper[VALIDATOR_KEY]?.getWrapper(currentPath.concat(aliasPath.slice(0, -1)))
       const key = aliasPath[aliasPath.length - 1]
       Object.defineProperty(parentWrapper, key, {
         configurable: true,
         enumerable: true,
         get() {
-          return validationWrapper[VALIDATOR_KEY]?.getWrapper(path)
+          return validationWrapper[VALIDATOR_KEY]?.getWrapper(currentPath.concat(path))
         },
       })
     }
