@@ -167,13 +167,11 @@ class Validator {
     }
 
     if (Object.values(ruleResults).some(isPromise)) {
-      return Promise.all(Object.values(ruleResults))
-        .then(() => this.$hooks.onDoValidated.call(this))
-        .then(() => ruleResults)
+      Promise.all(Object.values(ruleResults)).then(() => this.$hooks.onDoValidated.call(this))
     } else {
       this.$hooks.onDoValidated.call(this)
-      return ruleResults
     }
+    return ruleResults
   }
 
   reset(this: Validator): any {
