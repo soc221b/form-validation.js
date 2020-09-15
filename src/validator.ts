@@ -18,6 +18,7 @@ export interface States {
 
 export interface Hooks {
   onCreated: any
+  onUpdated: any
   onBeforeValidate: any
   onDoBeforeValidate: any
   onValidated: any
@@ -57,6 +58,7 @@ class Validator {
     this.$hooks = {
       ...this.$hooks,
       onCreated: new Tapable.SyncHook(['validator']),
+      onUpdated: new Tapable.SyncHook(['validator']),
       onBeforeValidate: new Tapable.SyncHook(['validator']),
       onDoBeforeValidate: new Tapable.SyncHook(['validator']),
       onValidated: new Tapable.SyncHook(['validator']),

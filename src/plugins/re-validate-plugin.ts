@@ -8,6 +8,6 @@ const reValidate = (validator: Validator) => {
 
 export default class ReValidatePlugin {
   apply(validator: Validator) {
-    validator.$hooks.onCreated.tap('re-validate-plugin', reValidate)
+    validator.$hooks.onUpdated.tap('re-validate-plugin', reValidate)
   }
 }
