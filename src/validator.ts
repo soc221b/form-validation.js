@@ -10,11 +10,7 @@ export interface ValidationWrapper {
   [key: string]: any
 }
 
-export interface States {
-  messages: {
-    [key: string]: any
-  }
-}
+export interface States {}
 
 export interface Hooks {
   onCreated: any
@@ -53,7 +49,7 @@ class Validator {
     this.$rootWrapper = rootWrapper
     this.$rootSchema = rootSchema
     this.$path = path
-    this.$states = { ...this.$states, messages: {} }
+    this.$states = { ...this.$states }
     this.$lastRuleResults = {}
     this.$hooks = {
       ...this.$hooks,
@@ -137,31 +133,9 @@ class Validator {
         ;(ruleResults[ruleKey] as Promise<any>).finally(async () => {
           if (this.$lastRuleResults !== ruleResults) return
 
-          const ruleResult = await ruleResults[ruleKey]
-
-          const message = schema.$messages[ruleKey]({
-            ...param,
-            params: {
-              ...param.params,
-              $rules: {
-                [ruleKey]: ruleResult,
-              },
-            },
-          })
-          this.$states.messages[ruleKey] = message
           this.$hooks.onDoValidatedEach.call(this, ruleKey)
         })
       } else {
-        const message = schema.$messages[ruleKey]({
-          ...param,
-          params: {
-            ...param.params,
-            $rules: {
-              [ruleKey]: ruleResults[ruleKey],
-            },
-          },
-        })
-        this.$states.messages[ruleKey] = message
         this.$hooks.onDoValidatedEach.call(this, ruleKey)
       }
     }
@@ -185,7 +159,6 @@ class Validator {
   doReset(this: Validator): any {
     this.$hooks.onDoBeforeReset.call(this)
 
-    this.$states.messages = {}
     this.$lastRuleResults = {}
 
     this.$hooks.onDoReseted.call(this)
