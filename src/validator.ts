@@ -81,8 +81,9 @@ class Validator {
   validate(this: Validator): any {
     this.$hooks.onBeforeValidate.call(this)
 
-    const ruleResults = this.doValidate()
+    this.doValidate()
 
+    const ruleResults = this.$lastRuleResults
     for (const ruleKey of getOwnKeys(ruleResults)) {
       if (isPromise(ruleResults[ruleKey])) {
         ruleResults[ruleKey].finally(() => {
@@ -145,7 +146,6 @@ class Validator {
     } else {
       this.$hooks.onDoValidated.call(this)
     }
-    return ruleResults
   }
 
   reset(this: Validator): any {
