@@ -73,6 +73,7 @@ function clearCache(this: Validator) {
 
 const Tap = {
   name: 'cache-plugin',
+  stage: -999,
 }
 
 export default class CachePlugin {
