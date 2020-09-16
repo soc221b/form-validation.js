@@ -18,8 +18,6 @@ export function proxy<T>({
   const rootForm = form
   const rootSchema = normalizeSchema(schema)
   const rootWrapper: any = {}
-  rootWrapper[VALIDATOR_KEY] = new Validator(rootForm, rootWrapper, rootSchema, [], plugins)
-  rootWrapper[VALIDATOR_KEY].$hooks.onCreated.call(rootWrapper[VALIDATOR_KEY])
 
   return {
     proxiedForm: dettoProxy({
