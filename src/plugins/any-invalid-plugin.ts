@@ -18,6 +18,7 @@ const init = (validator: Validator) => {
         parentValidator.$states.invalid === true ||
         getOwnKeys(parentForm)
           .filter((key: string) => hasOwnKey(parentWrapper, key))
+          .filter((key: string) => hasOwnKey(parentWrapper[key], VALIDATOR_KEY))
           .map((key: string) => parentWrapper[key][VALIDATOR_KEY])
           .some(
             (parentValidator: Validator) =>
@@ -40,6 +41,7 @@ const update = (validator: Validator) => {
         parentValidator.$states.invalid === true ||
         getOwnKeys(parentForm)
           .filter((key: string) => hasOwnKey(parentWrapper, key))
+          .filter((key: string) => hasOwnKey(parentWrapper[key], VALIDATOR_KEY))
           .map((key: string) => parentWrapper[key][VALIDATOR_KEY])
           .some(
             (parentValidator: Validator) =>
