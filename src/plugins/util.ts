@@ -55,6 +55,7 @@ export const recursiveCallChildren = ({
     if (isPlainObject(form) || isArray(form)) {
       for (const key of getOwnKeys(form)) {
         const childWrapper: ValidationWrapper = wrapper[key]
+        if (childWrapper === undefined) continue
         if (childWrapper[VALIDATOR_KEY] === undefined) continue
         if (callback(childWrapper as Required<ValidationWrapper>)) return
         childValidators.push(childWrapper[VALIDATOR_KEY] as Validator)
