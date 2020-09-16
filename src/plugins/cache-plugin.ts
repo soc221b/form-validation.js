@@ -80,6 +80,7 @@ export default class CachePlugin {
 
   apply(this: CachePlugin, validator: Validator) {
     validator.$hooks.onCreated.tap(Tap, clearCache.bind(validator))
+    validator.$hooks.onUpdated.tap(Tap, clearCache.bind(validator))
 
     if (this.applied) return
     this.applied = true
