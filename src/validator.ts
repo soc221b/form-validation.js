@@ -44,11 +44,23 @@ interface Validator {
 }
 
 class Validator {
-  constructor(rootForm: any, rootWrapper: ValidationWrapper, rootSchema: Schema, path: string[], plugins?: Plugin[]) {
+  constructor(
+    rootForm: any,
+    rootWrapper: ValidationWrapper,
+    rootSchema: Schema,
+    wrapper: Partial<ValidationWrapper>,
+    plugins?: Plugin[],
+  ) {
     this.$rootForm = rootForm
     this.$rootWrapper = rootWrapper
     this.$rootSchema = rootSchema
-    this.$path = path
+    Object.defineProperty(this, '$path', {
+      configurable: true,
+      enumerable: true,
+      get() {
+        return wrapper.__detto_path__
+      },
+    })
     this.$states = { ...this.$states }
     this.$lastRuleResults = {}
     this.$hooks = {

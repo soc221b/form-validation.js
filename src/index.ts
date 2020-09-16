@@ -23,12 +23,11 @@ export function proxy<T>({
     proxiedForm: dettoProxy({
       object: form,
       detto: rootWrapper as T,
-      callback: (wrapper: ValidationWrapper, path: string[]) => {
+      callback: (wrapper: ValidationWrapper) => {
         if (wrapper[VALIDATOR_KEY] === undefined) {
-          wrapper[VALIDATOR_KEY] = new Validator(rootForm, rootWrapper, rootSchema, path, plugins)
+          wrapper[VALIDATOR_KEY] = new Validator(rootForm, rootWrapper, rootSchema, wrapper, plugins)
           wrapper[VALIDATOR_KEY]!.$hooks.onCreated.call(wrapper[VALIDATOR_KEY])
         } else {
-          wrapper[VALIDATOR_KEY]!.$path = path
           wrapper[VALIDATOR_KEY]!.$hooks.onUpdated.call(wrapper[VALIDATOR_KEY])
         }
       },
