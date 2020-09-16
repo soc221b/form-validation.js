@@ -2,6 +2,7 @@ import { proxy as dettoProxy } from 'detto'
 import { ValidationWrapper, Validator as OriginalValidator, VALIDATOR_KEY, Plugin } from './validator'
 import { Schema } from '../type'
 import { normalizeSchema } from './schema'
+import { isArray } from './util'
 
 export function proxy<T>({
   form,
@@ -17,7 +18,7 @@ export function proxy<T>({
 
   const rootForm = form
   const rootSchema = normalizeSchema(schema)
-  const rootWrapper: any = {}
+  const rootWrapper: any = isArray(rootForm) ? [] : {}
 
   return {
     proxiedForm: dettoProxy({
