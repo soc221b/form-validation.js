@@ -2,17 +2,15 @@ import { Validator, VALIDATOR_KEY } from '../validator'
 import { recursiveCallChildren } from './util'
 
 const createValidate = (originalValidate: Function) =>
-  function doValidate(this: Validator) {
-    const promises: any[] = []
+  function validate(this: Validator) {
     recursiveCallChildren({
       validator: this,
       callback: childWrapper => {
-        promises.push(originalValidate.call(childWrapper[VALIDATOR_KEY]))
+        originalValidate.call(childWrapper[VALIDATOR_KEY])
         return false
       },
       shouldCallSelf: true,
     })
-    return Promise.all(promises)
   }
 
 export default class RecursiveValidatePlugin {
@@ -21,6 +19,6 @@ export default class RecursiveValidatePlugin {
   apply(validator: Validator) {
     if (this.applied) return
     this.applied = true
-    validator.constructor.prototype.doValidate = createValidate(validator.constructor.prototype.doValidate)
+    validator.constructor.prototype.validate = createValidate(validator.constructor.prototype.validate)
   }
 }
