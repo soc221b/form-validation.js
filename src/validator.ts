@@ -132,7 +132,7 @@ class Validator {
       key: this.$path.length === 0 ? undefined : this.$path[this.$path.length],
       parent: this.$path.length === 0 ? undefined : this.getForm(this.$path.slice(0, -1)),
       path: this.$path.slice(),
-      root: this.$rootWrapper,
+      root: this.$rootForm,
       params: schema.$params,
     }
 

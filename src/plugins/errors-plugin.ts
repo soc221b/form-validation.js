@@ -28,7 +28,7 @@ const update = (validator: Validator, ruleKey: string) => {
     key: validator.$path.length === 0 ? undefined : validator.$path[validator.$path.length],
     parent: validator.$path.length === 0 ? undefined : validator.getForm(validator.$path.slice(0, -1)),
     path: validator.$path.slice(),
-    root: validator.$rootWrapper,
+    root: validator.$rootForm,
     params: schema.$params,
   }
 
