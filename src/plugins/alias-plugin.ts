@@ -5,6 +5,11 @@ interface Alias {
   aliasPath: string[]
 }
 
+const Tap = {
+  name: 'alias-plugin',
+  stage: -999,
+}
+
 export default class AliasPlugin {
   aliases: Alias[]
 
@@ -13,13 +18,8 @@ export default class AliasPlugin {
   }
 
   apply(validator: Validator) {
-    validator.$hooks.onCreated.tap(
-      {
-        name: 'alias-plugin',
-        stage: -999,
-      },
-      () => this.alias(validator.getWrapper(validator.$path)),
-    )
+    validator.$hooks.onCreated.tap(Tap, () => this.alias(validator.getWrapper(validator.$path)))
+    validator.$hooks.onUpdated.tap(Tap, () => this.alias(validator.getWrapper(validator.$path)))
   }
 
   alias(this: AliasPlugin, validationWrapper: ValidationWrapper) {
