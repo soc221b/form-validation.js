@@ -59,7 +59,7 @@
     }
   },
   "dependencies": {
-    "detto": "^1.0.3",
+    "detto": "^1.0.4",
     "tapable": "^1.1.3"
   }
 }

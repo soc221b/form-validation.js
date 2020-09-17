@@ -1478,10 +1478,10 @@ detect-newline@^3.0.0:
   resolved "https://registry.yarnpkg.com/detect-newline/-/detect-newline-3.1.0.tgz#576f5dfc63ae1a192ff192d8ad3af6308991b651"
   integrity sha512-TLz+x/vEXm/Y7P7wn1EJFNLxYpUD4TgMosxY6fAVJUnJMbupHBOncxyWUG9OpTaH9EBD7uFI5LfEgmMOc54DsA==
 
-detto@^1.0.3:
-  version "1.0.3"
-  resolved "https://registry.yarnpkg.com/detto/-/detto-1.0.3.tgz#26a20ea1d80ad5e56bc6c0c3890adae75383df0c"
-  integrity sha512-TKEwoIA+aQDi2wfwJP14tai+uwM7Hrltf3gcqZrmNEM+b4uWizA4SkOr3+DoJvDV1IYzK3enneXIPQgrc4rSgA==
+detto@^1.0.4:
+  version "1.0.4"
+  resolved "https://registry.yarnpkg.com/detto/-/detto-1.0.4.tgz#038b0bd3690a137d6beb2cea4c59dc6b163e87ff"
+  integrity sha512-/7P/Qul7jOQDjHaQE92t6IFZ1b59s9mCNxVS8MpfXQPEBjDKJCuZS1CVPyqX04d+AUDmMamQ+0Ptz70rUB4qKw==
 
 diff-sequences@^25.2.6:
   version "25.2.6"
