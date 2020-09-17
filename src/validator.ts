@@ -100,7 +100,6 @@ class Validator {
       if (isPromise(ruleResults[ruleKey])) {
         ruleResults[ruleKey].finally(() => {
           if (this.$lastRuleResults !== ruleResults) return
-
           this.$hooks.onValidatedEach.call(this, ruleKey)
         })
       } else {
@@ -145,7 +144,7 @@ class Validator {
       if (isPromise(ruleResults[ruleKey])) {
         ;(ruleResults[ruleKey] as Promise<any>).finally(async () => {
           if (this.$lastRuleResults !== ruleResults) return
-
+          ruleResults[ruleKey] = await ruleResults[ruleKey]
           this.$hooks.onDoValidatedEach.call(this, ruleKey)
         })
       } else {
