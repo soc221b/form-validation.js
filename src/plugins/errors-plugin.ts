@@ -1,4 +1,3 @@
-import { isPromise } from '../util'
 import { Validator } from '../validator'
 import { ErrorParam } from '../../type'
 import { log, time, timeEnd } from '../util'
