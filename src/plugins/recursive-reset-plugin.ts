@@ -1,8 +1,11 @@
+import { log, time, timeEnd } from '../util'
 import { Validator, VALIDATOR_KEY } from '../validator'
 import { recursiveCallChildren } from './util'
 
 const createReset = (originalReset: Function) =>
   function reset(this: Validator) {
+    log('reset', this)
+    time('reset')
     recursiveCallChildren({
       validator: this,
       callback: childWrapper => {
@@ -11,6 +14,7 @@ const createReset = (originalReset: Function) =>
       },
       shouldCallSelf: true,
     })
+    timeEnd('reset')
   }
 
 export default class RecursiveResetPlugin {

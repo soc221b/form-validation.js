@@ -1,3 +1,4 @@
+import { log, time, timeEnd } from '../util'
 import { ValidationWrapper, Validator, VALIDATOR_KEY } from '../validator'
 
 interface Alias {
@@ -23,6 +24,8 @@ export default class AliasPlugin {
   }
 
   alias(this: AliasPlugin, validationWrapper: ValidationWrapper) {
+    log('alias', this)
+    time('alias')
     const currentPath = validationWrapper[VALIDATOR_KEY]?.$path!
     for (const { path, aliasPath } of this.aliases) {
       const parentWrapper = validationWrapper[VALIDATOR_KEY]?.getWrapper(currentPath.concat(path.slice(0, -1)))
@@ -52,5 +55,6 @@ export default class AliasPlugin {
         },
       })
     }
+    timeEnd('alias')
   }
 }

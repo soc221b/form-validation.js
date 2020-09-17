@@ -2,7 +2,7 @@ import { proxy as dettoProxy } from 'detto'
 import { ValidationWrapper, Validator as OriginalValidator, VALIDATOR_KEY, Plugin } from './validator'
 import { Schema } from '../type'
 import { normalizeSchema } from './schema'
-import { isArray } from './util'
+import { isArray, log, time, timeEnd } from './util'
 
 export function proxy<T>({
   form,
@@ -25,12 +25,15 @@ export function proxy<T>({
       object: form,
       detto: rootWrapper as T,
       callback: (wrapper: ValidationWrapper) => {
+        log('wrapper callback')
+        time('wrapper callback')
         if (wrapper[VALIDATOR_KEY] === undefined) {
           wrapper[VALIDATOR_KEY] = new Validator(rootForm, rootWrapper, rootSchema, wrapper, plugins)
           wrapper[VALIDATOR_KEY]!.$hooks.onCreated.call(wrapper[VALIDATOR_KEY])
         } else {
           wrapper[VALIDATOR_KEY]!.$hooks.onUpdated.call(wrapper[VALIDATOR_KEY])
         }
+        timeEnd('wrapper callback')
       },
     }),
     validationWrapper: rootWrapper,

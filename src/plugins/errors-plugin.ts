@@ -1,6 +1,7 @@
 import { isPromise } from '../util'
 import { Validator } from '../validator'
 import { ErrorParam } from '../../type'
+import { log, time, timeEnd } from '../util'
 
 declare module '../validator' {
   interface States {
@@ -15,6 +16,8 @@ const init = (validator: Validator) => {
 }
 
 const update = (validator: Validator) => {
+  log('errors', validator)
+  time('errors')
   const ruleResult = validator.$lastRuleResults
 
   if (ruleResult === undefined) return
@@ -34,6 +37,7 @@ const update = (validator: Validator) => {
   for (const ruleKey of Object.keys(ruleResult)) {
     validator.$states.errors[ruleKey] = schema.$messages[ruleKey](errorParam)
   }
+  timeEnd('errors')
 }
 
 const Tap = {

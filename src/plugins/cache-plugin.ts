@@ -1,5 +1,5 @@
 import { Validator } from '../validator'
-import { getByPath } from '../util'
+import { getByPath, log, time, timeEnd } from '../util'
 import { getSchema as doGetSchema } from '../schema'
 
 const caches: WeakMap<any, Cache> = new WeakMap()
@@ -57,6 +57,8 @@ function getSchema(this: Validator, path: string[]) {
 }
 
 function clearCache(this: Validator) {
+  log('clearCache', this)
+  time('clearCache')
   const cache = caches.get(this.$rootForm)!
   const pathKey = this.$path.join('.')
   for (const existingPathKey of Array.from(cache.$rootForm.keys())) {
@@ -69,6 +71,7 @@ function clearCache(this: Validator) {
       cache.$rootWrapper.delete(existingPathKey)
     }
   }
+  timeEnd('clearCache')
 }
 
 const Tap = {

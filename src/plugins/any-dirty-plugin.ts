@@ -1,4 +1,4 @@
-import { hasOwnKey, getOwnKeys, isPlainObject, isArray } from '../util'
+import { hasOwnKey, getOwnKeys, isPlainObject, isArray, time, timeEnd, log } from '../util'
 import { Validator, VALIDATOR_KEY } from '../validator'
 import { recursiveCallParent } from './util'
 
@@ -32,6 +32,8 @@ const init = (validator: Validator) => {
 }
 
 const update = (validator: Validator) => {
+  log('any-dirty', validator)
+  time('any-dirty')
   recursiveCallParent({
     validator: validator,
     callback: parentWrapper => {
@@ -52,6 +54,7 @@ const update = (validator: Validator) => {
     },
     shouldCallSelf: true,
   })
+  timeEnd('any-dirty')
 }
 
 export default class AnyDirtyPlugin {

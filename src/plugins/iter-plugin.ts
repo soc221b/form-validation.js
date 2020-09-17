@@ -1,4 +1,4 @@
-import { isArray } from '../util'
+import { isArray, log, time, timeEnd } from '../util'
 import { Validator } from '../validator'
 
 declare module '../validator' {
@@ -8,6 +8,8 @@ declare module '../validator' {
 }
 
 const setIter = (validator: Validator) => {
+  log('setIter', validator)
+  time('setIter')
   const path = validator.$path
   if (path.length === 0) return
 
@@ -22,6 +24,7 @@ const setIter = (validator: Validator) => {
   }
 
   parentWrapper.$iter[key] = parentWrapper[key]
+  timeEnd('setIter')
 }
 
 const Tap = {

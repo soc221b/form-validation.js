@@ -1,4 +1,4 @@
-import { hasOwnKey, getOwnKeys, isPlainObject, isArray } from '../util'
+import { hasOwnKey, getOwnKeys, isPlainObject, isArray, timeEnd, log, time } from '../util'
 import { Validator, VALIDATOR_KEY } from '../validator'
 import { recursiveCallParent } from './util'
 
@@ -32,6 +32,8 @@ const init = (validator: Validator) => {
 }
 
 const update = (validator: Validator) => {
+  log('any-invalid', validator)
+  time('any-invalid')
   recursiveCallParent({
     validator: validator,
     callback: parentWrapper => {
@@ -52,6 +54,7 @@ const update = (validator: Validator) => {
     },
     shouldCallSelf: true,
   })
+  timeEnd('any-invalid')
 }
 
 const Tap = {

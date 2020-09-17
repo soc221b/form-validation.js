@@ -84,3 +84,22 @@ type Args = any[]
 export function curry(fn: Fn, ...args1: Args): any {
   return fn.length === args1.length ? fn(...args1) : (...args2: Args) => curry(fn, ...args1, ...args2)
 }
+
+// for debug
+export function log(id: string, ...messages: any) {
+  if (__DEV__) {
+    console.log(id, ...messages)
+  }
+}
+
+export function time(id: string) {
+  if (__DEV__) {
+    console.time(id)
+  }
+}
+
+export function timeEnd(id: string) {
+  if (__DEV__) {
+    console.timeEnd(id)
+  }
+}

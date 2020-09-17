@@ -1,5 +1,5 @@
 import { Validator, ValidationWrapper, VALIDATOR_KEY } from '../validator'
-import { isArray, isPlainObject, getOwnKeys } from '../util'
+import { isArray, isPlainObject, getOwnKeys, log, time, timeEnd } from '../util'
 
 export const recursiveCallParent = ({
   validator,
@@ -39,16 +39,24 @@ export const recursiveCallChildren = ({
   callback: (childWrapper: Required<ValidationWrapper>) => boolean
   shouldCallSelf?: boolean
 }) => {
+  log('recursiveCallChildren getWrapper')
+  time('recursiveCallChildren getWrapper')
   const wrapper: ValidationWrapper = validator.getWrapper(validator.$path)
+  timeEnd('recursiveCallChildren getWrapper')
 
   let currentValidators: Validator[] = [wrapper[VALIDATOR_KEY] as Validator]
   let childValidators: Validator[] = []
 
   if (shouldCallSelf) {
+    log('recursiveCallChildren self')
+    time('recursiveCallChildren self')
     callback(wrapper as Required<ValidationWrapper>)
+    timeEnd('recursiveCallChildren self')
   }
 
   while (currentValidators.length) {
+    log('recursiveCallChildren')
+    time('recursiveCallChildren')
     const validator: Validator = currentValidators.pop() as Validator
     const form: any = validator.getForm(validator.$path)
     const wrapper: ValidationWrapper = validator.getWrapper(validator.$path)
@@ -57,7 +65,10 @@ export const recursiveCallChildren = ({
         const childWrapper: ValidationWrapper = wrapper[key]
         if (childWrapper === undefined) continue
         if (childWrapper[VALIDATOR_KEY] === undefined) continue
-        if (callback(childWrapper as Required<ValidationWrapper>)) return
+        if (callback(childWrapper as Required<ValidationWrapper>)) {
+          timeEnd('recursiveCallChildren')
+          return
+        }
         childValidators.push(childWrapper[VALIDATOR_KEY] as Validator)
       }
     }
@@ -66,5 +77,6 @@ export const recursiveCallChildren = ({
       currentValidators = childValidators.reverse()
       childValidators = []
     }
+    timeEnd('recursiveCallChildren')
   }
 }

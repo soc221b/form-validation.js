@@ -1,4 +1,4 @@
-import { getByPath, getOwnKeys, isPromise } from './util'
+import { getByPath, getOwnKeys, isPromise, log, time, timeEnd } from './util'
 import { getSchema } from './schema'
 import { Schema, Param } from '../type'
 import Tapable from 'tapable'
@@ -81,13 +81,19 @@ class Validator {
   }
 
   validate(this: Validator): any {
+    log('getSchema', this)
+    time('getSchema')
     const schema = this.getSchema(this.$path)
     if (schema.$noSchemaSpecified === false) {
+      timeEnd('getSchema')
       return
     }
+    timeEnd('getSchema')
 
     this.$hooks.onBeforeValidate.call(this)
 
+    log('do validate', this)
+    time('do validate')
     const param: Param = {
       value: this.getForm(this.$path),
       key: this.$path.length === 0 ? undefined : this.$path[this.$path.length - 1],
@@ -113,6 +119,7 @@ class Validator {
         this.$hooks.onValidatedEach.call(this, ruleKey)
       }
     }
+    timeEnd('do validate')
 
     if (Object.values(ruleResults).some(isPromise)) {
       Promise.all(Object.values(ruleResults)).then(() => {

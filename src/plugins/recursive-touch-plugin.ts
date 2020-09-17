@@ -1,8 +1,11 @@
+import { log, time, timeEnd } from '../util'
 import { Validator, VALIDATOR_KEY } from '../validator'
 import { recursiveCallChildren } from './util'
 
 const createTouch = (originalTouch: Function) =>
   function touch(this: Validator) {
+    log('touch', this)
+    time('touch')
     recursiveCallChildren({
       validator: this,
       callback: childWrapper => {
@@ -11,6 +14,7 @@ const createTouch = (originalTouch: Function) =>
       },
       shouldCallSelf: true,
     })
+    timeEnd('touch')
   }
 
 export default class RecursiveTouchPlugin {
