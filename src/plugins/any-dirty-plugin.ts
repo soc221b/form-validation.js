@@ -1,4 +1,4 @@
-import { hasOwnKey, getOwnKeys } from '../util'
+import { hasOwnKey, getOwnKeys, isPlainObject, isArray } from '../util'
 import { Validator, VALIDATOR_KEY } from '../validator'
 import { recursiveCallParent } from './util'
 
@@ -17,7 +17,7 @@ const init = (validator: Validator) => {
       parentValidator.$states.anyDirty =
         parentValidator.$states.dirty === true ||
         getOwnKeys(parentForm)
-          .filter((key: string) => hasOwnKey(parentWrapper, key))
+          .filter((key: string) => isPlainObject(parentWrapper[key]) || isArray(parentWrapper[key]))
           .filter((key: string) => hasOwnKey(parentWrapper[key], VALIDATOR_KEY))
           .map((key: string) => parentWrapper[key][VALIDATOR_KEY])
           .some(
@@ -40,7 +40,7 @@ const update = (validator: Validator) => {
       parentValidator.$states.anyDirty =
         parentValidator.$states.dirty === true ||
         getOwnKeys(parentForm)
-          .filter((key: string) => hasOwnKey(parentWrapper, key))
+          .filter((key: string) => isPlainObject(parentWrapper[key]) || isArray(parentWrapper[key]))
           .filter((key: string) => hasOwnKey(parentWrapper[key], VALIDATOR_KEY))
           .map((key: string) => parentWrapper[key][VALIDATOR_KEY])
           .some(
