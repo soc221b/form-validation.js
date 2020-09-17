@@ -14,12 +14,8 @@ const init = (validator: Validator) => {
   validator.$states.errors = {}
 }
 
-const update = (validator: Validator, ruleKey: string) => {
-  const ruleResult = validator.$lastRuleResults[ruleKey]
-  if (isPromise(ruleResult)) {
-    delete validator.$states.errors[ruleKey]
-    return
-  }
+const update = (validator: Validator) => {
+  const ruleResult = validator.$lastRuleResults
 
   if (ruleResult === undefined) return
   const schema = validator.getSchema(validator.$path)
@@ -31,13 +27,13 @@ const update = (validator: Validator, ruleKey: string) => {
     root: validator.$rootForm,
     params: {
       ...schema.$params,
-      $rules: {
-        [ruleKey]: ruleResult,
-      },
+      $rules: ruleResult,
     },
   }
 
-  validator.$states.errors[ruleKey] = schema.$messages[ruleKey](errorParam)
+  for (const ruleKey of Object.keys(ruleResult)) {
+    validator.$states.errors[ruleKey] = schema.$messages[ruleKey](errorParam)
+  }
 }
 
 const Tap = {

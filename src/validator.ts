@@ -81,13 +81,12 @@ class Validator {
   }
 
   validate(this: Validator): any {
-    this.$hooks.onBeforeValidate.call(this)
-
     const schema = this.getSchema(this.$path)
     if (schema.$noSchemaSpecified === false) {
-      this.$hooks.onValidated.call(this)
       return
     }
+
+    this.$hooks.onBeforeValidate.call(this)
 
     const param: Param = {
       value: this.getForm(this.$path),
