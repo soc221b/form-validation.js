@@ -37,7 +37,7 @@ const update = (validator: Validator, ruleKey: string) => {
     },
   }
 
-  validator.$states.errors[ruleKey] = schema.$errors[ruleKey](errorParam)
+  validator.$states.errors[ruleKey] = schema.$messages[ruleKey](errorParam)
 }
 
 const Tap = {
