@@ -109,6 +109,7 @@ class Validator {
 
     if (Object.values(ruleResults).some(isPromise)) {
       return Promise.all(Object.values(ruleResults)).then(() => {
+        if (this.$lastRuleResults !== ruleResults) return
         this.$hooks.onValidated.call(this)
       })
     } else {
@@ -153,7 +154,10 @@ class Validator {
     }
 
     if (Object.values(ruleResults).some(isPromise)) {
-      Promise.all(Object.values(ruleResults)).then(() => this.$hooks.onDoValidated.call(this))
+      Promise.all(Object.values(ruleResults)).then(() => {
+        if (this.$lastRuleResults !== ruleResults) return
+        this.$hooks.onDoValidated.call(this)
+      })
     } else {
       this.$hooks.onDoValidated.call(this)
     }
