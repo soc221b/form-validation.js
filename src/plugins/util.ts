@@ -36,7 +36,7 @@ export const recursiveCallChildren = ({
   shouldCallSelf = false,
 }: {
   validator: Validator
-  callback: (parentWrapper: Required<ValidationWrapper>) => boolean
+  callback: (childWrapper: Required<ValidationWrapper>) => boolean
   shouldCallSelf?: boolean
 }) => {
   const wrapper: ValidationWrapper = validator.getWrapper(validator.$path)
