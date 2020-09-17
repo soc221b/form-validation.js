@@ -31,7 +31,7 @@ formats.forEach(format => {
     builtIn(),
     ts(),
     replace({
-      __DEV__: true,
+      __DEV__: false,
     }),
     resolve(),
     globals(),
