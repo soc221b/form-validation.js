@@ -33,7 +33,7 @@ export default class AliasPlugin {
         currentPath.concat(aliasPath.slice(0, -1)),
       )
       const aliasKey = aliasPath[aliasPath.length - 1]
-      aliasParentWrapper[aliasKey] = lastValue
+      aliasParentWrapper[aliasKey] = typeof lastValue === 'function' ? lastValue.bind(parentWrapper) : lastValue
 
       Object.defineProperty(parentWrapper, key, {
         configurable: true,
@@ -45,7 +45,7 @@ export default class AliasPlugin {
           )
           const aliasKey = aliasPath[aliasPath.length - 1]
           aliasParentWrapper[aliasKey] = lastValue
-          return lastValue
+          return typeof lastValue === 'function' ? lastValue.bind(parentWrapper) : lastValue
         },
         get() {
           return lastValue
