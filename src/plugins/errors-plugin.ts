@@ -47,6 +47,6 @@ const Tap = {
 export default class ErrorPlugin {
   apply(validator: Validator) {
     validator.$hooks.onCreated.tap(Tap, init)
-    validator.$hooks.onValidatedEach.tap(Tap, update)
+    validator.$hooks.onValidated.tap(Tap, update)
   }
 }
