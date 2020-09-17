@@ -58,10 +58,10 @@ export default class AnyErrorPlugin {
   apply(validator: Validator) {
     validator.$hooks.onCreated.tap('any-error-plugin', init)
 
-    validator.$hooks.onDoTouched.tap('any-error-plugin', update)
+    validator.$hooks.onTouched.tap('any-error-plugin', update)
 
-    validator.$hooks.onDoValidatedEach.tap('any-error-plugin', update)
+    validator.$hooks.onValidatedEach.tap('any-error-plugin', update)
 
-    validator.$hooks.onDoReseted.tap('any-error-plugin', update)
+    validator.$hooks.onReseted.tap('any-error-plugin', update)
   }
 }

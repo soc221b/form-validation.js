@@ -16,15 +16,10 @@ export interface Hooks {
   onCreated: any
   onUpdated: any
   onBeforeValidate: any
-  onDoBeforeValidate: any
   onValidated: any
-  onDoValidated: any
   onValidatedEach: any
-  onDoValidatedEach: any
   onBeforeReset: any
-  onDoBeforeReset: any
   onReseted: any
-  onDoReseted: any
 }
 
 export type Plugin =
@@ -68,15 +63,10 @@ class Validator {
       onCreated: new Tapable.SyncHook(['validator']),
       onUpdated: new Tapable.SyncHook(['validator']),
       onBeforeValidate: new Tapable.SyncHook(['validator']),
-      onDoBeforeValidate: new Tapable.SyncHook(['validator']),
       onValidated: new Tapable.SyncHook(['validator']),
-      onDoValidated: new Tapable.SyncHook(['validator']),
       onValidatedEach: new Tapable.SyncHook(['validator', 'ruleKey']),
-      onDoValidatedEach: new Tapable.SyncHook(['validator', 'ruleKey']),
       onBeforeReset: new Tapable.SyncHook(['validator']),
-      onDoBeforeReset: new Tapable.SyncHook(['validator']),
       onReseted: new Tapable.SyncHook(['validator']),
-      onDoReseted: new Tapable.SyncHook(['validator']),
     }
 
     if (plugins) {
@@ -93,37 +83,9 @@ class Validator {
   validate(this: Validator): any {
     this.$hooks.onBeforeValidate.call(this)
 
-    this.doValidate()
-
-    const ruleResults = this.$lastRuleResults
-    for (const ruleKey of getOwnKeys(ruleResults)) {
-      if (isPromise(ruleResults[ruleKey])) {
-        ruleResults[ruleKey].finally(() => {
-          if (this.$lastRuleResults !== ruleResults) return
-          this.$hooks.onValidatedEach.call(this, ruleKey)
-        })
-      } else {
-        this.$hooks.onValidatedEach.call(this, ruleKey)
-      }
-    }
-
-    if (Object.values(ruleResults).some(isPromise)) {
-      return Promise.all(Object.values(ruleResults)).then(() => {
-        if (this.$lastRuleResults !== ruleResults) return
-        this.$hooks.onValidated.call(this)
-      })
-    } else {
-      this.$hooks.onValidated.call(this)
-      return
-    }
-  }
-
-  doValidate(this: Validator): any {
-    this.$hooks.onDoBeforeValidate.call(this)
-
     const schema = this.getSchema(this.$path)
     if (schema.$noSchemaSpecified === false) {
-      this.$hooks.onDoValidated.call(this)
+      this.$hooks.onValidated.call(this)
       return
     }
 
@@ -146,37 +108,29 @@ class Validator {
         ;(ruleResults[ruleKey] as Promise<any>).finally(async () => {
           if (this.$lastRuleResults !== ruleResults) return
           ruleResults[ruleKey] = await ruleResults[ruleKey]
-          this.$hooks.onDoValidatedEach.call(this, ruleKey)
+          this.$hooks.onValidatedEach.call(this, ruleKey)
         })
       } else {
-        this.$hooks.onDoValidatedEach.call(this, ruleKey)
+        this.$hooks.onValidatedEach.call(this, ruleKey)
       }
     }
 
     if (Object.values(ruleResults).some(isPromise)) {
       Promise.all(Object.values(ruleResults)).then(() => {
         if (this.$lastRuleResults !== ruleResults) return
-        this.$hooks.onDoValidated.call(this)
+        this.$hooks.onValidated.call(this)
       })
     } else {
-      this.$hooks.onDoValidated.call(this)
+      this.$hooks.onValidated.call(this)
     }
   }
 
   reset(this: Validator): any {
     this.$hooks.onBeforeReset.call(this)
 
-    this.doReset()
-
-    this.$hooks.onReseted.call(this)
-  }
-
-  doReset(this: Validator): any {
-    this.$hooks.onDoBeforeReset.call(this)
-
     this.$lastRuleResults = {}
 
-    this.$hooks.onDoReseted.call(this)
+    this.$hooks.onReseted.call(this)
   }
 
   getWrapper(path: string[]): any {

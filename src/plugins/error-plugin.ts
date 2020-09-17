@@ -28,10 +28,10 @@ export default class ErrorPlugin {
   apply(validator: Validator) {
     validator.$hooks.onCreated.tap(Tap, inactive)
 
-    validator.$hooks.onDoTouched.tap(Tap, update)
+    validator.$hooks.onTouched.tap(Tap, update)
 
-    validator.$hooks.onDoValidatedEach.tap(Tap, update)
+    validator.$hooks.onValidatedEach.tap(Tap, update)
 
-    validator.$hooks.onDoReseted.tap(Tap, inactive)
+    validator.$hooks.onReseted.tap(Tap, inactive)
   }
 }

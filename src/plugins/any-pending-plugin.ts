@@ -58,10 +58,10 @@ export default class AnyPendingPlugin {
   apply(validator: Validator) {
     validator.$hooks.onCreated.tap('any-pending-plugin', init)
 
-    validator.$hooks.onDoBeforeValidate.tap('any-pending-plugin', update)
+    validator.$hooks.onBeforeValidate.tap('any-pending-plugin', update)
 
-    validator.$hooks.onDoValidated.tap('any-pending-plugin', update)
+    validator.$hooks.onValidated.tap('any-pending-plugin', update)
 
-    validator.$hooks.onDoReseted.tap('any-pending-plugin', update)
+    validator.$hooks.onReseted.tap('any-pending-plugin', update)
   }
 }

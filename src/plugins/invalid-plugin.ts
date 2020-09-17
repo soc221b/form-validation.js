@@ -26,10 +26,10 @@ export default class InvalidPlugin {
   apply(validator: Validator) {
     validator.$hooks.onCreated.tap(Tap, inactive)
 
-    validator.$hooks.onDoBeforeValidate.tap(Tap, inactive)
+    validator.$hooks.onBeforeValidate.tap(Tap, inactive)
 
-    validator.$hooks.onDoValidatedEach.tap(Tap, update)
+    validator.$hooks.onValidatedEach.tap(Tap, update)
 
-    validator.$hooks.onDoReseted.tap(Tap, inactive)
+    validator.$hooks.onReseted.tap(Tap, inactive)
   }
 }

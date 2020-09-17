@@ -23,8 +23,8 @@ export default class DirtyPlugin {
   apply(validator: Validator) {
     validator.$hooks.onCreated.tap(Tap, inactive)
 
-    validator.$hooks.onDoTouched.tap(Tap, active)
+    validator.$hooks.onTouched.tap(Tap, active)
 
-    validator.$hooks.onDoReseted.tap(Tap, inactive)
+    validator.$hooks.onReseted.tap(Tap, inactive)
   }
 }

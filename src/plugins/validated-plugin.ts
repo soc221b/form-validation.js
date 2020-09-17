@@ -18,8 +18,8 @@ export default class ValidatedPlugin {
   apply(validator: Validator) {
     validator.$hooks.onCreated.tap('validated-plugin', inactive)
 
-    validator.$hooks.onDoBeforeValidate.tap('validated-plugin', active)
+    validator.$hooks.onBeforeValidate.tap('validated-plugin', active)
 
-    validator.$hooks.onDoReseted.tap('validated-plugin', inactive)
+    validator.$hooks.onReseted.tap('validated-plugin', inactive)
   }
 }

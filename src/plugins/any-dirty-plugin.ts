@@ -58,8 +58,8 @@ export default class AnyDirtyPlugin {
   apply(validator: Validator) {
     validator.$hooks.onCreated.tap('any-dirty-plugin', init)
 
-    validator.$hooks.onDoTouched.tap('any-dirty-plugin', update)
+    validator.$hooks.onTouched.tap('any-dirty-plugin', update)
 
-    validator.$hooks.onDoReseted.tap('any-dirty-plugin', update)
+    validator.$hooks.onReseted.tap('any-dirty-plugin', update)
   }
 }

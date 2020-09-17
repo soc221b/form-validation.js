@@ -23,10 +23,10 @@ export default class PendingPlugin {
   apply(validator: Validator) {
     validator.$hooks.onCreated.tap(Tap, inactive)
 
-    validator.$hooks.onDoBeforeValidate.tap(Tap, active)
+    validator.$hooks.onBeforeValidate.tap(Tap, active)
 
-    validator.$hooks.onDoValidated.tap(Tap, inactive)
+    validator.$hooks.onValidated.tap(Tap, inactive)
 
-    validator.$hooks.onDoReseted.tap(Tap, inactive)
+    validator.$hooks.onReseted.tap(Tap, inactive)
   }
 }
