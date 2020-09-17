@@ -129,7 +129,7 @@ class Validator {
 
     const param: Param = {
       value: this.getForm(this.$path),
-      key: this.$path.length === 0 ? undefined : this.$path[this.$path.length],
+      key: this.$path.length === 0 ? undefined : this.$path[this.$path.length - 1],
       parent: this.$path.length === 0 ? undefined : this.getForm(this.$path.slice(0, -1)),
       path: this.$path.slice(),
       root: this.$rootForm,

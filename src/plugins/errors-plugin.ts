@@ -25,7 +25,7 @@ const update = (validator: Validator, ruleKey: string) => {
   const schema = validator.getSchema(validator.$path)
   const errorParam: ErrorParam = {
     value: validator.getForm(validator.$path),
-    key: validator.$path.length === 0 ? undefined : validator.$path[validator.$path.length],
+    key: validator.$path.length === 0 ? undefined : validator.$path[validator.$path.length - 1],
     parent: validator.$path.length === 0 ? undefined : validator.getForm(validator.$path.slice(0, -1)),
     path: validator.$path.slice(),
     root: validator.$rootForm,
