@@ -1,5 +1,5 @@
 import { Param, Schema } from '../type'
-import { getByPath, getOwnKeys, hasOwnKey, noop } from './util'
+import { getByPathWithFallback, getOwnKeys, hasOwnKey, noop } from './util'
 
 // TODO: performance impact
 export const normalizeSchema = (schema: Partial<Schema>): Schema => {
@@ -46,9 +46,7 @@ const _getSchema = ({
   let schema: Schema | null = null
 
   if (startIndex === path.length) {
-    try {
-      schema = getByPath(rootSchema, path)
-    } catch (error) {}
+    schema = getByPathWithFallback(rootSchema, path, null)
 
     if (schema && schema.$rules) return schema
 

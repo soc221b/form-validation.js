@@ -54,6 +54,18 @@ export function deepCopy<T>(object: T, cache: Cache<T>[] = []): T {
   return copy as T
 }
 
+export function getByPathWithFallback(object: object | any[], path: string[], fallback: any) {
+  if (path.length === 0) return object
+
+  let deepestParent: any = object
+  for (const p of path.slice(0, -1)) {
+    deepestParent = deepestParent[p]
+    if (typeof deepestParent !== 'object' || deepestParent === null) return fallback
+  }
+
+  return deepestParent[path[path.length - 1]]
+}
+
 export function getByPath(object: object | any[], path: string[]) {
   if (path.length === 0) return object
 
