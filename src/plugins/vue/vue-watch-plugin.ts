@@ -22,6 +22,7 @@ const watch = (vm: any) =>
       parent: this.getForm(this.$path.slice(0, -1)),
       path: this.$path,
       root: this.$rootForm,
+      params: schema.$params,
     })
     for (const path of paths) {
       _watch(vm, this, path, 0)
