@@ -11,7 +11,7 @@ declare module '../../validator' {
   }
 }
 
-const watch = (vm: any) =>
+const watch = (vm: any, onValidated: boolean) =>
   function watch(this: Validator) {
     const schema = this.getSchema(this.$path)
     if (schema.$watch === undefined) return
@@ -25,11 +25,11 @@ const watch = (vm: any) =>
       params: schema.$params,
     })
     for (const path of paths) {
-      _watch(vm, this, path, 0)
+      _watch(vm, this, path, 0, onValidated)
     }
   }
 
-const _watch = async (vm: any, validator: Validator, path: string[], startIndex: number) => {
+const _watch = async (vm: any, validator: Validator, path: string[], startIndex: number, onValidated: boolean) => {
   if (startIndex === path.length) {
     if (path.join('.') === validator.$path.join('.')) return
 
@@ -39,6 +39,7 @@ const _watch = async (vm: any, validator: Validator, path: string[], startIndex:
       if (validator.$unwatches[path.join('.')]) return
       validator.$unwatches[path.join('.')] = vm.$watch(path.join('.'), () => {
         try {
+          if (onValidated && validator.$states.validated === false) return
           validator.$validate()
         } catch (error) {
           validator.$unwatches[path.join('.')]()
@@ -56,10 +57,10 @@ const _watch = async (vm: any, validator: Validator, path: string[], startIndex:
     for (const key of Object.keys(form)) {
       const path2 = path.slice()
       path2[startIndex] = key
-      _watch(vm, validator, path2, startIndex + 1)
+      _watch(vm, validator, path2, startIndex + 1, onValidated)
     }
   } else {
-    _watch(vm, validator, path, startIndex + 1)
+    _watch(vm, validator, path, startIndex + 1, onValidated)
   }
 }
 
@@ -81,13 +82,15 @@ export const Tap = {
 
 export default class VueWatchPlugin {
   vm: any
+  onValidated: boolean
   applied = false
 
-  constructor(vm: any) {
+  constructor(vm: any, onValidated: boolean = false) {
     this.vm = vm
+    this.onValidated = onValidated
   }
 
   apply(validator: Validator) {
-    validator.$hooks.onCreated.tap(Tap, watch(this.vm).bind(validator))
+    validator.$hooks.onCreated.tap(Tap, watch(this.vm, this.onValidated).bind(validator))
   }
 }
