@@ -41,7 +41,8 @@ const _watch = async (vm: any, validator: Validator, path: string[], startIndex:
         try {
           validator.validate()
         } catch (error) {
-          console.log(error)
+          validator.$unwatches[path.join('.')]()
+          delete validator.$unwatches[path.join('.')]
         }
       })
     })
