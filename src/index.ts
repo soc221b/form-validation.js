@@ -59,4 +59,5 @@ export { default as RecursiveValidatePlugin } from './plugins/recursive-validate
 export { default as TouchPlugin } from './plugins/touch-plugin'
 export { default as ValidatedPlugin } from './plugins/validated-plugin'
 export { default as AliasPlugin } from './plugins/alias-plugin'
+export { default as VueWatchPlugin } from './plugins/vue/vue-watch-plugin'
 export { recursiveCallChildren, recursiveCallParent } from './plugins/util'
