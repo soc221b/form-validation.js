@@ -3,14 +3,14 @@ import Tapable from 'tapable'
 
 declare module '../validator' {
   interface Validator {
-    touch(): void
+    $touch(): void
   }
   interface Hooks {
     onTouched: any
   }
 }
 
-function touch(this: Validator) {
+function $touch(this: Validator) {
   this.$hooks.onTouched.call(this)
 }
 
@@ -22,6 +22,6 @@ export default class TouchPlugin {
 
     if (this.applied) return
     this.applied = true
-    validator.constructor.prototype.touch = touch
+    validator.constructor.prototype.$touch = $touch
   }
 }

@@ -3,7 +3,7 @@ import { Validator, VALIDATOR_KEY } from '../validator'
 import { recursiveCallChildren } from './util'
 
 const createValidate = (originalValidate: Function) =>
-  function validate(this: Validator) {
+  function $validate(this: Validator) {
     log('validate', this.$path)
     time('validate')
     recursiveCallChildren({
@@ -26,6 +26,6 @@ export default class RecursiveValidatePlugin {
   apply(validator: Validator) {
     if (this.applied) return
     this.applied = true
-    validator.constructor.prototype.validate = createValidate(validator.constructor.prototype.validate)
+    validator.constructor.prototype.$validate = createValidate(validator.constructor.prototype.$validate)
   }
 }

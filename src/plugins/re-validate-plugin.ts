@@ -2,7 +2,7 @@ import { Validator } from '../validator'
 
 const reValidate = (validator: Validator) => {
   if (validator.$states.validated) {
-    validator.validate()
+    validator.$validate()
   }
 }
 

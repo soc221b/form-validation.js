@@ -3,7 +3,7 @@ import { Validator, VALIDATOR_KEY } from '../validator'
 import { recursiveCallChildren } from './util'
 
 const createReset = (originalReset: Function) =>
-  function reset(this: Validator) {
+  function $reset(this: Validator) {
     log('reset', this)
     time('reset')
     recursiveCallChildren({
@@ -23,6 +23,6 @@ export default class RecursiveResetPlugin {
   apply(validator: Validator) {
     if (this.applied) return
     this.applied = true
-    validator.constructor.prototype.reset = createReset(validator.constructor.prototype.reset)
+    validator.constructor.prototype.$reset = createReset(validator.constructor.prototype.$reset)
   }
 }

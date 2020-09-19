@@ -1,7 +1,7 @@
 import { Validator } from "../validator"
 
 const validateOnCreatedAndUpdated = (validator: Validator) => {
-  validator.validate()
+  validator.$validate()
 }
 
 const Tap = {

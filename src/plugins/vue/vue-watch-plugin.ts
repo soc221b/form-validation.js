@@ -39,7 +39,7 @@ const _watch = async (vm: any, validator: Validator, path: string[], startIndex:
       if (validator.$unwatches[path.join('.')]) return
       validator.$unwatches[path.join('.')] = vm.$watch(path.join('.'), () => {
         try {
-          validator.validate()
+          validator.$validate()
         } catch (error) {
           validator.$unwatches[path.join('.')]()
           delete validator.$unwatches[path.join('.')]

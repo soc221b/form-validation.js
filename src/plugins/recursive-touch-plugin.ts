@@ -3,7 +3,7 @@ import { Validator, VALIDATOR_KEY } from '../validator'
 import { recursiveCallChildren } from './util'
 
 const createTouch = (originalTouch: Function) =>
-  function touch(this: Validator) {
+  function $touch(this: Validator) {
     log('touch', this)
     time('touch')
     recursiveCallChildren({
@@ -23,6 +23,6 @@ export default class RecursiveTouchPlugin {
   apply(validator: Validator) {
     if (this.applied) return
     this.applied = true
-    validator.constructor.prototype.touch = createTouch(validator.constructor.prototype.touch)
+    validator.constructor.prototype.$touch = createTouch(validator.constructor.prototype.$touch)
   }
 }

@@ -80,7 +80,7 @@ class Validator {
     }
   }
 
-  validate(this: Validator): any {
+  $validate(this: Validator): any {
     log('getSchema', this)
     time('getSchema')
     const schema = this.getSchema(this.$path)
@@ -131,7 +131,7 @@ class Validator {
     }
   }
 
-  reset(this: Validator): any {
+  $reset(this: Validator): any {
     this.$hooks.onBeforeReset.call(this)
 
     this.$lastRuleResults = {}
