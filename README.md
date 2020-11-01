@@ -4,6 +4,7 @@
 [![CI](https://github.com/iendeavor/form-validation.js/workflows/CI/badge.svg)](https://github.com/iendeavor/form-validation.js/actions)
 [![Coverage Status](https://coveralls.io/repos/github/iendeavor/form-validation.js/badge.svg?branch=develop)](https://coveralls.io/github/iendeavor/form-validation.js?branch=develop)
 [![gzip](https://badgen.net/bundlephobia/minzip/form-validation.js)](https://bundlephobia.com/result?p=form-validation.js)
+[![HitCount](http://hits.dwyl.com/iendeavor/form-validationjs.svg)](http://hits.dwyl.com/iendeavor/form-validationjs)
 
 # Live Examples
 
