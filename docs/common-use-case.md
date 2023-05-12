@@ -56,12 +56,12 @@ const form = {
 const schema = {
   confirmPassword: {
     $params: {
-      sameAsField: ['password'],
+      sameAsFieldPath: ['password'],
       sameAsFieldName: 'Password',
     },
     $rules: {
       sameAs({ value, params, target }) {
-        const anotherValue = params.sameAsField.reduce((anotherValue, key) => anotherValue[key], target)
+        const anotherValue = params.sameAsFieldPath.reduce((anotherValue, key) => anotherValue[key], target)
         if (anotherValue !== value) {
           return 'Something went wrong'
         }
@@ -88,14 +88,14 @@ console.log(validator.confirmPassword.$v.errors.sameAs)
 
 ```javascript
 const form = {
-  ipWhiteList: ['8.8.8.8', '8.8.8.8'],
+  ipAllowList: ['8.8.8.8', '8.8.8.8'],
 }
 
 const schema = {
-  ipWhiteList: {
+  ipAllowList: {
     $iter: {
       $params: {
-        field: 'Ip',
+        fieldName: 'Ip',
       },
       $rule: {
         unique({ path, target }) {
@@ -103,14 +103,14 @@ const schema = {
           const parent = path.reduce((parent, key) => parent[key], target)
           for (const index in parent) {
             if (parent[selfIndex] === parent[index] && parseInt(index, 10) > selfIndex) {
-              return 'Something went wrong'
+              return false
             }
           }
         },
       },
       $errors: {
         unique({ params }) {
-          return `This ${params.field} is duplicated`
+          return `This ${params.fieldName} is duplicated`
         },
       },
     },
@@ -122,8 +122,8 @@ const validator = {}
 const proxiedForm = FormValidation.proxy({ form, schema, validator })
 
 validator.$validate()
-console.log(validator.ipWhiteList[0].$v.errors.unique)
+console.log(validator.ipAllowList[0].$v.errors.unique)
 // > undefined
-console.log(validator.ipWhiteList[1].$v.errors.unique)
+console.log(validator.ipAllowList[1].$v.errors.unique)
 // > This Ip is duplicated
 ```
